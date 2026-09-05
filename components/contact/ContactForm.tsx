@@ -132,7 +132,7 @@ export function ContactForm() {
                   required
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="Ayesha Khan"
+                  placeholder="Ahmed Khan"
                   className="w-full px-4 py-3 rounded-2xl bg-cream-100 border border-earth-300 text-earth-900 text-sm focus:outline-none focus:ring-2 focus:ring-farm-600"
                 />
               </div>
@@ -160,7 +160,7 @@ export function ContactForm() {
                 required
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                placeholder="ayesha@example.com"
+                placeholder="ahmed@example.com"
                 className="w-full px-4 py-3 rounded-2xl bg-cream-100 border border-earth-300 text-earth-900 text-sm focus:outline-none focus:ring-2 focus:ring-farm-600"
               />
             </div>

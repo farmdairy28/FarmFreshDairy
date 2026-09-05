@@ -422,7 +422,7 @@ export function CustomerReviews({
                   required
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
-                  placeholder="e.g. Ayesha Malik"
+                  placeholder="e.g. Tariq Ahmed"
                   className="w-full px-4 py-3 rounded-2xl bg-cream-100 border border-earth-300 text-earth-900 text-sm focus:outline-none focus:ring-2 focus:ring-farm-600"
                 />
               </div>

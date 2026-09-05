@@ -151,7 +151,7 @@ export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
                 required
                 value={formData.customer_name}
                 onChange={(e) => setFormData({ ...formData, customer_name: e.target.value })}
-                placeholder="Ayesha Khan"
+                placeholder="Ahmed Khan"
                 className="w-full px-4 py-3 rounded-2xl bg-cream-100 border border-earth-300 text-earth-900 text-sm focus:outline-none focus:ring-2 focus:ring-farm-600"
               />
             </div>
@@ -178,7 +178,7 @@ export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
               type="email"
               value={formData.customer_email}
               onChange={(e) => setFormData({ ...formData, customer_email: e.target.value })}
-              placeholder="ayesha@example.com (optional)"
+              placeholder="ahmed@example.com (optional)"
               className="w-full px-4 py-3 rounded-2xl bg-white border border-earth-300 text-earth-900 text-sm focus:outline-none focus:ring-2 focus:ring-farm-600"
             />
           </div>
