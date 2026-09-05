@@ -4,9 +4,9 @@ import React, { useState } from 'react';
 import { Settings, Save, CheckCircle2 } from 'lucide-react';
 
 export default function AdminSettingsPage() {
-  const [storeName, setStoreName] = useState('Pure Pastures Farm');
-  const [phone, setPhone] = useState('+92 (021) 111-787-332');
-  const [email, setEmail] = useState('fresh@purepasturesfarm.com');
+  const [storeName, setStoreName] = useState('Farm Fresh Dairy');
+  const [phone, setPhone] = useState('0310-9361932');
+  const [email, setEmail] = useState('farmfreshdairy28@gmail.com');
   const [currency, setCurrency] = useState('Rs.');
   const [saved, setSaved] = useState(false);
 

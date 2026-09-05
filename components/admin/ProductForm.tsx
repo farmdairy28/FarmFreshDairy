@@ -419,7 +419,7 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
             type="text"
             value={formData.seo_title || ''}
             onChange={(e) => setFormData({ ...formData, seo_title: e.target.value })}
-            placeholder="Fresh Farm Whole Milk - Pure Pastures"
+            placeholder="Fresh Farm Whole Milk - Farm Fresh Dairy"
             className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500"
           />
         </div>

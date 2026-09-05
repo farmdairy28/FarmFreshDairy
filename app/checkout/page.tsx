@@ -3,7 +3,7 @@ import { getDeliveryRegions } from '@/lib/supabase/api';
 import { CheckoutClient } from './checkout-client';
 
 export const metadata = {
-  title: 'Checkout — Pure Pastures Dairy',
+  title: 'Checkout — Farm Fresh Dairy',
   description: 'Complete your morning doorstep milk delivery order.',
 };
 

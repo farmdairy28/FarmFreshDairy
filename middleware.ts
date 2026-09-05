@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { isAuthorizedAdminEmail } from '@/lib/auth/admin-auth';
 
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({
@@ -67,6 +68,14 @@ export async function middleware(request: NextRequest) {
       const loginUrl = new URL('/admin/login', request.url);
       loginUrl.searchParams.set('redirect', lowerPath);
       return NextResponse.redirect(loginUrl);
+    }
+
+    // Verify admin authorization
+    const isAuthorized = isAuthorizedAdminEmail(user.email);
+    if (!isAuthorized) {
+      const unauthorizedUrl = new URL('/admin/login', request.url);
+      unauthorizedUrl.searchParams.set('error', 'unauthorized');
+      return NextResponse.redirect(unauthorizedUrl);
     }
   }
 

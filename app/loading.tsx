@@ -6,7 +6,7 @@ export default function Loading() {
       <div className="flex flex-col items-center gap-4">
         <div className="w-12 h-12 rounded-full border-4 border-farm-200 border-t-farm-700 animate-spin"></div>
         <span className="text-xs font-mono uppercase tracking-widest text-farm-800 font-semibold">
-          Loading Pure Pastures...
+          Loading Farm Fresh Dairy...
         </span>
       </div>
     </div>

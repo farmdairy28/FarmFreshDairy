@@ -69,7 +69,7 @@ export default async function AboutPage() {
             Why Honest Dairy Matters
           </h2>
           <p className="text-earth-700 leading-relaxed text-base">
-            Modern commercial dairy often prioritizes shelf-life extensions, heavy homogenizing, and synthetic fat adjustments over original taste and nutritional integrity. At Pure Pastures, we do things differently.
+            Modern commercial dairy often prioritizes shelf-life extensions, heavy homogenizing, and synthetic fat adjustments over original taste and nutritional integrity. At Farm Fresh Dairy, we do things differently.
           </p>
           <p className="text-earth-700 leading-relaxed text-base">
             Our cows are fed non-GMO forage, fresh green oats, and alfalfa grown on our own fields. They drink fresh well water and rest in well-ventilated, shaded pastures. Milking takes place in hygienic, touchless facilities, and the milk is immediately chilled to 4°C within 15 minutes.

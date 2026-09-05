@@ -11,7 +11,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   const product = await getProductBySlug(params.slug);
   if (!product) return { title: 'Product Not Found' };
   return {
-    title: `${product.name} — Pure Pastures Dairy Farm`,
+    title: `${product.name} — Farm Fresh Dairy`,
     description: product.short_description,
     openGraph: {
       title: product.name,

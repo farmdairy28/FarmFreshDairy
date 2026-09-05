@@ -50,10 +50,10 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       <aside className="hidden lg:flex w-64 flex-col bg-slate-900 text-slate-300 border-r border-slate-800 shrink-0">
         <div className="p-6 border-b border-slate-800 flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-emerald-500 text-slate-950 font-bold flex items-center justify-center font-serif text-base">
-            P
+            F
           </div>
           <div>
-            <div className="font-semibold text-white text-sm">Pure Pastures</div>
+            <div className="font-semibold text-white text-sm">Farm Fresh Dairy</div>
             <div className="text-[10px] font-mono text-slate-400">Admin Control Panel</div>
           </div>
         </div>
@@ -130,7 +130,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
           <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setSidebarOpen(false)} />
           <div className="relative w-64 bg-slate-900 text-slate-300 flex flex-col h-full z-10">
             <div className="p-5 border-b border-slate-800 flex items-center justify-between">
-              <div className="font-bold text-white text-sm">Pure Pastures Admin</div>
+              <div className="font-bold text-white text-sm">Farm Fresh Dairy Admin</div>
               <button onClick={() => setSidebarOpen(false)} className="text-slate-400">
                 <X className="w-5 h-5" />
               </button>

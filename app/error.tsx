@@ -24,7 +24,7 @@ export default function GlobalError({
 
         <div className="space-y-2">
           <span className="text-xs font-mono uppercase tracking-widest text-farm-700 font-bold">
-            Pure Pastures Farm Desk
+            Farm Fresh Dairy Desk
           </span>
           <h2 className="font-serif text-3xl font-bold text-earth-900">
             Something went wrong

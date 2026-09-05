@@ -13,7 +13,13 @@ function LoginForm() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState(urlError === 'missing_config' ? 'Supabase credentials are not configured.' : '');
+  const [error, setError] = useState(
+    urlError === 'missing_config'
+      ? 'Supabase credentials are not configured.'
+      : urlError === 'unauthorized'
+      ? 'Access denied: You do not have administrator permissions.'
+      : ''
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -66,7 +72,7 @@ function LoginForm() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@yourdomain.com"
+              placeholder="farmfreshdairy28@gmail.com"
               className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
             />
           </div>
