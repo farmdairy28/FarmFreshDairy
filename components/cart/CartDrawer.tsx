@@ -12,7 +12,7 @@ export function CartDrawer() {
   if (!isCartOpen) return null;
 
   const quickWhatsappUrl = `https://wa.me/923109361932?text=${encodeURIComponent(
-    `🥛 *QUICK ORDER - FARM FRESH DAIRY*\n━━━━━━━━━━━━━━━━━━━━\nI would like to order:\n${items.map((it, i) => `${i + 1}. *${it.product.name}* (Qty: ${it.quantity}) = Rs. ${it.product.price * it.quantity}`).join('\n')}\n━━━━━━━━━━━━━━━━━━━━\n💰 *Total:* Rs. ${cartSubtotal}\n🚚 *Delivery:* FREE (Shahzad Town & Islamabad)\n\nPlease confirm my morning delivery!`
+    `🥛 *QUICK ORDER - FARM FRESH DAIRY*\n━━━━━━━━━━━━━━━━━━━━\nI would like to order:\n${items.map((it, i) => `${i + 1}. *${it.product.name}* (Qty: ${it.quantity}) = Rs. ${it.product.price * it.quantity}`).join('\n')}\n━━━━━━━━━━━━━━━━━━━━\n💰 *Total:* Rs. ${cartSubtotal}\n🚚 *Delivery:* FREE (Shahzad Town & Islamabad)\n\nPlease confirm my delivery!`
   )}`;
 
   return (
@@ -141,7 +141,7 @@ export function CartDrawer() {
                   <span className="font-mono font-semibold">Rs. {cartSubtotal}</span>
                 </div>
                 <div className="flex justify-between text-earth-600">
-                  <span>Morning Delivery</span>
+                  <span>Doorstep Delivery</span>
                   <span className="font-mono text-emerald-600 font-bold uppercase text-xs">FREE</span>
                 </div>
                 <div className="flex justify-between font-serif font-bold text-lg text-earth-900 pt-2 border-t border-farm-200">

@@ -197,7 +197,7 @@ export function Header() {
                 Order Fresh Dairy (Rs. 250/L)
               </Link>
               <div className="text-center text-xs text-earth-500 font-mono">
-                Morning Chilled Delivery 6:00 AM - 9:00 AM
+                Morning &amp; Evening Chilled Delivery
               </div>
             </div>
           </div>

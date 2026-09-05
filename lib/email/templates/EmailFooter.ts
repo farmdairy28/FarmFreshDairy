@@ -9,7 +9,7 @@ export function renderEmailFooter(): string {
           <p style="margin: 0 0 12px 0; font-size: 12px; color: #5B6B64; line-height: 1.6;">
             📞 Hotline & WhatsApp: <strong style="color: #1B4D3E;">0310-9361932</strong><br />
             📧 Support: <strong style="color: #1B4D3E;">farmfreshdairy28@gmail.com</strong><br />
-            📍 Daily Morning Deliveries: Shahzad Town & Islamabad (6:00 AM - 9:00 AM)
+            📍 Daily Morning & Evening Deliveries: Shahzad Town & Islamabad
           </p>
           <p style="margin: 0; font-size: 11px; color: #8F9E97;">
             100% Pure Raw Cow Milk & Artisanal Dairy • Zero Preservatives • Direct from Farm

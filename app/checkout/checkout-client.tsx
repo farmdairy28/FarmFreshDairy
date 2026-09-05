@@ -9,8 +9,6 @@ import { useCart } from '@/lib/context/cart-context';
 import { DeliveryRegion, Order } from '@/lib/types';
 import { submitOrderAction } from '@/app/actions/orders';
 
-const DELIVERY_TIMING = 'Morning 6:00 AM - 9:00 AM';
-
 export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
   const router = useRouter();
   const { items, cartSubtotal, clearCart } = useCart();
@@ -22,6 +20,7 @@ export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
     delivery_address: '',
     city: 'Islamabad',
     area_name: regions[0]?.areas[0]?.name || 'Shahzad Town (FREE Doorstep Delivery)',
+    delivery_slot: 'Morning',
     delivery_notes: '',
   });
 
@@ -47,6 +46,7 @@ export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
         delivery_address: formData.delivery_address,
         city: formData.city,
         area_name: formData.area_name,
+        delivery_slot: formData.delivery_slot,
         delivery_notes: formData.delivery_notes,
       };
 
@@ -196,12 +196,66 @@ export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
                   <optgroup key={reg.id} label={reg.name}>
                     {reg.areas.map((area) => (
                       <option key={area.id} value={area.name}>
-                        {area.name} (Free Morning Route)
+                        {area.name} (Free Delivery)
                       </option>
                     ))}
                   </optgroup>
                 ))}
               </select>
+            </div>
+          </div>
+
+          {/* Delivery Slot Selection: Morning or Evening (No Timing) */}
+          <div>
+            <label className="block text-xs font-mono uppercase text-earth-600 mb-2 font-semibold">
+              Delivery Slot *
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setFormData({ ...formData, delivery_slot: 'Morning' })}
+                className={`p-4 rounded-2xl border text-left transition-all flex flex-col justify-between gap-2 ${
+                  formData.delivery_slot === 'Morning'
+                    ? 'bg-emerald-50/90 border-emerald-600 shadow-sm ring-2 ring-emerald-500/20'
+                    : 'bg-white border-earth-200 hover:bg-earth-50'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-2xl">☀️</span>
+                  <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                    formData.delivery_slot === 'Morning' ? 'border-emerald-600 bg-emerald-600' : 'border-earth-300'
+                  }`}>
+                    {formData.delivery_slot === 'Morning' && <span className="w-1.5 h-1.5 rounded-full bg-white"></span>}
+                  </span>
+                </div>
+                <div>
+                  <div className="font-serif font-bold text-sm text-earth-900">Morning Delivery</div>
+                  <div className="text-[11px] text-earth-500 font-medium">Fresh morning dispatch</div>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setFormData({ ...formData, delivery_slot: 'Evening' })}
+                className={`p-4 rounded-2xl border text-left transition-all flex flex-col justify-between gap-2 ${
+                  formData.delivery_slot === 'Evening'
+                    ? 'bg-emerald-50/90 border-emerald-600 shadow-sm ring-2 ring-emerald-500/20'
+                    : 'bg-white border-earth-200 hover:bg-earth-50'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-2xl">🌙</span>
+                  <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                    formData.delivery_slot === 'Evening' ? 'border-emerald-600 bg-emerald-600' : 'border-earth-300'
+                  }`}>
+                    {formData.delivery_slot === 'Evening' && <span className="w-1.5 h-1.5 rounded-full bg-white"></span>}
+                  </span>
+                </div>
+                <div>
+                  <div className="font-serif font-bold text-sm text-earth-900">Evening Delivery</div>
+                  <div className="text-[11px] text-earth-500 font-medium">Fresh evening dispatch</div>
+                </div>
+              </button>
             </div>
           </div>
 
@@ -227,7 +281,7 @@ export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
               type="text"
               value={formData.delivery_notes}
               onChange={(e) => setFormData({ ...formData, delivery_notes: e.target.value })}
-              placeholder="e.g. Leave bottle on front door hook if before 7:00 AM"
+              placeholder="e.g. Leave bottle at gate or ring bell"
               className="w-full px-4 py-3 rounded-2xl bg-white border border-earth-300 text-earth-900 text-sm focus:outline-none focus:ring-2 focus:ring-farm-600"
             />
           </div>
@@ -242,7 +296,7 @@ export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
               <ShieldCheck className="w-6 h-6 text-emerald-600 shrink-0" />
               <div>
                 <div className="font-serif font-bold text-sm text-earth-900">Cash on Delivery (COD)</div>
-                <div className="text-xs text-earth-600">Pay cash upon receiving morning chilled milk</div>
+                <div className="text-xs text-earth-600">Pay cash upon receiving chilled milk</div>
               </div>
             </div>
             <span className="text-xs font-mono uppercase font-bold text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-full">
@@ -289,7 +343,7 @@ export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
             <span className="font-mono font-semibold">Rs. {cartSubtotal}</span>
           </div>
           <div className="flex justify-between text-earth-600">
-            <span>Morning Delivery Fee</span>
+            <span>Delivery Fee</span>
             <span className="font-mono font-bold text-emerald-600 uppercase text-xs">FREE</span>
           </div>
           <div className="flex justify-between font-serif font-bold text-2xl text-earth-900 pt-3 border-t border-earth-300">
@@ -307,12 +361,12 @@ export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
             {isSubmitting ? (
               <>
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                <span>Placing Morning Order...</span>
+                <span>Placing Order...</span>
               </>
             ) : (
               <>
                 <CheckCircle2 className="w-5 h-5" />
-                <span>Confirm Morning Order</span>
+                <span>Confirm Order</span>
                 <ArrowRight className="w-4 h-4" />
               </>
             )}
@@ -324,7 +378,7 @@ export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
             Direct Doorstep Chilled Delivery
           </div>
-          <div>Morning Route 6:00 AM – 9:00 AM • Cash on Delivery</div>
+          <div>Morning &amp; Evening Delivery Routes • Cash on Delivery</div>
         </div>
       </div>
 

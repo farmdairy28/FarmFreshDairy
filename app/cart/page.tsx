@@ -138,7 +138,7 @@ export default function CartPage() {
 
                 <a
                   href={`https://wa.me/923109361932?text=${encodeURIComponent(
-                    `🥛 *FARM FRESH DAIRY ORDER*\n━━━━━━━━━━━━━━━━━━━━\nI would like to order:\n${items.map((it, i) => `${i + 1}. *${it.product.name}* (Qty: ${it.quantity}) = Rs. ${it.product.price * it.quantity}`).join('\n')}\n━━━━━━━━━━━━━━━━━━━━\n💰 *Total:* Rs. ${cartSubtotal}\n🚚 *Delivery:* FREE in Shahzad Town & Islamabad\n\nPlease confirm morning delivery!`
+                    `🥛 *FARM FRESH DAIRY ORDER*\n━━━━━━━━━━━━━━━━━━━━\nI would like to order:\n${items.map((it, i) => `${i + 1}. *${it.product.name}* (Qty: ${it.quantity}) = Rs. ${it.product.price * it.quantity}`).join('\n')}\n━━━━━━━━━━━━━━━━━━━━\n💰 *Total:* Rs. ${cartSubtotal}\n🚚 *Delivery:* FREE in Shahzad Town & Islamabad\n\nPlease confirm delivery!`
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"

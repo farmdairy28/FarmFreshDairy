@@ -105,6 +105,7 @@ export function generateAdminNewOrderHtml(order: Order, items?: OrderItem[]): st
                           <strong>Customer Name:</strong> ${safeCustomerName}<br />
                           <strong>Phone Number:</strong> <a href="tel:${safePhone}" style="color: #1B4D3E; font-weight: bold;">${safePhone}</a><br />
                           <strong>Email:</strong> ${safeCustomerEmail}<br />
+                          <strong>Delivery Slot:</strong> ${escapeHtml((order as any).delivery_slot || 'Morning')} Delivery<br />
                           <strong>Delivery Area:</strong> ${safeArea}, ${safeCity}<br />
                           <strong>Address:</strong> ${safeAddress}<br />
                           <strong>Notes:</strong> <em>${safeNotes}</em>

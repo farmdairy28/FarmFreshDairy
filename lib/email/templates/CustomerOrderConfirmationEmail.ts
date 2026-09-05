@@ -101,7 +101,7 @@ export function generateCustomerOrderConfirmationHtml(order: Order, items?: Orde
                     </tr>
                     <tr>
                       <td style="color: #61736A;">Delivery Slot:</td>
-                      <td style="font-weight: 600; color: #1B4D3E; text-align: right;">Morning 6:00 AM – 9:00 AM</td>
+                      <td style="font-weight: 600; color: #1B4D3E; text-align: right;">${escapeHtml((order as any).delivery_slot || 'Morning')} Delivery</td>
                     </tr>
                   </table>
 
@@ -123,7 +123,7 @@ export function generateCustomerOrderConfirmationHtml(order: Order, items?: Orde
                       </td>
                     </tr>
                     <tr>
-                      <td style="color: #61736A;">Morning Chilled Delivery:</td>
+                      <td style="color: #61736A;">Chilled Delivery:</td>
                       <td style="text-align: right; font-family: monospace; color: #1B4D3E; font-weight: bold;">
                         ${order.delivery_fee && order.delivery_fee > 0 ? formatCurrency(order.delivery_fee) : 'FREE'}
                       </td>

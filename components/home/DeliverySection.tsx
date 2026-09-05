@@ -18,7 +18,7 @@ export function DeliverySection({ regions }: { regions: DeliveryRegion[] }) {
         <div className="text-center max-w-3xl mx-auto space-y-4 mb-16">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-farm-100 text-farm-800 text-xs font-mono font-semibold uppercase border border-farm-200">
             <MapPin className="w-3.5 h-3.5" />
-            FREE MORNING DOORSTEP DELIVERY
+            FREE MORNING &amp; EVENING DOORSTEP DELIVERY
           </div>
 
           <h2 className="font-serif text-4xl sm:text-5xl font-bold tracking-tight text-earth-900">
@@ -26,7 +26,7 @@ export function DeliverySection({ regions }: { regions: DeliveryRegion[] }) {
           </h2>
 
           <p className="text-earth-600 text-base sm:text-lg">
-            We deliver temperature-controlled, chilled morning milk across Islamabad between 6:00 AM and 9:00 AM daily.
+            We deliver temperature-controlled, chilled milk across Islamabad with morning and evening routes daily.
           </p>
         </div>
 
@@ -59,13 +59,13 @@ export function DeliverySection({ regions }: { regions: DeliveryRegion[] }) {
                   {activeRegion.name}
                 </h3>
                 <span className="text-xs font-mono text-farm-700">
-                  {activeRegion.areas?.length || 0} Verified Morning Delivery Routes
+                  {activeRegion.areas?.length || 0} Verified Delivery Routes
                 </span>
               </div>
               
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-farm-100 text-farm-800 text-xs font-mono font-semibold shrink-0">
                 <Clock className="w-4 h-4 text-farm-600" />
-                6:00 AM - 9:00 AM
+                Morning &amp; Evening Routes
               </div>
             </div>
 

@@ -4,7 +4,7 @@ import { CheckoutClient } from './checkout-client';
 
 export const metadata = {
   title: 'Checkout — Farm Fresh Dairy',
-  description: 'Complete your morning doorstep milk delivery order.',
+  description: 'Complete your fresh doorstep milk delivery order.',
 };
 
 export default async function CheckoutPage() {
@@ -20,10 +20,10 @@ export default async function CheckoutPage() {
             FINAL STEP
           </span>
           <h1 className="font-serif text-4xl sm:text-5xl font-bold tracking-tight text-earth-900">
-            Delivery Details & Checkout
+            Delivery Details &amp; Checkout
           </h1>
           <p className="text-earth-600 text-base">
-            Please provide your morning delivery address and contact details. Payment is Cash on Delivery.
+            Please provide your delivery address, preferred delivery slot, and contact details. Payment is Cash on Delivery.
           </p>
         </div>
 

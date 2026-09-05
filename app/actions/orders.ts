@@ -14,6 +14,7 @@ export interface CreateOrderInput {
   delivery_address: string;
   city: string;
   area_name: string;
+  delivery_slot?: string;
   delivery_notes?: string;
 }
 
@@ -121,6 +122,8 @@ export async function submitOrderAction(input: CreateOrderInput): Promise<OrderA
     const orderNumber = `FFD-${Math.floor(1000 + Math.random() * 9000)}`;
     let orderId = `ord-${Date.now()}`;
 
+    const deliverySlot = input.delivery_slot === 'Evening' ? 'Evening' : 'Morning';
+
     // 3. Insert order record into Supabase PostgreSQL
     if (adminClient) {
       const newOrderRecord: Record<string, any> = {
@@ -131,6 +134,7 @@ export async function submitOrderAction(input: CreateOrderInput): Promise<OrderA
         delivery_address: input.delivery_address.trim(),
         city: input.city?.trim() || 'Islamabad',
         area_name: input.area_name.trim(),
+        delivery_slot: deliverySlot,
         delivery_notes: (input.delivery_notes || '').trim(),
         delivery_fee: deliveryFee,
         subtotal: calculatedSubtotal,
@@ -249,6 +253,7 @@ export async function submitOrderAction(input: CreateOrderInput): Promise<OrderA
       delivery_address: input.delivery_address.trim(),
       city: input.city?.trim() || 'Islamabad',
       area_name: input.area_name.trim(),
+      delivery_slot: deliverySlot,
       delivery_notes: input.delivery_notes?.trim(),
       delivery_fee: deliveryFee,
       subtotal: calculatedSubtotal,

@@ -96,8 +96,8 @@ export default function ContactPage() {
                 <div className="flex items-start gap-3">
                   <Clock className="w-5 h-5 text-sky-400 shrink-0 mt-0.5" />
                   <div>
-                    <div className="font-bold text-white">Chilled Delivery Hours</div>
-                    <div>Daily Morning 6:00 AM – 9:00 AM</div>
+                    <div className="font-bold text-white">Chilled Delivery Schedule</div>
+                    <div>Daily Morning &amp; Evening Delivery</div>
                   </div>
                 </div>
               </div>

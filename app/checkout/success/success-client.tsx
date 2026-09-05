@@ -56,24 +56,27 @@ export function OrderSuccessClient() {
       .map((it: any, idx: number) => `${idx + 1}. ${it.product_name || it.name} (Qty: ${it.quantity}) - Rs. ${it.subtotal || it.product_price * it.quantity}`)
       .join('\n');
 
+    const slot = (order as any)?.delivery_slot || 'Morning';
+
     const text = `🥛 FARM FRESH DAIRY — ORDER #${order.order_number}
 Customer: ${order.customer_name}
 Phone: ${order.customer_phone}
 Address: ${order.delivery_address}, ${order.area_name || order.city || 'Islamabad'}
 ${itemsSummary ? `Items:\n${itemsSummary}\n` : ''}
 Total Payable: Rs. ${order.total_amount} (Cash on Delivery)
-Delivery Slot: Morning 6:00 AM - 9:00 AM`;
+Delivery Slot: ${slot}`;
 
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
   };
 
+  const slot = (order as any)?.delivery_slot || 'Morning';
   const whatsappMessage = order
     ? encodeURIComponent(
-        `🥛 Hello Farm Fresh Dairy! I just placed order #${order.order_number} for morning delivery to ${order.delivery_address}, ${order.area_name || ''}. Total: Rs. ${order.total_amount}. Please confirm morning delivery!`
+        `🥛 Hello Farm Fresh Dairy! I just placed order #${order.order_number} for ${slot.toLowerCase()} delivery to ${order.delivery_address}, ${order.area_name || ''}. Total: Rs. ${order.total_amount}. Please confirm delivery!`
       )
-    : encodeURIComponent(`🥛 Hello Farm Fresh Dairy! Please confirm my morning milk delivery order #${orderNumberParam}.`);
+    : encodeURIComponent(`🥛 Hello Farm Fresh Dairy! Please confirm my milk delivery order #${orderNumberParam}.`);
 
   const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappMessage}`;
 
@@ -126,16 +129,18 @@ Delivery Slot: Morning 6:00 AM - 9:00 AM`;
         )}
       </div>
 
-      {/* Morning Delivery Slot Card */}
+      {/* Delivery Slot Card */}
       <div className="p-4 rounded-2xl bg-emerald-50/90 border border-emerald-200 text-left flex items-start gap-3.5 text-xs text-emerald-950 shadow-sm">
-        <span className="text-2xl mt-0.5">🥛</span>
+        <span className="text-2xl mt-0.5">
+          {slot === 'Evening' ? '🌙' : '☀️'}
+        </span>
         <div className="space-y-1">
           <div className="font-bold text-emerald-950 flex items-center gap-1.5">
             <Clock className="w-3.5 h-3.5 text-emerald-700" />
-            Morning Chilled Delivery Route (6:00 AM – 9:00 AM)
+            {slot === 'Evening' ? 'Evening Delivery Route' : 'Morning Delivery Route'}
           </div>
           <div className="text-emerald-800 text-[11px] leading-relaxed">
-            Your milk is scheduled for tomorrow morning&apos;s delivery route. Our rider will bring fresh, cold milk directly to your doorstep and collect cash upon delivery.
+            Your milk is scheduled for your selected {slot.toLowerCase()} delivery route. Our rider will bring fresh, cold milk directly to your doorstep and collect cash upon delivery.
           </div>
         </div>
       </div>
@@ -156,6 +161,7 @@ Delivery Slot: Morning 6:00 AM - 9:00 AM`;
           {areaName && (
             <div><strong>Delivery Area:</strong> {areaName}</div>
           )}
+          <div><strong>Delivery Slot:</strong> {slot} Delivery</div>
           {deliveryAddress && (
             <div><strong>Street Address:</strong> {deliveryAddress}</div>
           )}
@@ -185,7 +191,7 @@ Delivery Slot: Morning 6:00 AM - 9:00 AM`;
         )}
 
         <div className="pt-2 border-t border-farm-200 flex justify-between items-center text-[11px]">
-          <span className="text-earth-500">Status: <strong className="text-amber-700">Pending Morning Dispatch</strong></span>
+          <span className="text-earth-500">Status: <strong className="text-amber-700">Pending Dispatch ({slot})</strong></span>
           <button
             type="button"
             onClick={handleCopyReceipt}

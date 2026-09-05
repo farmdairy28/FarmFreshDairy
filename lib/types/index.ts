@@ -127,6 +127,7 @@ export interface Order {
   city: string;
   delivery_area_id?: string;
   area_name: string;
+  delivery_slot?: string;
   delivery_notes?: string;
   delivery_fee: number;
   subtotal: number;

@@ -16,7 +16,7 @@ export default function AdminDeliveryPage() {
     <div className="space-y-6 max-w-4xl">
       <div>
         <h2 className="text-2xl font-bold text-slate-900">Delivery Coverage CMS</h2>
-        <p className="text-xs text-slate-500 font-mono">Configure delivery cities, regions, and morning routes</p>
+        <p className="text-xs text-slate-500 font-mono">Configure delivery cities, regions, and morning &amp; evening routes</p>
       </div>
 
       <div className="space-y-6">

@@ -31,8 +31,8 @@ export function generateCustomerOrderStatusHtml(order: Order, newStatus: OrderSt
 
   switch (newStatus) {
     case 'Confirmed':
-      statusHeading = 'Order Confirmed & Slotted for Morning Delivery';
-      statusMessage = 'Great news! Your pure milk delivery has been confirmed by our farm team and scheduled for morning dispatch between 6:00 AM and 9:00 AM.';
+      statusHeading = 'Order Confirmed & Slotted for Delivery';
+      statusMessage = 'Great news! Your pure milk delivery has been confirmed by our farm team and scheduled for dispatch.';
       statusBadgeColor = '#065F46';
       statusBgColor = '#D1FAE5';
       break;

@@ -123,11 +123,11 @@ export function HeroSection({ data }: { data: HomepageHero }) {
                 </div>
               </div>
               <div className="space-y-1">
-                <div className="font-serif text-xl sm:text-2xl lg:text-3xl font-bold text-farm-700">
-                  6:00 AM
+                <div className="font-serif text-base sm:text-xl lg:text-2xl font-bold text-farm-700">
+                  Morning &amp; Evening
                 </div>
                 <div className="text-[10px] sm:text-xs font-mono uppercase tracking-wider text-earth-500">
-                  Morning Doorstep Chilled
+                  Daily Doorstep Delivery
                 </div>
               </div>
             </div>
