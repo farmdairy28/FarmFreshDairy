@@ -1,11 +1,13 @@
-import { Product, Category } from '@/lib/types';
-import { INITIAL_PRODUCTS, INITIAL_CATEGORIES } from './mock-data';
+import { Product, Category, Testimonial } from '@/lib/types';
+import { INITIAL_PRODUCTS, INITIAL_CATEGORIES, INITIAL_TESTIMONIALS } from './mock-data';
 
 declare global {
   // eslint-disable-next-line no-var
   var __ffd_products_store: Product[] | undefined;
   // eslint-disable-next-line no-var
   var __ffd_categories_store: Category[] | undefined;
+  // eslint-disable-next-line no-var
+  var __ffd_testimonials_store: Testimonial[] | undefined;
 }
 
 if (!globalThis.__ffd_products_store) {
@@ -14,6 +16,10 @@ if (!globalThis.__ffd_products_store) {
 
 if (!globalThis.__ffd_categories_store) {
   globalThis.__ffd_categories_store = [...INITIAL_CATEGORIES];
+}
+
+if (!globalThis.__ffd_testimonials_store) {
+  globalThis.__ffd_testimonials_store = [...INITIAL_TESTIMONIALS];
 }
 
 export function getServerProductsStore(): Product[] {
@@ -77,6 +83,31 @@ export function upsertServerCategory(category: Category): void {
 export function deleteServerCategory(categoryId: string): void {
   const store = getServerCategoriesStore();
   const idx = store.findIndex((c) => c.id === categoryId);
+  if (idx > -1) {
+    store.splice(idx, 1);
+  }
+}
+
+export function getServerTestimonialsStore(): Testimonial[] {
+  if (!globalThis.__ffd_testimonials_store || globalThis.__ffd_testimonials_store.length === 0) {
+    globalThis.__ffd_testimonials_store = [...INITIAL_TESTIMONIALS];
+  }
+  return globalThis.__ffd_testimonials_store;
+}
+
+export function upsertServerTestimonial(testimonial: Testimonial): void {
+  const store = getServerTestimonialsStore();
+  const existingIdx = store.findIndex((t) => t.id === testimonial.id);
+  if (existingIdx > -1) {
+    store[existingIdx] = { ...store[existingIdx], ...testimonial };
+  } else {
+    store.unshift(testimonial);
+  }
+}
+
+export function deleteServerTestimonial(testimonialId: string): void {
+  const store = getServerTestimonialsStore();
+  const idx = store.findIndex((t) => t.id === testimonialId);
   if (idx > -1) {
     store.splice(idx, 1);
   }

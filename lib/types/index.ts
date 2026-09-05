@@ -102,6 +102,7 @@ export interface Testimonial {
   avatar_url?: string;
   sort_order: number;
   is_active: boolean;
+  created_at?: string;
 }
 
 export interface OrderItem {

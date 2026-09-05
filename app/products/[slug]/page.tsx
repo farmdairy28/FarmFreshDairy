@@ -3,9 +3,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ShieldCheck, Truck, Clock, ArrowLeft } from 'lucide-react';
-import { getProductBySlug, getProducts } from '@/lib/supabase/api';
+import { getProductBySlug, getProducts, getTestimonials } from '@/lib/supabase/api';
 import { ProductCard } from '@/components/products/ProductCard';
 import { ProductDetailClient } from './product-detail-client';
+import { CustomerReviews } from '@/components/reviews/CustomerReviews';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -28,7 +29,10 @@ export default async function ProductDetailPage({ params }: { params: { slug: st
   const product = await getProductBySlug(params.slug);
   if (!product) notFound();
 
-  const allProducts = await getProducts();
+  const [allProducts, testimonials] = await Promise.all([
+    getProducts(),
+    getTestimonials(),
+  ]);
   const relatedProducts = allProducts.filter((p) => p.id !== product.id).slice(0, 3);
 
   return (
@@ -135,14 +139,24 @@ export default async function ProductDetailPage({ params }: { params: { slug: st
               <div className="p-4 rounded-2xl bg-cream-200/60 border border-earth-200 flex items-center gap-3">
                 <Clock className="w-5 h-5 text-farm-700 shrink-0" />
                 <div className="text-xs">
-                  <div className="font-bold text-earth-900">Fresh Daily</div>
-                  <div className="text-earth-600">6 AM - 9 AM</div>
+                  <div className="font-bold text-earth-900">Fresh Delivery</div>
+                  <div className="text-earth-600">Morning &amp; Evening</div>
                 </div>
               </div>
             </div>
 
           </div>
 
+        </div>
+
+        {/* Customer Reviews Section */}
+        <div className="mb-20">
+          <CustomerReviews
+            initialReviews={testimonials}
+            title={`Customer Reviews for ${product.name}`}
+            subtitle={`Read authentic feedback and verified ratings from families who ordered ${product.name}.`}
+            eyebrow="VERIFIED PRODUCT REVIEWS"
+          />
         </div>
 
         {/* Related Products */}
