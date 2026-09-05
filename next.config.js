@@ -20,6 +20,30 @@ const nextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: '/Admin',
+        destination: '/admin',
+        permanent: true,
+      },
+      {
+        source: '/Admin/:path*',
+        destination: '/admin/:path*',
+        permanent: true,
+      },
+      {
+        source: '/ADMIN',
+        destination: '/admin',
+        permanent: true,
+      },
+      {
+        source: '/ADMIN/:path*',
+        destination: '/admin/:path*',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;

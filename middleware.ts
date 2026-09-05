@@ -9,11 +9,19 @@ export async function middleware(request: NextRequest) {
   });
 
   const pathname = request.nextUrl.pathname;
+  const lowerPath = pathname.toLowerCase();
+
+  // Handle case-insensitivity: redirect /Admin, /ADMIN to /admin
+  if (lowerPath.startsWith('/admin') && pathname !== lowerPath) {
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = lowerPath;
+    return NextResponse.redirect(redirectUrl);
+  }
 
   // Only protect /admin routes
-  if (pathname.startsWith('/admin')) {
+  if (lowerPath.startsWith('/admin')) {
     // Allow public access to login page
-    if (pathname === '/admin/login') {
+    if (lowerPath === '/admin/login') {
       return response;
     }
 
@@ -57,7 +65,7 @@ export async function middleware(request: NextRequest) {
 
     if (error || !user) {
       const loginUrl = new URL('/admin/login', request.url);
-      loginUrl.searchParams.set('redirect', pathname);
+      loginUrl.searchParams.set('redirect', lowerPath);
       return NextResponse.redirect(loginUrl);
     }
   }
@@ -68,5 +76,10 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     '/admin/:path*',
+    '/admin',
+    '/Admin/:path*',
+    '/Admin',
+    '/ADMIN/:path*',
+    '/ADMIN',
   ],
 };
