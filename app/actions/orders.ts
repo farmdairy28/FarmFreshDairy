@@ -34,6 +34,8 @@ export async function submitOrderAction(input: CreateOrderInput): Promise<OrderA
   try {
     const adminClient = createAdminClient();
 
+    const productIds = input.items.map((i) => i.productId);
+
     // 1. Fetch real products from DB by ID to prevent client price tampering
     let dbProducts = null;
     if (adminClient) {
