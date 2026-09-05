@@ -8,40 +8,7 @@ import { useCart } from '@/lib/context/cart-context';
 import { DeliveryRegion, Order } from '@/lib/types';
 import { submitOrderAction } from '@/app/actions/orders';
 
-const WHATSAPP_NUMBER = '923109361932';
-const WHATSAPP_DISPLAY = '0310-9361932';
-
-function buildWhatsAppMessage(
-  order: Order, 
-  items: { product: any; quantity: number }[], 
-  subtotal: number, 
-  formData: { customer_name: string; customer_phone: string; customer_email: string; area_name: string; delivery_address: string; delivery_notes: string }
-) {
-  const itemsList = items.map((it, idx) => {
-    const itemTotal = it.product.price * it.quantity;
-    return `${idx + 1}. *${it.product.name}* (${it.product.weight_volume || it.product.unit || '1 Litre'})\n   Qty: ${it.quantity} × Rs. ${it.product.price} = *Rs. ${itemTotal}*`;
-  }).join('\n\n');
-
-  return `🥛 *NEW ORDER - FARM FRESH DAIRY*
-━━━━━━━━━━━━━━━━━━━━
-📦 *Order ID:* #${order.order_number}
-👤 *Name:* ${formData.customer_name}
-📞 *Phone:* ${formData.customer_phone}
-${formData.customer_email ? `📧 *Email:* ${formData.customer_email}\n` : ''}📍 *Delivery Area:* ${formData.area_name}
-🏠 *Address:* ${formData.delivery_address}
-${formData.delivery_notes ? `📝 *Special Notes:* ${formData.delivery_notes}\n` : ''}
-🛒 *ORDER ITEMS:*
-${itemsList}
-
-━━━━━━━━━━━━━━━━━━━━
-💰 *Estimated Subtotal:* Rs. ${subtotal}
-🚚 *Delivery Fee:* FREE (Shahzad Town & Islamabad)
-💵 *TOTAL AMOUNT PAYABLE:* *Rs. ${subtotal}*
-💳 *Payment:* Cash on Delivery (COD)
-⏰ *Delivery Slot:* Morning 6:00 AM - 9:00 AM
-━━━━━━━━━━━━━━━━━━━━
-_Please confirm my morning milk delivery order!_`;
-}
+const DELIVERY_TIMING = 'Morning 6:00 AM - 9:00 AM';
 
 export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
   const { items, cartSubtotal, clearCart } = useCart();
@@ -59,7 +26,6 @@ export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [completedOrder, setCompletedOrder] = useState<Order | null>(null);
-  const [whatsappLink, setWhatsappLink] = useState('');
   const [copied, setCopied] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -87,22 +53,8 @@ export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
       const result = await submitOrderAction(orderPayload);
 
       if (result.success && result.order) {
-        // Construct the full formatted WhatsApp payload
-        const messageText = buildWhatsAppMessage(result.order, items, cartSubtotal, formData);
-        const encodedUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(messageText)}`;
-        
-        setWhatsappLink(encodedUrl);
         setCompletedOrder(result.order);
         clearCart();
-
-        // Attempt to directly open WhatsApp in new tab
-        if (typeof window !== 'undefined') {
-          const win = window.open(encodedUrl, '_blank');
-          if (!win) {
-            // Popup blocked by browser, user can click the button
-            console.log('Popup blocked, using fallback link button.');
-          }
-        }
       } else {
         setErrorMessage(result.error || 'Failed to place order. Please try again.');
       }
@@ -116,7 +68,7 @@ export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
 
   const handleCopyOrderSummary = () => {
     if (!completedOrder) return;
-    const messageText = buildWhatsAppMessage(completedOrder, completedOrder.items as any || [], completedOrder.total_amount, formData);
+    const messageText = `🥛 FARM FRESH DAIRY - ORDER #${completedOrder.order_number}\nCustomer: ${completedOrder.customer_name}\nPhone: ${completedOrder.customer_phone}\nAddress: ${completedOrder.delivery_address}, ${completedOrder.area_name}\nTotal: Rs. ${completedOrder.total_amount} (Cash on Delivery)`;
     navigator.clipboard.writeText(messageText);
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
@@ -126,20 +78,15 @@ export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
     return (
       <div className="max-w-2xl mx-auto py-12 px-6 sm:px-10 rounded-3xl bg-white border border-farm-200 shadow-float space-y-6 animate-fade-in text-center">
         
-        {/* Animated Check & WhatsApp Badge */}
-        <div className="relative w-20 h-20 mx-auto">
-          <div className="w-20 h-20 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-sm">
-            <CheckCircle2 className="w-10 h-10" />
-          </div>
-          <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-md">
-            <MessageCircle className="w-4 h-4 fill-current" />
-          </div>
+        {/* Animated Check */}
+        <div className="w-20 h-20 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-sm">
+          <CheckCircle2 className="w-10 h-10" />
         </div>
 
         <div className="space-y-3">
           <span className="inline-flex items-center gap-1.5 text-xs font-mono uppercase tracking-widest text-emerald-700 font-bold bg-emerald-50 px-3.5 py-1.5 rounded-full border border-emerald-200 shadow-sm">
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-            Order Successfully Placed
+            Order Confirmed & Received
           </span>
           <h2 className="font-serif text-3xl sm:text-4xl font-bold text-earth-900">
             Thank You, {completedOrder.customer_name}!
@@ -154,32 +101,21 @@ export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
             </p>
           ) : (
             <p className="text-earth-600 text-xs sm:text-sm max-w-md mx-auto pt-1">
-              Your order has been received successfully.
+              Your order has been recorded in our dispatch system. We will deliver fresh to your doorstep!
             </p>
           )}
         </div>
 
-        {/* Big WhatsApp CTA Button */}
-        {whatsappLink && (
-          <div className="p-6 rounded-2xl bg-gradient-to-r from-emerald-50 via-emerald-100/60 to-emerald-50 border border-emerald-300 space-y-3">
-            <div className="text-xs font-mono uppercase text-emerald-800 font-bold flex items-center justify-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              WhatsApp Message Ready
+        {/* Delivery Slot Notice */}
+        <div className="p-4 rounded-2xl bg-emerald-50/80 border border-emerald-200 text-left flex items-start gap-3 text-xs text-emerald-900">
+          <span className="text-xl">🥛</span>
+          <div>
+            <div className="font-bold text-emerald-950">Morning Chilled Delivery Slot</div>
+            <div className="text-emerald-800 text-[11px] mt-0.5">
+              Your order is scheduled for our morning delivery route (6:00 AM - 9:00 AM). Our delivery rider will contact you upon arrival.
             </div>
-            <p className="text-xs text-earth-700 leading-relaxed max-w-md mx-auto">
-              Tap below to open WhatsApp with your full order payload and send it directly to our farm dispatch desk:
-            </p>
-            <a
-              href={whatsappLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-sm uppercase tracking-wider transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
-            >
-              <MessageCircle className="w-5 h-5 fill-current" />
-              Send Order on WhatsApp ({WHATSAPP_DISPLAY})
-            </a>
           </div>
-        )}
+        </div>
 
         {/* Order Details Receipt Box */}
         <div className="p-6 rounded-2xl bg-farm-50/70 border border-farm-200/80 text-left space-y-3 font-mono text-xs text-earth-800">
