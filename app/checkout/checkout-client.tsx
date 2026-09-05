@@ -3,7 +3,8 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { CheckCircle2, ShieldCheck, ArrowRight, AlertCircle, MessageCircle, Phone, Copy, Check } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { CheckCircle2, ShieldCheck, ArrowRight, AlertCircle } from 'lucide-react';
 import { useCart } from '@/lib/context/cart-context';
 import { DeliveryRegion, Order } from '@/lib/types';
 import { submitOrderAction } from '@/app/actions/orders';
@@ -11,6 +12,7 @@ import { submitOrderAction } from '@/app/actions/orders';
 const DELIVERY_TIMING = 'Morning 6:00 AM - 9:00 AM';
 
 export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
+  const router = useRouter();
   const { items, cartSubtotal, clearCart } = useCart();
 
   const [formData, setFormData] = useState({
@@ -25,8 +27,6 @@ export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [completedOrder, setCompletedOrder] = useState<Order | null>(null);
-  const [copied, setCopied] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,110 +53,35 @@ export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
       const result = await submitOrderAction(orderPayload);
 
       if (result.success && result.order) {
-        setCompletedOrder(result.order);
+        try {
+          sessionStorage.setItem('ffd_last_order', JSON.stringify(result.order));
+        } catch (storageErr) {
+          console.warn('sessionStorage cache failed', storageErr);
+        }
+
         clearCart();
+        router.push(`/checkout/success?order=${encodeURIComponent(result.order.order_number)}`);
       } else {
+        setIsSubmitting(false);
         setErrorMessage(result.error || 'Failed to place order. Please try again.');
       }
     } catch (err: any) {
       console.error('Order checkout error:', err);
-      setErrorMessage(err?.message || 'An unexpected error occurred during checkout.');
-    } finally {
       setIsSubmitting(false);
+      setErrorMessage(err?.message || 'An unexpected error occurred during checkout.');
     }
   };
 
-  const handleCopyOrderSummary = () => {
-    if (!completedOrder) return;
-    const messageText = `🥛 FARM FRESH DAIRY - ORDER #${completedOrder.order_number}\nCustomer: ${completedOrder.customer_name}\nPhone: ${completedOrder.customer_phone}\nAddress: ${completedOrder.delivery_address}, ${completedOrder.area_name}\nTotal: Rs. ${completedOrder.total_amount} (Cash on Delivery)`;
-    navigator.clipboard.writeText(messageText);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2500);
-  };
-
-  if (completedOrder) {
+  if (isSubmitting) {
     return (
-      <div className="max-w-2xl mx-auto py-12 px-6 sm:px-10 rounded-3xl bg-white border border-farm-200 shadow-float space-y-6 animate-fade-in text-center">
-        
-        {/* Animated Check */}
-        <div className="w-20 h-20 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-sm">
-          <CheckCircle2 className="w-10 h-10" />
-        </div>
-
-        <div className="space-y-3">
-          <span className="inline-flex items-center gap-1.5 text-xs font-mono uppercase tracking-widest text-emerald-700 font-bold bg-emerald-50 px-3.5 py-1.5 rounded-full border border-emerald-200 shadow-sm">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-            Order Confirmed & Received
-          </span>
-          <h2 className="font-serif text-3xl sm:text-4xl font-bold text-earth-900">
-            Thank You, {completedOrder.customer_name}!
-          </h2>
-          <div className="text-sm font-mono font-bold text-farm-800 bg-farm-50/80 py-1.5 px-4 rounded-xl inline-block border border-farm-200">
-            Order #{completedOrder.order_number}
-          </div>
-          {completedOrder.customer_email ? (
-            <p className="text-earth-600 text-xs sm:text-sm max-w-md mx-auto pt-1">
-              A confirmation email has been sent to:<br />
-              <strong className="text-farm-900 font-semibold">{completedOrder.customer_email}</strong>
-            </p>
-          ) : (
-            <p className="text-earth-600 text-xs sm:text-sm max-w-md mx-auto pt-1">
-              Your order has been recorded in our dispatch system. We will deliver fresh to your doorstep!
-            </p>
-          )}
-        </div>
-
-        {/* Delivery Slot Notice */}
-        <div className="p-4 rounded-2xl bg-emerald-50/80 border border-emerald-200 text-left flex items-start gap-3 text-xs text-emerald-900">
-          <span className="text-xl">🥛</span>
-          <div>
-            <div className="font-bold text-emerald-950">Morning Chilled Delivery Slot</div>
-            <div className="text-emerald-800 text-[11px] mt-0.5">
-              Your order is scheduled for our morning delivery route (6:00 AM - 9:00 AM). Our delivery rider will contact you upon arrival.
-            </div>
-          </div>
-        </div>
-
-        {/* Order Details Receipt Box */}
-        <div className="p-6 rounded-2xl bg-farm-50/70 border border-farm-200/80 text-left space-y-3 font-mono text-xs text-earth-800">
-          <div className="flex items-center justify-between pb-2 border-b border-farm-200 font-bold text-farm-900">
-            <span>RECEIPT #{completedOrder.order_number}</span>
-            <span className="text-emerald-700">Cash on Delivery (COD)</span>
-          </div>
-
-          <div className="space-y-1 text-[11px] text-earth-700">
-            <div><strong>Deliver to:</strong> {completedOrder.customer_name} ({completedOrder.customer_phone})</div>
-            <div><strong>Area:</strong> {completedOrder.area_name}</div>
-            <div><strong>Address:</strong> {completedOrder.delivery_address}</div>
-            <div><strong>Total Payable:</strong> <span className="text-farm-800 font-bold text-sm">Rs. {completedOrder.total_amount}</span> (FREE Delivery)</div>
-          </div>
-
-          <div className="pt-2 border-t border-farm-200 flex justify-end">
-            <button
-              type="button"
-              onClick={handleCopyOrderSummary}
-              className="inline-flex items-center gap-1.5 text-farm-700 hover:text-farm-900 text-[11px] font-semibold"
-            >
-              {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-              {copied ? 'Copied to Clipboard!' : 'Copy Order Text'}
-            </button>
-          </div>
-        </div>
-
-        <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3.5">
-          <Link
-            href="/products"
-            className="w-full sm:w-auto px-7 py-3 rounded-full bg-farm-600 hover:bg-farm-700 text-white font-bold text-xs uppercase tracking-wider transition-colors shadow-sm"
-          >
-            Order More Products
-          </Link>
-          <Link
-            href="/"
-            className="w-full sm:w-auto px-7 py-3 rounded-full bg-white hover:bg-farm-100 text-earth-800 font-bold text-xs uppercase tracking-wider transition-colors border border-earth-300"
-          >
-            Back to Home
-          </Link>
-        </div>
+      <div className="text-center py-20 bg-white rounded-3xl border border-farm-200 shadow-soft space-y-4 max-w-lg mx-auto">
+        <div className="w-12 h-12 rounded-full border-4 border-farm-200 border-t-farm-700 animate-spin mx-auto"></div>
+        <h2 className="font-serif text-2xl font-bold text-earth-900">
+          Confirming Your Order...
+        </h2>
+        <p className="text-earth-600 text-sm">
+          Dispatching order details to our farm desk and preparing your receipt.
+        </p>
       </div>
     );
   }
@@ -377,20 +302,29 @@ export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full flex items-center justify-center gap-2.5 py-4 rounded-full bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-white font-bold text-sm uppercase tracking-wider transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+            className="w-full flex items-center justify-center gap-2.5 py-4 rounded-full bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold text-sm uppercase tracking-wider transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
           >
-            <MessageCircle className="w-5 h-5 fill-current" />
-            {isSubmitting ? 'Processing & Opening WhatsApp...' : 'Confirm Morning Order'}
-            <ArrowRight className="w-4 h-4" />
+            {isSubmitting ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <span>Placing Morning Order...</span>
+              </>
+            ) : (
+              <>
+                <CheckCircle2 className="w-5 h-5" />
+                <span>Confirm Morning Order</span>
+                <ArrowRight className="w-4 h-4" />
+              </>
+            )}
           </button>
         </div>
 
         <div className="text-center text-xs font-mono text-earth-500 space-y-1">
           <div className="flex items-center justify-center gap-1.5 text-emerald-700 font-semibold">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-            Direct WhatsApp Integration Enabled
+            Direct Doorstep Chilled Delivery
           </div>
-          <div>Chilled Delivery 6:00 AM – 9:00 AM • Cancel Anytime</div>
+          <div>Morning Route 6:00 AM – 9:00 AM • Cash on Delivery</div>
         </div>
       </div>
 

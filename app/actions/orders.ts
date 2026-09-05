@@ -352,3 +352,32 @@ export async function updateOrderStatusAction(
     return { success: false, error: err?.message || 'Failed to update order status.' };
   }
 }
+
+export async function getOrderByNumberAction(orderNumber: string): Promise<Order | null> {
+  if (!orderNumber || typeof orderNumber !== 'string') return null;
+
+  try {
+    const adminClient = createAdminClient();
+    if (!adminClient) {
+      const mockOrder = INITIAL_ORDERS.find((o) => o.order_number.toLowerCase() === orderNumber.trim().toLowerCase());
+      return (mockOrder as Order) || null;
+    }
+
+    const { data, error } = await adminClient
+      .from('orders')
+      .select('*, items:order_items(*)')
+      .eq('order_number', orderNumber.trim())
+      .maybeSingle();
+
+    if (error) {
+      console.warn('[getOrderByNumber DB Notice]:', error.message);
+      const mockOrder = INITIAL_ORDERS.find((o) => o.order_number.toLowerCase() === orderNumber.trim().toLowerCase());
+      return (mockOrder as Order) || null;
+    }
+
+    return (data as Order) || null;
+  } catch (err) {
+    console.warn('[getOrderByNumber Exception]:', err);
+    return null;
+  }
+}
