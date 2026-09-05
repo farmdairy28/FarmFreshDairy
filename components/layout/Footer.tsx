@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { ArrowUpRight, Phone, Mail, MapPin, MessageCircle, ShieldCheck } from 'lucide-react';
+import { Phone, Mail, MapPin, MessageCircle, ShieldCheck } from 'lucide-react';
 import { FarmFreshLogo } from './FarmFreshLogo';
 
 export function Footer() {
@@ -119,16 +119,6 @@ export function Footer() {
                 </a>
               </li>
             </ul>
-
-            <div className="pt-2">
-              <Link
-                href="/admin/login"
-                className="inline-flex items-center gap-1 text-xs text-sky-400 hover:text-white transition-colors font-mono"
-              >
-                Admin CMS Access
-                <ArrowUpRight className="w-3 h-3" />
-              </Link>
-            </div>
           </div>
 
         </div>

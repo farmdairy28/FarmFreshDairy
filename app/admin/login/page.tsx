@@ -41,10 +41,10 @@ function LoginForm() {
       {/* Header Logo */}
       <div className="text-center space-y-2">
         <div className="w-12 h-12 rounded-xl bg-emerald-600 text-white font-serif font-bold text-2xl mx-auto flex items-center justify-center shadow-md">
-          P
+          F
         </div>
         <h1 className="font-bold text-2xl text-slate-900">Admin Portal Login</h1>
-        <p className="text-xs text-slate-500 font-mono">Pure Pastures Dairy CMS Management</p>
+        <p className="text-xs text-slate-500 font-mono">Farm Fresh Dairy CMS Management</p>
       </div>
 
       {error && (
