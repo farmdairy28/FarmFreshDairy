@@ -2,11 +2,36 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Save, ArrowLeft, Upload, CheckCircle2, AlertCircle, Trash2 } from 'lucide-react';
+import { Save, ArrowLeft, Upload, CheckCircle2, AlertCircle, Trash2, Plus, FolderPlus, X } from 'lucide-react';
 import { Product, Category } from '@/lib/types';
 import { getCategories, saveProduct } from '@/lib/supabase/api';
 import { uploadProductImageAction } from '@/app/actions/storage';
 import { saveProductAction } from '@/app/actions/products';
+import { saveCategoryAction } from '@/app/actions/categories';
+
+const UNIT_PRESETS = [
+  { label: 'Dozen', value: 'dozen' },
+  { label: 'Kilo / Kg', value: 'kg' },
+  { label: 'Litre', value: 'litre' },
+  { label: 'Half Dozen', value: 'half dozen' },
+  { label: 'Pack', value: 'pack' },
+  { label: 'Bottle', value: 'bottle' },
+  { label: 'Grams', value: 'grams' },
+  { label: 'Piece', value: 'piece' },
+  { label: 'Box', value: 'box' },
+  { label: 'Pot / Handi', value: 'pot' },
+];
+
+const WEIGHT_VOLUME_PRESETS = [
+  '1 Litre Glass Bottle',
+  '1 Kg Pack',
+  '1 Dozen Fresh Eggs',
+  '1/2 Dozen Eggs',
+  '500g Clay Handi',
+  '1 Kg Sealed Pouch',
+  '250g Jar',
+  '5 Litre Family Can',
+];
 
 export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
   const router = useRouter();
@@ -16,6 +41,12 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadError, setUploadError] = useState('');
   const [formError, setFormError] = useState('');
+
+  // Quick category modal state
+  const [showQuickCategoryModal, setShowQuickCategoryModal] = useState(false);
+  const [newCatName, setNewCatName] = useState('');
+  const [newCatLoading, setNewCatLoading] = useState(false);
+  const [newCatError, setNewCatError] = useState('');
 
   const [formData, setFormData] = useState<Partial<Product>>({
     name: initialProduct?.name || '',
@@ -29,7 +60,7 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
     sku: initialProduct?.sku || `SKU-${Date.now().toString().slice(-4)}`,
     unit: initialProduct?.unit || 'litre',
     weight_volume: initialProduct?.weight_volume || '1 Litre Glass Bottle',
-    stock: initialProduct?.stock || 100,
+    stock: initialProduct?.stock !== undefined ? initialProduct.stock : 100,
     is_active: initialProduct?.is_active !== undefined ? initialProduct.is_active : true,
     is_featured: initialProduct?.is_featured !== undefined ? initialProduct.is_featured : false,
     show_on_homepage: initialProduct?.show_on_homepage !== undefined ? initialProduct.show_on_homepage : true,
@@ -38,8 +69,13 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
     seo_description: initialProduct?.seo_description || '',
   });
 
+  const loadCategories = async () => {
+    const cats = await getCategories();
+    setCategories(cats);
+  };
+
   useEffect(() => {
-    getCategories().then(setCategories);
+    loadCategories();
   }, []);
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -73,6 +109,34 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
       setUploadError(err.message || 'Image upload error.');
     } finally {
       setUploadingImage(false);
+    }
+  };
+
+  const handleQuickAddCategory = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCatName.trim()) return;
+    setNewCatLoading(true);
+    setNewCatError('');
+
+    try {
+      const res = await saveCategoryAction({
+        name: newCatName.trim(),
+        slug: newCatName.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+        is_active: true,
+      });
+
+      if (res.success && res.category) {
+        await loadCategories();
+        setFormData((prev) => ({ ...prev, category_id: res.category!.id }));
+        setNewCatName('');
+        setShowQuickCategoryModal(false);
+      } else {
+        setNewCatError(res.error || 'Failed to create category');
+      }
+    } catch (err: any) {
+      setNewCatError(err.message || 'Error creating category');
+    } finally {
+      setNewCatLoading(false);
     }
   };
 
@@ -152,7 +216,7 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
               required
               value={formData.name}
               onChange={handleNameChange}
-              placeholder="Fresh Farm Milk"
+              placeholder="e.g. Fresh Farm Whole Milk, Pure Desi Ghee"
               className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500"
             />
           </div>
@@ -166,7 +230,7 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
               required
               value={formData.slug}
               onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-              placeholder="fresh-farm-milk"
+              placeholder="e.g. fresh-farm-whole-milk"
               className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500"
             />
           </div>
@@ -181,7 +245,7 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
             required
             value={formData.short_description}
             onChange={(e) => setFormData({ ...formData, short_description: e.target.value })}
-            placeholder="Pure, creamy and fresh milk delivered from the farm."
+            placeholder="Pure, creamy and fresh milk delivered daily from our farm."
             className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500"
           />
         </div>
@@ -194,7 +258,7 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
             rows={4}
             value={formData.full_description}
             onChange={(e) => setFormData({ ...formData, full_description: e.target.value })}
-            placeholder="Detailed pasture feeding story and nutrient breakdown..."
+            placeholder="Detailed pasture feeding story, nutrition benefits, and storage instructions..."
             className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500"
           ></textarea>
         </div>
@@ -207,11 +271,12 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">
-              Selling Price *
+              Selling Price (Rs.) *
             </label>
             <input
               type="number"
               required
+              min={1}
               value={formData.price}
               onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
               className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500"
@@ -220,12 +285,13 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
 
           <div>
             <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">
-              Compare At Price (Optional)
+              Compare At / Original Price (Optional)
             </label>
             <input
               type="number"
               value={formData.compare_at_price || ''}
               onChange={(e) => setFormData({ ...formData, compare_at_price: e.target.value ? Number(e.target.value) : undefined })}
+              placeholder="e.g. 280"
               className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500"
             />
           </div>
@@ -243,51 +309,105 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {/* Custom Unit Configuration */}
+        <div className="pt-2 space-y-3">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">
-              Unit (litre, kg, pack) *
-            </label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 uppercase">
+                Product Unit (Customizable) *
+              </label>
+              <span className="text-[11px] text-slate-500 font-mono">e.g. dozen, kilo, kg, litre, pack</span>
+            </div>
+
+            {/* Quick Unit Presets */}
+            <div className="flex flex-wrap gap-1.5 mb-2.5">
+              {UNIT_PRESETS.map((preset) => (
+                <button
+                  key={preset.value}
+                  type="button"
+                  onClick={() => setFormData((prev) => ({ ...prev, unit: preset.value }))}
+                  className={`px-3 py-1 rounded-lg text-xs font-mono transition-colors border ${
+                    formData.unit?.toLowerCase() === preset.value.toLowerCase()
+                      ? 'bg-emerald-600 text-white border-emerald-600 font-bold shadow-sm'
+                      : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
+                  }`}
+                >
+                  {preset.label}
+                </button>
+              ))}
+            </div>
+
             <input
               type="text"
               required
               value={formData.unit}
               onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              placeholder="Type any custom unit (e.g. dozen, kilo, 500g, crate)"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono"
             />
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">
-              Weight / Volume Label
-            </label>
-            <input
-              type="text"
-              value={formData.weight_volume}
-              onChange={(e) => setFormData({ ...formData, weight_volume: e.target.value })}
-              placeholder="1 Litre Glass Bottle"
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500"
-            />
-          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-xs font-semibold text-slate-700 uppercase">
+                  Weight / Volume / Packaging Label
+                </label>
+              </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">
-              Stock Quantity *
-            </label>
-            <input
-              type="number"
-              required
-              value={formData.stock}
-              onChange={(e) => setFormData({ ...formData, stock: Number(e.target.value) })}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500"
-            />
+              {/* Weight volume quick suggestions */}
+              <div className="flex flex-wrap gap-1 mb-2">
+                {WEIGHT_VOLUME_PRESETS.slice(0, 4).map((preset) => (
+                  <button
+                    key={preset}
+                    type="button"
+                    onClick={() => setFormData((prev) => ({ ...prev, weight_volume: preset }))}
+                    className="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 text-[10px] font-mono"
+                  >
+                    + {preset}
+                  </button>
+                ))}
+              </div>
+
+              <input
+                type="text"
+                value={formData.weight_volume || ''}
+                onChange={(e) => setFormData({ ...formData, weight_volume: e.target.value })}
+                placeholder="e.g. 1 Litre Glass Bottle, 1 Dozen Fresh Eggs, 1 Kg Pack"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">
+                Stock Quantity (Available Units) *
+              </label>
+              <input
+                type="number"
+                required
+                min={0}
+                value={formData.stock}
+                onChange={(e) => setFormData({ ...formData, stock: Number(e.target.value) })}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              />
+            </div>
           </div>
         </div>
       </div>
 
       {/* Category & Visibility */}
       <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-4">
-        <h3 className="font-bold text-slate-900 text-base">Category & Visibility</h3>
+        <div className="flex items-center justify-between">
+          <h3 className="font-bold text-slate-900 text-base">Category & Visibility</h3>
+          <button
+            type="button"
+            onClick={() => setShowQuickCategoryModal(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold transition-colors"
+          >
+            <FolderPlus className="w-3.5 h-3.5" />
+            + Quick Add Category
+          </button>
+        </div>
 
         <div>
           <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">
@@ -298,7 +418,7 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
             onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
             className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500"
           >
-            <option value="">Select Category</option>
+            <option value="">Select Category (Optional)</option>
             {categories.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
@@ -315,7 +435,7 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
               onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
               className="rounded text-emerald-600 focus:ring-emerald-500 w-4 h-4"
             />
-            Active Product
+            Active Product (Visible in Store)
           </label>
 
           <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-800">
@@ -325,7 +445,7 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
               onChange={(e) => setFormData({ ...formData, is_featured: e.target.checked })}
               className="rounded text-emerald-600 focus:ring-emerald-500 w-4 h-4"
             />
-            Featured Product
+            Featured Product (Badge & Highlights)
           </label>
 
           <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-800">
@@ -335,7 +455,7 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
               onChange={(e) => setFormData({ ...formData, show_on_homepage: e.target.checked })}
               className="rounded text-emerald-600 focus:ring-emerald-500 w-4 h-4"
             />
-            Show on Homepage
+            Show on Homepage Carousel
           </label>
         </div>
       </div>
@@ -419,7 +539,7 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
             type="text"
             value={formData.seo_title || ''}
             onChange={(e) => setFormData({ ...formData, seo_title: e.target.value })}
-            placeholder="Fresh Farm Whole Milk - Farm Fresh Dairy"
+            placeholder="Fresh Farm Whole Milk - Farm Fresh Dairy Islamabad"
             className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500"
           />
         </div>
@@ -432,7 +552,7 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
             rows={2}
             value={formData.seo_description || ''}
             onChange={(e) => setFormData({ ...formData, seo_description: e.target.value })}
-            placeholder="Order pure raw pasture milk delivered daily..."
+            placeholder="Order pure raw pasture milk delivered daily to your doorstep..."
             className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500"
           ></textarea>
         </div>
@@ -449,6 +569,65 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
           {loading ? 'Saving Product to Database...' : 'Save Product Record'}
         </button>
       </div>
+
+      {/* Quick Add Category Modal */}
+      {showQuickCategoryModal && (
+        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl border border-slate-200 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="font-bold text-slate-900 text-base flex items-center gap-2">
+                <FolderPlus className="w-5 h-5 text-emerald-600" />
+                Add New Category
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowQuickCategoryModal(false)}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {newCatError && (
+              <div className="p-3 rounded-xl bg-red-50 text-red-700 text-xs font-semibold">
+                {newCatError}
+              </div>
+            )}
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">
+                Category Name *
+              </label>
+              <input
+                type="text"
+                value={newCatName}
+                onChange={(e) => setNewCatName(e.target.value)}
+                placeholder="e.g. Organic Eggs, Dairy Sweets, Paneer"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                autoFocus
+              />
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowQuickCategoryModal(false)}
+                className="px-4 py-2 rounded-xl text-slate-600 text-xs font-semibold hover:bg-slate-100"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleQuickAddCategory}
+                disabled={newCatLoading || !newCatName.trim()}
+                className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-xs font-bold shadow-sm"
+              >
+                {newCatLoading ? 'Creating...' : 'Create & Select'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </form>
   );

@@ -1,14 +1,29 @@
 import { Product, Category, FarmValue, ProcessStep, DeliveryRegion, Testimonial, Order, HomepageHero, HomepagePromise } from '../types';
 import { INITIAL_CATEGORIES, INITIAL_PRODUCTS, INITIAL_VALUES, INITIAL_PROCESS, INITIAL_DELIVERY, INITIAL_TESTIMONIALS, INITIAL_HERO, INITIAL_PROMISE, INITIAL_ORDERS } from './mock-data';
 import { createAdminClient } from './admin';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 
 const isClient = typeof window !== 'undefined';
+
+function getDbClient() {
+  try {
+    const admin = createAdminClient();
+    if (admin) return admin;
+  } catch (e) {}
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (supabaseUrl && supabaseAnonKey && !supabaseUrl.includes('your-project-id')) {
+    return createSupabaseClient(supabaseUrl, supabaseAnonKey);
+  }
+  return null;
+}
 
 // Safe helper for optional local persistence during dev mode
 function getLocalFallback<T>(key: string, initial: T): T {
   if (!isClient) return initial;
   try {
-    const item = localStorage.getItem(`pure_pastures_${key}`);
+    const item = localStorage.getItem(`farm_fresh_${key}`) || localStorage.getItem(`pure_pastures_${key}`);
     return item ? JSON.parse(item) : initial;
   } catch (e) {
     return initial;
@@ -18,32 +33,34 @@ function getLocalFallback<T>(key: string, initial: T): T {
 // ---------------- PRODUCTS ----------------
 export async function getProducts(options?: { categorySlug?: string; featuredOnly?: boolean; search?: string }): Promise<Product[]> {
   try {
-    const adminClient = createAdminClient();
-    let query = adminClient
-      .from('products')
-      .select('*, category:categories(*), images:product_images(*)')
-      .eq('is_active', true)
-      .order('created_at', { ascending: false });
+    const client = getDbClient();
+    if (client) {
+      let query = client
+        .from('products')
+        .select('*, category:categories(*), images:product_images(*)')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
 
-    if (options?.featuredOnly) {
-      query = query.eq('is_featured', true);
-    }
-
-    const { data, error } = await query;
-
-    if (!error && data && data.length > 0) {
-      let filtered = data as Product[];
-      if (options?.categorySlug && options.categorySlug !== 'all') {
-        filtered = filtered.filter(p => p.category?.slug === options.categorySlug || p.category_id === options.categorySlug);
+      if (options?.featuredOnly) {
+        query = query.eq('is_featured', true);
       }
-      if (options?.search) {
-        const q = options.search.toLowerCase();
-        filtered = filtered.filter(p => p.name.toLowerCase().includes(q) || p.short_description.toLowerCase().includes(q));
+
+      const { data, error } = await query;
+
+      if (!error && data && data.length > 0) {
+        let filtered = data as Product[];
+        if (options?.categorySlug && options.categorySlug !== 'all') {
+          filtered = filtered.filter(p => p.category?.slug === options.categorySlug || p.category_id === options.categorySlug);
+        }
+        if (options?.search) {
+          const q = options.search.toLowerCase();
+          filtered = filtered.filter(p => p.name.toLowerCase().includes(q) || p.short_description.toLowerCase().includes(q));
+        }
+        return filtered.map(p => ({
+          ...p,
+          primary_image: p.images?.find((img: any) => img.is_primary)?.image_url || p.images?.[0]?.image_url || p.primary_image || 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=1000&q=80',
+        }));
       }
-      return filtered.map(p => ({
-        ...p,
-        primary_image: p.images?.find((img: any) => img.is_primary)?.image_url || p.images?.[0]?.image_url || p.primary_image || 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=1000&q=80',
-      }));
     }
   } catch (err) {
     console.warn('Database query fallback to initial products:', err);
@@ -66,17 +83,19 @@ export async function getProducts(options?: { categorySlug?: string; featuredOnl
 
 export async function getAllProductsAdmin(): Promise<Product[]> {
   try {
-    const adminClient = createAdminClient();
-    const { data, error } = await adminClient
-      .from('products')
-      .select('*, category:categories(*), images:product_images(*)')
-      .order('created_at', { ascending: false });
+    const adminClient = getDbClient();
+    if (adminClient) {
+      const { data, error } = await adminClient
+        .from('products')
+        .select('*, category:categories(*), images:product_images(*)')
+        .order('created_at', { ascending: false });
 
-    if (!error && data && data.length > 0) {
-      return (data as Product[]).map(p => ({
-        ...p,
-        primary_image: p.images?.find((img: any) => img.is_primary)?.image_url || p.images?.[0]?.image_url || p.primary_image || 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=1000&q=80',
-      }));
+      if (!error && data && data.length > 0) {
+        return (data as Product[]).map(p => ({
+          ...p,
+          primary_image: p.images?.find((img: any) => img.is_primary)?.image_url || p.images?.[0]?.image_url || p.primary_image || 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=1000&q=80',
+        }));
+      }
     }
   } catch (err) {
     console.warn('Admin products DB fetch fallback:', err);
@@ -87,19 +106,21 @@ export async function getAllProductsAdmin(): Promise<Product[]> {
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
   try {
-    const adminClient = createAdminClient();
-    const { data, error } = await adminClient
-      .from('products')
-      .select('*, category:categories(*), images:product_images(*)')
-      .eq('slug', slug)
-      .single();
+    const adminClient = getDbClient();
+    if (adminClient) {
+      const { data, error } = await adminClient
+        .from('products')
+        .select('*, category:categories(*), images:product_images(*)')
+        .eq('slug', slug)
+        .single();
 
-    if (!error && data) {
-      const prod = data as Product;
-      return {
-        ...prod,
-        primary_image: prod.images?.find((img: any) => img.is_primary)?.image_url || prod.images?.[0]?.image_url || prod.primary_image || 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=1000&q=80',
-      };
+      if (!error && data) {
+        const prod = data as Product;
+        return {
+          ...prod,
+          primary_image: prod.images?.find((img: any) => img.is_primary)?.image_url || prod.images?.[0]?.image_url || prod.primary_image || 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=1000&q=80',
+        };
+      }
     }
   } catch (err) {
     console.warn('Product by slug DB fetch fallback:', err);
@@ -111,19 +132,21 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
 
 export async function getProductById(id: string): Promise<Product | null> {
   try {
-    const adminClient = createAdminClient();
-    const { data, error } = await adminClient
-      .from('products')
-      .select('*, category:categories(*), images:product_images(*)')
-      .eq('id', id)
-      .single();
+    const adminClient = getDbClient();
+    if (adminClient) {
+      const { data, error } = await adminClient
+        .from('products')
+        .select('*, category:categories(*), images:product_images(*)')
+        .eq('id', id)
+        .single();
 
-    if (!error && data) {
-      const prod = data as Product;
-      return {
-        ...prod,
-        primary_image: prod.images?.find((img: any) => img.is_primary)?.image_url || prod.images?.[0]?.image_url || prod.primary_image || 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=1000&q=80',
-      };
+      if (!error && data) {
+        const prod = data as Product;
+        return {
+          ...prod,
+          primary_image: prod.images?.find((img: any) => img.is_primary)?.image_url || prod.images?.[0]?.image_url || prod.primary_image || 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=1000&q=80',
+        };
+      }
     }
   } catch (err) {
     console.warn('Product by ID DB fetch fallback:', err);
@@ -191,15 +214,17 @@ export async function deleteProduct(id: string): Promise<boolean> {
 // ---------------- CATEGORIES ----------------
 export async function getCategories(): Promise<Category[]> {
   try {
-    const adminClient = createAdminClient();
-    const { data, error } = await adminClient
-      .from('categories')
-      .select('*')
-      .eq('is_active', true)
-      .order('sort_order', { ascending: true });
+    const adminClient = getDbClient();
+    if (adminClient) {
+      const { data, error } = await adminClient
+        .from('categories')
+        .select('*')
+        .eq('is_active', true)
+        .order('sort_order', { ascending: true });
 
-    if (!error && data && data.length > 0) {
-      return data as Category[];
+      if (!error && data && data.length > 0) {
+        return data as Category[];
+      }
     }
   } catch (err) {}
 
@@ -208,14 +233,16 @@ export async function getCategories(): Promise<Category[]> {
 
 export async function getAllCategoriesAdmin(): Promise<Category[]> {
   try {
-    const adminClient = createAdminClient();
-    const { data, error } = await adminClient
-      .from('categories')
-      .select('*')
-      .order('sort_order', { ascending: true });
+    const adminClient = getDbClient();
+    if (adminClient) {
+      const { data, error } = await adminClient
+        .from('categories')
+        .select('*')
+        .order('sort_order', { ascending: true });
 
-    if (!error && data && data.length > 0) {
-      return data as Category[];
+      if (!error && data && data.length > 0) {
+        return data as Category[];
+      }
     }
   } catch (err) {}
 
@@ -224,31 +251,33 @@ export async function getAllCategoriesAdmin(): Promise<Category[]> {
 
 export async function saveCategory(categoryData: Partial<Category>): Promise<Category> {
   try {
-    const adminClient = createAdminClient();
-    const payload = {
-      name: categoryData.name!,
-      slug: categoryData.slug || categoryData.name?.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-      description: categoryData.description || null,
-      sort_order: categoryData.sort_order || 1,
-      is_active: categoryData.is_active !== undefined ? categoryData.is_active : true,
-      updated_at: new Date().toISOString(),
-    };
+    const adminClient = getDbClient();
+    if (adminClient) {
+      const payload = {
+        name: categoryData.name!,
+        slug: categoryData.slug || categoryData.name?.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+        description: categoryData.description || null,
+        sort_order: categoryData.sort_order || 1,
+        is_active: categoryData.is_active !== undefined ? categoryData.is_active : true,
+        updated_at: new Date().toISOString(),
+      };
 
-    if (categoryData.id) {
-      const { data } = await adminClient
-        .from('categories')
-        .update(payload)
-        .eq('id', categoryData.id)
-        .select()
-        .single();
-      if (data) return data as Category;
-    } else {
-      const { data } = await adminClient
-        .from('categories')
-        .insert({ ...payload, created_at: new Date().toISOString() })
-        .select()
-        .single();
-      if (data) return data as Category;
+      if (categoryData.id) {
+        const { data } = await adminClient
+          .from('categories')
+          .update(payload)
+          .eq('id', categoryData.id)
+          .select()
+          .single();
+        if (data) return data as Category;
+      } else {
+        const { data } = await adminClient
+          .from('categories')
+          .insert({ ...payload, created_at: new Date().toISOString() })
+          .select()
+          .single();
+        if (data) return data as Category;
+      }
     }
   } catch (err) {}
 
@@ -269,14 +298,16 @@ export async function saveCategory(categoryData: Partial<Category>): Promise<Cat
 // ---------------- ORDERS ----------------
 export async function getOrders(): Promise<Order[]> {
   try {
-    const adminClient = createAdminClient();
-    const { data, error } = await adminClient
-      .from('orders')
-      .select('*, items:order_items(*)')
-      .order('created_at', { ascending: false });
+    const adminClient = getDbClient();
+    if (adminClient) {
+      const { data, error } = await adminClient
+        .from('orders')
+        .select('*, items:order_items(*)')
+        .order('created_at', { ascending: false });
 
-    if (!error && data && data.length > 0) {
-      return data as Order[];
+      if (!error && data && data.length > 0) {
+        return data as Order[];
+      }
     }
   } catch (err) {}
 
@@ -315,15 +346,17 @@ export async function updateOrderStatus(orderId: string, status: Order['status']
 // ---------------- FARM VALUES ----------------
 export async function getFarmValues(): Promise<FarmValue[]> {
   try {
-    const adminClient = createAdminClient();
-    const { data, error } = await adminClient
-      .from('farm_values')
-      .select('*')
-      .eq('is_active', true)
-      .order('sort_order', { ascending: true });
+    const adminClient = getDbClient();
+    if (adminClient) {
+      const { data, error } = await adminClient
+        .from('farm_values')
+        .select('*')
+        .eq('is_active', true)
+        .order('sort_order', { ascending: true });
 
-    if (!error && data && data.length > 0) {
-      return data as FarmValue[];
+      if (!error && data && data.length > 0) {
+        return data as FarmValue[];
+      }
     }
   } catch (err) {}
 
@@ -333,15 +366,17 @@ export async function getFarmValues(): Promise<FarmValue[]> {
 // ---------------- PROCESS STEPS ----------------
 export async function getProcessSteps(): Promise<ProcessStep[]> {
   try {
-    const adminClient = createAdminClient();
-    const { data, error } = await adminClient
-      .from('process_steps')
-      .select('*')
-      .eq('is_active', true)
-      .order('sort_order', { ascending: true });
+    const adminClient = getDbClient();
+    if (adminClient) {
+      const { data, error } = await adminClient
+        .from('process_steps')
+        .select('*')
+        .eq('is_active', true)
+        .order('sort_order', { ascending: true });
 
-    if (!error && data && data.length > 0) {
-      return data as ProcessStep[];
+      if (!error && data && data.length > 0) {
+        return data as ProcessStep[];
+      }
     }
   } catch (err) {}
 
@@ -351,15 +386,17 @@ export async function getProcessSteps(): Promise<ProcessStep[]> {
 // ---------------- DELIVERY REGIONS ----------------
 export async function getDeliveryRegions(): Promise<DeliveryRegion[]> {
   try {
-    const adminClient = createAdminClient();
-    const { data, error } = await adminClient
-      .from('delivery_regions')
-      .select('*, areas:delivery_areas(*)')
-      .eq('is_active', true)
-      .order('sort_order', { ascending: true });
+    const adminClient = getDbClient();
+    if (adminClient) {
+      const { data, error } = await adminClient
+        .from('delivery_regions')
+        .select('*, areas:delivery_areas(*)')
+        .eq('is_active', true)
+        .order('sort_order', { ascending: true });
 
-    if (!error && data && data.length > 0) {
-      return data as DeliveryRegion[];
+      if (!error && data && data.length > 0) {
+        return data as DeliveryRegion[];
+      }
     }
   } catch (err) {}
 
@@ -369,15 +406,17 @@ export async function getDeliveryRegions(): Promise<DeliveryRegion[]> {
 // ---------------- TESTIMONIALS ----------------
 export async function getTestimonials(): Promise<Testimonial[]> {
   try {
-    const adminClient = createAdminClient();
-    const { data, error } = await adminClient
-      .from('testimonials')
-      .select('*')
-      .eq('is_active', true)
-      .order('sort_order', { ascending: true });
+    const adminClient = getDbClient();
+    if (adminClient) {
+      const { data, error } = await adminClient
+        .from('testimonials')
+        .select('*')
+        .eq('is_active', true)
+        .order('sort_order', { ascending: true });
 
-    if (!error && data && data.length > 0) {
-      return data as Testimonial[];
+      if (!error && data && data.length > 0) {
+        return data as Testimonial[];
+      }
     }
   } catch (err) {}
 
@@ -387,19 +426,21 @@ export async function getTestimonials(): Promise<Testimonial[]> {
 // ---------------- HOMEPAGE CMS ----------------
 export async function getHomepageHero(): Promise<HomepageHero> {
   try {
-    const adminClient = createAdminClient();
-    const { data, error } = await adminClient
-      .from('homepage_sections')
-      .select('content_json, title')
-      .eq('section_key', 'hero')
-      .single();
+    const adminClient = getDbClient();
+    if (adminClient) {
+      const { data, error } = await adminClient
+        .from('homepage_sections')
+        .select('content_json, title')
+        .eq('section_key', 'hero')
+        .single();
 
-    if (!error && data && data.content_json) {
-      return {
-        ...INITIAL_HERO,
-        ...data.content_json,
-        heading: data.title || data.content_json.heading || INITIAL_HERO.heading,
-      };
+      if (!error && data && data.content_json) {
+        return {
+          ...INITIAL_HERO,
+          ...data.content_json,
+          heading: data.title || data.content_json.heading || INITIAL_HERO.heading,
+        };
+      }
     }
   } catch (err) {}
 
@@ -408,16 +449,18 @@ export async function getHomepageHero(): Promise<HomepageHero> {
 
 export async function saveHomepageHero(hero: HomepageHero): Promise<HomepageHero> {
   try {
-    const adminClient = createAdminClient();
-    await adminClient
-      .from('homepage_sections')
-      .upsert({
-        section_key: 'hero',
-        title: hero.heading,
-        content_json: hero,
-        is_active: true,
-        updated_at: new Date().toISOString(),
-      });
+    const adminClient = getDbClient();
+    if (adminClient) {
+      await adminClient
+        .from('homepage_sections')
+        .upsert({
+          section_key: 'hero',
+          title: hero.heading,
+          content_json: hero,
+          is_active: true,
+          updated_at: new Date().toISOString(),
+        });
+    }
   } catch (err) {}
 
   if (isClient) localStorage.setItem('pure_pastures_cms_hero', JSON.stringify(hero));
@@ -426,20 +469,22 @@ export async function saveHomepageHero(hero: HomepageHero): Promise<HomepageHero
 
 export async function getHomepagePromise(): Promise<HomepagePromise> {
   try {
-    const adminClient = createAdminClient();
-    const { data, error } = await adminClient
-      .from('homepage_sections')
-      .select('content_json, title, subtitle')
-      .eq('section_key', 'promise')
-      .single();
+    const adminClient = getDbClient();
+    if (adminClient) {
+      const { data, error } = await adminClient
+        .from('homepage_sections')
+        .select('content_json, title, subtitle')
+        .eq('section_key', 'promise')
+        .single();
 
-    if (!error && data && data.content_json) {
-      return {
-        ...INITIAL_PROMISE,
-        ...data.content_json,
-        heading: data.title || data.content_json.heading || INITIAL_PROMISE.heading,
-        subtitle: data.subtitle || data.content_json.subtitle || INITIAL_PROMISE.subtitle,
-      };
+      if (!error && data && data.content_json) {
+        return {
+          ...INITIAL_PROMISE,
+          ...data.content_json,
+          heading: data.title || data.content_json.heading || INITIAL_PROMISE.heading,
+          subtitle: data.subtitle || data.content_json.subtitle || INITIAL_PROMISE.subtitle,
+        };
+      }
     }
   } catch (err) {}
 

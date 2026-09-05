@@ -136,16 +136,27 @@ export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
           </div>
         </div>
 
-        <div className="space-y-2">
-          <span className="text-xs font-mono uppercase tracking-widest text-emerald-600 font-bold bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
-            Order Saved & Sent to WhatsApp
+        <div className="space-y-3">
+          <span className="inline-flex items-center gap-1.5 text-xs font-mono uppercase tracking-widest text-emerald-700 font-bold bg-emerald-50 px-3.5 py-1.5 rounded-full border border-emerald-200 shadow-sm">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+            Order Successfully Placed
           </span>
           <h2 className="font-serif text-3xl sm:text-4xl font-bold text-earth-900">
             Thank You, {completedOrder.customer_name}!
           </h2>
-          <p className="text-earth-600 text-sm max-w-md mx-auto">
-            Your morning milk order has been saved with Order ID: <strong className="font-mono text-farm-800">#{completedOrder.order_number}</strong>.
-          </p>
+          <div className="text-sm font-mono font-bold text-farm-800 bg-farm-50/80 py-1.5 px-4 rounded-xl inline-block border border-farm-200">
+            Order #{completedOrder.order_number}
+          </div>
+          {completedOrder.customer_email ? (
+            <p className="text-earth-600 text-xs sm:text-sm max-w-md mx-auto pt-1">
+              A confirmation email has been sent to:<br />
+              <strong className="text-farm-900 font-semibold">{completedOrder.customer_email}</strong>
+            </p>
+          ) : (
+            <p className="text-earth-600 text-xs sm:text-sm max-w-md mx-auto pt-1">
+              Your order has been received successfully.
+            </p>
+          )}
         </div>
 
         {/* Big WhatsApp CTA Button */}

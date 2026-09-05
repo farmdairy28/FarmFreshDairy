@@ -90,7 +90,7 @@ export function DeliverySection({ regions }: { regions: DeliveryRegion[] }) {
 
             <div className="pt-8 mt-6 border-t border-earth-200 flex flex-col sm:flex-row items-center justify-between gap-4">
               <span className="text-xs text-earth-500 font-mono text-center sm:text-left">
-                Don't see your area listed? Contact our farm desk for custom morning delivery.
+                Don&apos;t see your area listed? Contact our farm desk for custom morning delivery.
               </span>
               <Link
                 href="/products"

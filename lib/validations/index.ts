@@ -27,7 +27,16 @@ export const CheckoutSchema = z.object({
   delivery_notes: z.string().optional(),
 });
 
+export const CategorySchema = z.object({
+  name: z.string().min(2, 'Category name must be at least 2 characters'),
+  slug: z.string().min(2, 'Slug is required'),
+  description: z.string().optional(),
+  sort_order: z.coerce.number().optional().default(1),
+  is_active: z.boolean().default(true),
+});
+
 export const AdminLoginSchema = z.object({
   email: z.string().email('Valid admin email required'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
 });
+

@@ -55,7 +55,12 @@ export async function saveProductAction(productData: Partial<Product>): Promise<
       if (productData.primary_image) {
         await adminClient
           .from('product_images')
-          .upsert({
+          .delete()
+          .eq('product_id', productData.id);
+
+        await adminClient
+          .from('product_images')
+          .insert({
             product_id: productData.id,
             image_url: productData.primary_image,
             is_primary: true,
@@ -63,7 +68,9 @@ export async function saveProductAction(productData: Partial<Product>): Promise<
           });
       }
 
+      revalidatePath('/');
       revalidatePath('/products');
+      revalidatePath('/products/[slug]', 'page');
       revalidatePath('/admin/products');
       return { success: true, product: data as Product };
     } else {
@@ -91,7 +98,9 @@ export async function saveProductAction(productData: Partial<Product>): Promise<
           });
       }
 
+      revalidatePath('/');
       revalidatePath('/products');
+      revalidatePath('/products/[slug]', 'page');
       revalidatePath('/admin/products');
       return { success: true, product: data as Product };
     }
@@ -114,7 +123,9 @@ export async function deleteProductAction(productId: string): Promise<{ success:
       return { success: false, error: error.message };
     }
 
+    revalidatePath('/');
     revalidatePath('/products');
+    revalidatePath('/products/[slug]', 'page');
     revalidatePath('/admin/products');
     return { success: true };
   } catch (err: any) {

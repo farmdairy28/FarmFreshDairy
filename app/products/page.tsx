@@ -3,6 +3,9 @@ import { getProducts, getCategories } from '@/lib/supabase/api';
 import { ProductCard } from '@/components/products/ProductCard';
 import { ProductFilterControls } from '@/components/products/ProductFilterControls';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export const metadata = {
   title: 'Fresh Products — Farm Fresh Dairy Islamabad',
   description: 'Order 100% pure cow milk (Rs. 250/L), thick dahi, bilona desi ghee, paneer, and malai with free delivery in Shahzad Town.',

@@ -67,7 +67,7 @@ export function TestimonialSection({ testimonials }: { testimonials: Testimonial
 
               {/* Review Text */}
               <p className="font-serif text-2xl sm:text-3xl md:text-4xl text-earth-900 leading-snug font-medium italic">
-                "{current.review}"
+                &ldquo;{current.review}&rdquo;
               </p>
 
               {/* Author Details */}

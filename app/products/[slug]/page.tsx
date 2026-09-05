@@ -7,6 +7,9 @@ import { getProductBySlug, getProducts } from '@/lib/supabase/api';
 import { ProductCard } from '@/components/products/ProductCard';
 import { ProductDetailClient } from './product-detail-client';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function generateMetadata({ params }: { params: { slug: string } }) {
   const product = await getProductBySlug(params.slug);
   if (!product) return { title: 'Product Not Found' };
@@ -98,7 +101,9 @@ export default async function ProductDetailPage({ params }: { params: { slug: st
                     {product.currency} {product.compare_at_price}
                   </span>
                 )}
-                <span className="text-xs text-earth-500 font-mono">/ {product.unit} ({product.weight_volume})</span>
+                <span className="text-xs text-earth-500 font-mono">
+                  / {product.unit}{product.weight_volume ? ` (${product.weight_volume})` : ''}
+                </span>
               </div>
             </div>
 

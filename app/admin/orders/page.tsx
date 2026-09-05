@@ -133,7 +133,7 @@ export default function AdminOrdersPage() {
                 </div>
                 {selectedOrder.delivery_notes && (
                   <div className="text-[11px] text-amber-700 italic pt-1">
-                    Note: "{selectedOrder.delivery_notes}"
+                    Note: &ldquo;{selectedOrder.delivery_notes}&rdquo;
                   </div>
                 )}
               </div>

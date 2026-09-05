@@ -1,9 +1,10 @@
 'use server';
 
-import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { Order, OrderStatus } from '@/lib/types';
 import { INITIAL_PRODUCTS, INITIAL_ORDERS } from '@/lib/supabase/mock-data';
+import { sendOrderEmails, sendStatusUpdateEmail } from '@/lib/email/order-emails';
+import { isAuthorizedAdminEmail } from '@/lib/auth/admin-auth';
 
 export interface CreateOrderInput {
   items: Array<{ productId: string; quantity: number }>;
@@ -27,23 +28,26 @@ export async function submitOrderAction(input: CreateOrderInput): Promise<OrderA
     return { success: false, error: 'Cannot checkout with an empty cart.' };
   }
 
-  if (!input.customer_name || !input.customer_phone || !input.delivery_address || !input.area_name) {
+  if (!input.customer_name?.trim() || !input.customer_phone?.trim() || !input.delivery_address?.trim() || !input.area_name?.trim()) {
     return { success: false, error: 'All required contact and delivery fields must be completed.' };
   }
 
   try {
     const adminClient = createAdminClient();
-
     const productIds = input.items.map((i) => i.productId);
 
-    // 1. Fetch real products from DB by ID to prevent client price tampering
+    // 1. Fetch real products from DB by ID to strictly prevent client-side price tampering
     let dbProducts = null;
     if (adminClient) {
-      const { data } = await adminClient
-        .from('products')
-        .select('id, name, price, stock, is_active')
-        .in('id', productIds);
-      dbProducts = data;
+      try {
+        const { data } = await adminClient
+          .from('products')
+          .select('id, name, price, stock, is_active')
+          .in('id', productIds);
+        dbProducts = data;
+      } catch (e) {
+        console.warn('DB product lookup fallback:', e);
+      }
     }
 
     let verifiedProducts: Array<{ id: string; name: string; price: number; stock: number; is_active: boolean }> = [];
@@ -86,21 +90,20 @@ export async function submitOrderAction(input: CreateOrderInput): Promise<OrderA
     const deliveryFee = 0.00; // Free morning chilled delivery route
     const totalAmount = calculatedSubtotal + deliveryFee;
     const orderNumber = `FFD-${Math.floor(1000 + Math.random() * 9000)}`;
+    let orderId = `ord-${Date.now()}`;
 
-    // 3. Insert order record into PostgreSQL if database client is connected
-    const orderId = `ord-${Date.now()}`;
-
+    // 3. Insert order record into Supabase PostgreSQL
     if (adminClient) {
       try {
         const newOrderRecord = {
           order_number: orderNumber,
-          customer_name: input.customer_name,
-          customer_email: input.customer_email || '',
-          customer_phone: input.customer_phone,
-          delivery_address: input.delivery_address,
-          city: input.city || 'Islamabad',
-          area_name: input.area_name,
-          delivery_notes: input.delivery_notes || '',
+          customer_name: input.customer_name.trim(),
+          customer_email: (input.customer_email || '').trim(),
+          customer_phone: input.customer_phone.trim(),
+          delivery_address: input.delivery_address.trim(),
+          city: input.city?.trim() || 'Islamabad',
+          area_name: input.area_name.trim(),
+          delivery_notes: (input.delivery_notes || '').trim(),
           delivery_fee: deliveryFee,
           subtotal: calculatedSubtotal,
           total_amount: totalAmount,
@@ -109,13 +112,15 @@ export async function submitOrderAction(input: CreateOrderInput): Promise<OrderA
           payment_status: 'Pending',
         };
 
-        const { data: insertedOrder } = await adminClient
+        const { data: insertedOrder, error: orderInsertError } = await adminClient
           .from('orders')
           .insert(newOrderRecord)
           .select()
           .single();
 
         if (insertedOrder) {
+          orderId = insertedOrder.id;
+
           const itemsToInsert = orderItemsSnapshot.map((it) => ({
             order_id: insertedOrder.id,
             product_id: it.product_id,
@@ -126,6 +131,8 @@ export async function submitOrderAction(input: CreateOrderInput): Promise<OrderA
           }));
 
           await adminClient.from('order_items').insert(itemsToInsert);
+        } else if (orderInsertError) {
+          console.error('Database order insert error:', orderInsertError);
         }
       } catch (e) {
         console.warn('Database save warning (using local order state):', e);
@@ -135,13 +142,13 @@ export async function submitOrderAction(input: CreateOrderInput): Promise<OrderA
     const completedOrder: Order = {
       id: orderId,
       order_number: orderNumber,
-      customer_name: input.customer_name,
-      customer_email: input.customer_email || '',
-      customer_phone: input.customer_phone,
-      delivery_address: input.delivery_address,
-      city: input.city || 'Islamabad',
-      area_name: input.area_name,
-      delivery_notes: input.delivery_notes,
+      customer_name: input.customer_name.trim(),
+      customer_email: (input.customer_email || '').trim(),
+      customer_phone: input.customer_phone.trim(),
+      delivery_address: input.delivery_address.trim(),
+      city: input.city?.trim() || 'Islamabad',
+      area_name: input.area_name.trim(),
+      delivery_notes: input.delivery_notes?.trim(),
       delivery_fee: deliveryFee,
       subtotal: calculatedSubtotal,
       total_amount: totalAmount,
@@ -151,6 +158,17 @@ export async function submitOrderAction(input: CreateOrderInput): Promise<OrderA
       items: orderItemsSnapshot,
       created_at: new Date().toISOString(),
     };
+
+    // 4. Trigger server-side transactional email notifications safely (non-blocking)
+    try {
+      await sendOrderEmails({
+        order: completedOrder,
+        items: orderItemsSnapshot,
+      });
+    } catch (emailErr) {
+      // Never allow email provider failures to break a successfully placed order
+      console.error('[Order Email Trigger Handled Error]:', emailErr);
+    }
 
     return {
       success: true,
@@ -162,23 +180,55 @@ export async function submitOrderAction(input: CreateOrderInput): Promise<OrderA
   }
 }
 
-export async function updateOrderStatusAction(orderId: string, status: OrderStatus): Promise<{ success: boolean; error?: string }> {
+export async function updateOrderStatusAction(
+  orderId: string,
+  status: OrderStatus
+): Promise<{ success: boolean; error?: string }> {
   try {
     const adminClient = createAdminClient();
     const paymentStatus = status === 'Delivered' ? 'Paid' : 'Pending';
 
-    const { error } = await adminClient
-      .from('orders')
-      .update({
-        status,
-        payment_status: paymentStatus,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', orderId);
+    let existingOrder: Order | null = null;
 
-    if (error) {
-      console.error('Order status update error:', error);
-      return { success: false, error: error.message };
+    if (adminClient) {
+      // 1. Fetch current order to check previous status and customer email
+      const { data: orderData } = await adminClient
+        .from('orders')
+        .select('*, items:order_items(*)')
+        .eq('id', orderId)
+        .maybeSingle();
+
+      if (orderData) {
+        existingOrder = orderData as Order;
+      }
+
+      // 2. Update status in database
+      const { error } = await adminClient
+        .from('orders')
+        .update({
+          status,
+          payment_status: paymentStatus,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', orderId);
+
+      if (error) {
+        console.error('Order status update error:', error);
+        return { success: false, error: error.message };
+      }
+    }
+
+    // 3. Send lifecycle status notification email if order has valid email
+    if (existingOrder && existingOrder.status !== status) {
+      try {
+        const updatedOrderRecord = { ...existingOrder, status };
+        await sendStatusUpdateEmail({
+          order: updatedOrderRecord,
+          newStatus: status,
+        });
+      } catch (emailErr) {
+        console.error('[Status Email Trigger Error]:', emailErr);
+      }
     }
 
     return { success: true };

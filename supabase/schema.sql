@@ -362,3 +362,33 @@ CREATE POLICY "Admins can update product images" ON storage.objects
 
 CREATE POLICY "Admins can delete product images" ON storage.objects
   FOR DELETE USING (bucket_id = 'product-images' AND public.is_admin());
+
+-- ========================================================
+-- 15. ORDER EMAIL NOTIFICATIONS TABLE (Deduplication & Audit)
+-- ========================================================
+CREATE TABLE IF NOT EXISTS order_email_notifications (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  order_id TEXT NOT NULL,
+  email_type TEXT NOT NULL,
+  recipient TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'PENDING',
+  provider_message_id TEXT,
+  attempts INTEGER DEFAULT 1,
+  last_error TEXT,
+  sent_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  CONSTRAINT uq_order_email_notification UNIQUE (order_id, email_type, recipient)
+);
+
+CREATE INDEX IF NOT EXISTS idx_order_email_notif_order_id ON order_email_notifications(order_id);
+CREATE INDEX IF NOT EXISTS idx_order_email_notif_status ON order_email_notifications(status);
+
+ALTER TABLE order_email_notifications ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Service role full access on order_email_notifications"
+  ON order_email_notifications
+  FOR ALL
+  USING (true)
+  WITH CHECK (true);
+

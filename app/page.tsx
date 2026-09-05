@@ -12,7 +12,8 @@ import { AboutStory } from '@/components/home/AboutStory';
 import { TestimonialSection } from '@/components/home/TestimonialSection';
 import { FinalCTA } from '@/components/home/FinalCTA';
 
-export const revalidate = 60; // revalidate every 60s
+export const dynamic = 'force-dynamic';
+export const revalidate = 0; // Real-time dynamic fetch on request
 
 export default async function HomePage() {
   const [
