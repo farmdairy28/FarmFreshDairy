@@ -90,7 +90,7 @@ export async function getAllProductsAdmin(): Promise<Product[]> {
         .select('*, category:categories(*), images:product_images(*)')
         .order('created_at', { ascending: false });
 
-      if (!error && data && data.length > 0) {
+      if (!error && Array.isArray(data)) {
         return (data as Product[]).map(p => ({
           ...p,
           primary_image: p.images?.find((img: any) => img.is_primary)?.image_url || p.images?.[0]?.image_url || p.primary_image || 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=1000&q=80',
@@ -305,11 +305,13 @@ export async function getOrders(): Promise<Order[]> {
         .select('*, items:order_items(*)')
         .order('created_at', { ascending: false });
 
-      if (!error && data && data.length > 0) {
+      if (!error && Array.isArray(data)) {
         return data as Order[];
       }
     }
-  } catch (err) {}
+  } catch (err) {
+    console.warn('Orders DB fetch fallback:', err);
+  }
 
   return getLocalFallback<Order[]>('orders', INITIAL_ORDERS);
 }
@@ -493,17 +495,19 @@ export async function getHomepagePromise(): Promise<HomepagePromise> {
 
 export async function saveHomepagePromise(promise: HomepagePromise): Promise<HomepagePromise> {
   try {
-    const adminClient = createAdminClient();
-    await adminClient
-      .from('homepage_sections')
-      .upsert({
-        section_key: 'promise',
-        title: promise.heading,
-        subtitle: promise.subtitle,
-        content_json: promise,
-        is_active: true,
-        updated_at: new Date().toISOString(),
-      });
+    const adminClient = getDbClient();
+    if (adminClient) {
+      await adminClient
+        .from('homepage_sections')
+        .upsert({
+          section_key: 'promise',
+          title: promise.heading,
+          subtitle: promise.subtitle,
+          content_json: promise,
+          is_active: true,
+          updated_at: new Date().toISOString(),
+        });
+    }
   } catch (err) {}
 
   if (isClient) localStorage.setItem('pure_pastures_cms_promise', JSON.stringify(promise));

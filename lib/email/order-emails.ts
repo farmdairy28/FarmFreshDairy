@@ -33,7 +33,6 @@ export function isValidEmail(email?: string | null): boolean {
   if (!email || typeof email !== 'string') return false;
   const trimmed = email.trim();
   if (trimmed.length < 5 || trimmed.length > 254) return false;
-  // Standard RFC 5322 compliant regex for practical email validation
   const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
   return emailRegex.test(trimmed);
 }
@@ -50,7 +49,7 @@ async function hasNotificationBeenSent(
     const adminClient = createAdminClient();
     if (!adminClient) return false;
 
-    const { data } = await adminClient
+    const { data, error } = await adminClient
       .from('order_email_notifications')
       .select('id, status')
       .eq('order_id', orderId)
@@ -58,6 +57,11 @@ async function hasNotificationBeenSent(
       .eq('recipient', recipient.toLowerCase().trim())
       .eq('status', 'SENT')
       .maybeSingle();
+
+    if (error) {
+      console.warn('[Deduplication Check Notice]:', error.message);
+      return false;
+    }
 
     return !!data;
   } catch (err) {
@@ -84,7 +88,7 @@ async function logNotificationAttempt(
     const normalizedRecipient = recipient.toLowerCase().trim();
 
     // Upsert notification tracking record
-    await adminClient
+    const { error: upsertError } = await adminClient
       .from('order_email_notifications')
       .upsert(
         {
@@ -101,6 +105,10 @@ async function logNotificationAttempt(
           onConflict: 'order_id,email_type,recipient',
         }
       );
+
+    if (upsertError) {
+      console.warn('[Email Log Database Upsert Notice]:', upsertError.message);
+    }
   } catch (err) {
     console.warn('[Email Log Notification Warning]:', err);
   }
@@ -143,6 +151,7 @@ export async function sendOrderEmails({
   if (!isValidEmail(customerEmail)) {
     customerResult.skipped = true;
     customerResult.error = 'No valid customer email provided.';
+    console.log(`[Email Dispatch] Customer email skipped (no email provided for order #${order.order_number})`);
   } else {
     try {
       const alreadySent = await hasNotificationBeenSent(order.id, 'CUSTOMER_ORDER_CONFIRMATION', customerEmail);
@@ -150,13 +159,15 @@ export async function sendOrderEmails({
       if (alreadySent) {
         customerResult.skipped = true;
         customerResult.success = true;
+        console.log(`[Email Dispatch] Customer email already sent previously for order #${order.order_number}`);
       } else if (!resend) {
         customerResult.error = 'Resend API key not configured.';
-        console.warn('[Email Notice]: Resend is not configured (missing RESEND_API_KEY). Customer email skipped.');
+        console.warn(`[Email Dispatch] Resend API key is missing. Skipping customer confirmation email to ${customerEmail}`);
       } else {
         const subject = `Thank You for Your Order! — Order #${order.order_number}`;
         const html = generateCustomerOrderConfirmationHtml(order, items);
 
+        console.log(`[Email Dispatch] Sending customer confirmation email from "${fromEmail}" to "${customerEmail}"...`);
         const response = await resend.emails.send({
           from: fromEmail,
           to: customerEmail,
@@ -165,6 +176,7 @@ export async function sendOrderEmails({
         });
 
         if (response.error) {
+          console.error(`[Email Dispatch Error] Resend customer email error:`, response.error);
           customerResult.error = response.error.message;
           await logNotificationAttempt(
             order.id,
@@ -175,6 +187,7 @@ export async function sendOrderEmails({
             response.error.message
           );
         } else if (response.data?.id) {
+          console.log(`[Email Dispatch Success] Customer email sent! Resend Message ID: ${response.data.id}`);
           customerResult.success = true;
           customerResult.messageId = response.data.id;
           await logNotificationAttempt(
@@ -210,13 +223,15 @@ export async function sendOrderEmails({
     if (alreadySent) {
       adminResult.skipped = true;
       adminResult.success = true;
+      console.log(`[Email Dispatch] Admin alert already sent previously for order #${order.order_number}`);
     } else if (!resend) {
       adminResult.error = 'Resend API key not configured.';
-      console.warn('[Email Notice]: Resend is not configured (missing RESEND_API_KEY). Admin alert skipped.');
+      console.warn(`[Email Dispatch] Resend API key is missing. Skipping admin alert email to ${adminEmail}`);
     } else {
       const subject = `🛒 New Order Received — #${order.order_number}`;
       const html = generateAdminNewOrderHtml(order, items);
 
+      console.log(`[Email Dispatch] Sending admin order alert from "${fromEmail}" to "${adminEmail}"...`);
       const response = await resend.emails.send({
         from: fromEmail,
         to: adminEmail,
@@ -225,6 +240,7 @@ export async function sendOrderEmails({
       });
 
       if (response.error) {
+        console.error(`[Email Dispatch Error] Resend admin alert error:`, response.error);
         adminResult.error = response.error.message;
         await logNotificationAttempt(
           order.id,
@@ -235,6 +251,7 @@ export async function sendOrderEmails({
           response.error.message
         );
       } else if (response.data?.id) {
+        console.log(`[Email Dispatch Success] Admin alert email sent! Resend Message ID: ${response.data.id}`);
         adminResult.success = true;
         adminResult.messageId = response.data.id;
         await logNotificationAttempt(
@@ -304,12 +321,14 @@ export async function sendStatusUpdateEmail({
     if (alreadySent) {
       result.skipped = true;
       result.success = true;
+      console.log(`[Status Email] Status email "${newStatus}" already sent previously for order #${order.order_number}`);
       return result;
     }
 
     const resend = getResendClient();
     if (!resend) {
       result.error = 'Resend API key not configured.';
+      console.warn(`[Status Email] Resend API key is missing. Skipping status email to ${customerEmail}`);
       return result;
     }
 
@@ -317,6 +336,7 @@ export async function sendStatusUpdateEmail({
     const subject = getStatusEmailSubject(order.order_number, newStatus);
     const html = generateCustomerOrderStatusHtml(order, newStatus);
 
+    console.log(`[Status Email] Sending "${newStatus}" status email to "${customerEmail}"...`);
     const response = await resend.emails.send({
       from: fromEmail,
       to: customerEmail,
@@ -325,9 +345,11 @@ export async function sendStatusUpdateEmail({
     });
 
     if (response.error) {
+      console.error(`[Status Email Error] Resend status email error:`, response.error);
       result.error = response.error.message;
       await logNotificationAttempt(order.id, emailType, customerEmail, 'FAILED', null, response.error.message);
     } else if (response.data?.id) {
+      console.log(`[Status Email Success] Status email sent! Resend Message ID: ${response.data.id}`);
       result.success = true;
       result.messageId = response.data.id;
       await logNotificationAttempt(order.id, emailType, customerEmail, 'SENT', response.data.id, null);

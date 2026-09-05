@@ -4,7 +4,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { Order, OrderStatus } from '@/lib/types';
 import { INITIAL_PRODUCTS, INITIAL_ORDERS } from '@/lib/supabase/mock-data';
 import { sendOrderEmails, sendStatusUpdateEmail } from '@/lib/email/order-emails';
-import { isAuthorizedAdminEmail } from '@/lib/auth/admin-auth';
+import { revalidatePath } from 'next/cache';
 
 export interface CreateOrderInput {
   items: Array<{ productId: string; quantity: number }>;
@@ -23,6 +23,12 @@ export interface OrderActionResult {
   error?: string;
 }
 
+// Helper to check if string is a valid PostgreSQL UUID
+function isValidUUID(str?: string | null): boolean {
+  if (!str || typeof str !== 'string') return false;
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str.trim());
+}
+
 export async function submitOrderAction(input: CreateOrderInput): Promise<OrderActionResult> {
   if (!input.items || input.items.length === 0) {
     return { success: false, error: 'Cannot checkout with an empty cart.' };
@@ -37,16 +43,21 @@ export async function submitOrderAction(input: CreateOrderInput): Promise<OrderA
     const productIds = input.items.map((i) => i.productId);
 
     // 1. Fetch real products from DB by ID to strictly prevent client-side price tampering
-    let dbProducts = null;
+    let dbProducts: any[] | null = null;
     if (adminClient) {
       try {
-        const { data } = await adminClient
+        const { data, error } = await adminClient
           .from('products')
           .select('id, name, price, stock, is_active')
           .in('id', productIds);
-        dbProducts = data;
+
+        if (!error && Array.isArray(data)) {
+          dbProducts = data;
+        } else if (error) {
+          console.warn('[Product Lookup DB Notice]:', error.message);
+        }
       } catch (e) {
-        console.warn('DB product lookup fallback:', e);
+        console.warn('[Product Lookup Exception]:', e);
       }
     }
 
@@ -94,49 +105,62 @@ export async function submitOrderAction(input: CreateOrderInput): Promise<OrderA
 
     // 3. Insert order record into Supabase PostgreSQL
     if (adminClient) {
-      try {
-        const newOrderRecord = {
-          order_number: orderNumber,
-          customer_name: input.customer_name.trim(),
-          customer_email: (input.customer_email || '').trim(),
-          customer_phone: input.customer_phone.trim(),
-          delivery_address: input.delivery_address.trim(),
-          city: input.city?.trim() || 'Islamabad',
-          area_name: input.area_name.trim(),
-          delivery_notes: (input.delivery_notes || '').trim(),
-          delivery_fee: deliveryFee,
-          subtotal: calculatedSubtotal,
-          total_amount: totalAmount,
-          status: 'Pending',
-          payment_method: 'Cash on Delivery',
-          payment_status: 'Pending',
+      const newOrderRecord = {
+        order_number: orderNumber,
+        customer_name: input.customer_name.trim(),
+        customer_email: (input.customer_email || '').trim(),
+        customer_phone: input.customer_phone.trim(),
+        delivery_address: input.delivery_address.trim(),
+        city: input.city?.trim() || 'Islamabad',
+        area_name: input.area_name.trim(),
+        delivery_notes: (input.delivery_notes || '').trim(),
+        delivery_fee: deliveryFee,
+        subtotal: calculatedSubtotal,
+        total_amount: totalAmount,
+        status: 'Pending',
+        payment_method: 'Cash on Delivery',
+        payment_status: 'Pending',
+      };
+
+      const { data: insertedOrder, error: orderInsertError } = await adminClient
+        .from('orders')
+        .insert(newOrderRecord)
+        .select()
+        .single();
+
+      if (orderInsertError) {
+        console.error('[DATABASE ORDER INSERT ERROR]:', orderInsertError);
+        return {
+          success: false,
+          error: `Database order placement failed: ${orderInsertError.message || 'Could not insert record into orders table.'}`,
         };
-
-        const { data: insertedOrder, error: orderInsertError } = await adminClient
-          .from('orders')
-          .insert(newOrderRecord)
-          .select()
-          .single();
-
-        if (insertedOrder) {
-          orderId = insertedOrder.id;
-
-          const itemsToInsert = orderItemsSnapshot.map((it) => ({
-            order_id: insertedOrder.id,
-            product_id: it.product_id,
-            product_name: it.product_name,
-            product_price: it.product_price,
-            quantity: it.quantity,
-            subtotal: it.subtotal,
-          }));
-
-          await adminClient.from('order_items').insert(itemsToInsert);
-        } else if (orderInsertError) {
-          console.error('Database order insert error:', orderInsertError);
-        }
-      } catch (e) {
-        console.warn('Database save warning (using local order state):', e);
       }
+
+      if (insertedOrder) {
+        orderId = insertedOrder.id;
+        console.log(`[DATABASE SUCCESS] Created order in Supabase with ID: ${orderId} (#${orderNumber})`);
+
+        const itemsToInsert = orderItemsSnapshot.map((it) => ({
+          order_id: insertedOrder.id,
+          product_id: isValidUUID(it.product_id) ? it.product_id : null,
+          product_name: it.product_name,
+          product_price: it.product_price,
+          quantity: it.quantity,
+          subtotal: it.subtotal,
+        }));
+
+        const { error: itemsInsertError } = await adminClient
+          .from('order_items')
+          .insert(itemsToInsert);
+
+        if (itemsInsertError) {
+          console.error('[DATABASE ORDER ITEMS INSERT ERROR]:', itemsInsertError);
+        } else {
+          console.log(`[DATABASE SUCCESS] Inserted ${itemsToInsert.length} order items for order ${orderId}`);
+        }
+      }
+    } else {
+      console.warn('[Supabase Notice]: Database client offline. Order created in memory.');
     }
 
     const completedOrder: Order = {
@@ -159,14 +183,22 @@ export async function submitOrderAction(input: CreateOrderInput): Promise<OrderA
       created_at: new Date().toISOString(),
     };
 
-    // 4. Trigger server-side transactional email notifications safely (non-blocking)
+    // Revalidate admin orders page safely
     try {
-      await sendOrderEmails({
+      revalidatePath('/admin/orders');
+    } catch (e) {
+      // Invariant catch for non-Next.js runtime contexts
+    }
+
+    // 4. Trigger server-side transactional email notifications immediately
+    console.log(`[EMAIL DISPATCH] Initiating confirmation emails for order #${completedOrder.order_number}...`);
+    try {
+      const emailResults = await sendOrderEmails({
         order: completedOrder,
         items: orderItemsSnapshot,
       });
+      console.log(`[EMAIL DISPATCH COMPLETE] Customer Email Status: ${emailResults.customerResult.success ? 'SUCCESS' : emailResults.customerResult.error || 'SKIPPED'}, Admin Alert Status: ${emailResults.adminResult.success ? 'SUCCESS' : emailResults.adminResult.error || 'FAILED'}`);
     } catch (emailErr) {
-      // Never allow email provider failures to break a successfully placed order
       console.error('[Order Email Trigger Handled Error]:', emailErr);
     }
 
@@ -218,14 +250,20 @@ export async function updateOrderStatusAction(
       }
     }
 
+    try {
+      revalidatePath('/admin/orders');
+    } catch (e) {}
+
     // 3. Send lifecycle status notification email if order has valid email
     if (existingOrder && existingOrder.status !== status) {
       try {
         const updatedOrderRecord = { ...existingOrder, status };
-        await sendStatusUpdateEmail({
+        console.log(`[STATUS EMAIL] Sending status update email for order #${existingOrder.order_number} to "${status}"...`);
+        const result = await sendStatusUpdateEmail({
           order: updatedOrderRecord,
           newStatus: status,
         });
+        console.log(`[STATUS EMAIL RESULT] Result: ${result.success ? 'SUCCESS' : result.error || 'SKIPPED'}`);
       } catch (emailErr) {
         console.error('[Status Email Trigger Error]:', emailErr);
       }

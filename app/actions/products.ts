@@ -14,6 +14,9 @@ export async function saveProductAction(productData: Partial<Product>): Promise<
     }
 
     const adminClient = createAdminClient();
+    if (!adminClient) {
+      return { success: false, error: 'Supabase database client is not configured.' };
+    }
 
     const payload = {
       name: productData.name!,
@@ -113,6 +116,10 @@ export async function saveProductAction(productData: Partial<Product>): Promise<
 export async function deleteProductAction(productId: string): Promise<{ success: boolean; error?: string }> {
   try {
     const adminClient = createAdminClient();
+    if (!adminClient) {
+      return { success: false, error: 'Supabase database client is not configured.' };
+    }
+
     const { error } = await adminClient
       .from('products')
       .delete()

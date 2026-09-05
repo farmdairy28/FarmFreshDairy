@@ -11,12 +11,13 @@ let resendInstance: Resend | null = null;
  */
 export function getResendClient(): Resend | null {
   const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey || apiKey === 're_123456789_abcdefg') {
+  if (!apiKey || apiKey === 're_123456789_abcdefg' || apiKey === 'your-resend-api-key' || apiKey.trim().length === 0) {
+    console.warn('[Resend Warning]: RESEND_API_KEY is missing or contains placeholder. Emails will not be sent to Resend API.');
     return null;
   }
 
   if (!resendInstance) {
-    resendInstance = new Resend(apiKey);
+    resendInstance = new Resend(apiKey.trim());
   }
 
   return resendInstance;

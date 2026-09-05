@@ -32,6 +32,9 @@ export async function uploadProductImageAction(formData: FormData): Promise<Uplo
 
   try {
     const adminClient = createAdminClient();
+    if (!adminClient) {
+      return { success: false, error: 'Supabase storage is not configured.' };
+    }
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 

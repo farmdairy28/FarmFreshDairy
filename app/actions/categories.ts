@@ -21,6 +21,9 @@ export async function saveCategoryAction(
     }
 
     const adminClient = createAdminClient();
+    if (!adminClient) {
+      return { success: false, error: 'Supabase database client is not configured.' };
+    }
 
     const payload = {
       name: validated.data.name,
@@ -80,6 +83,10 @@ export async function deleteCategoryAction(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const adminClient = createAdminClient();
+    if (!adminClient) {
+      return { success: false, error: 'Supabase database client is not configured.' };
+    }
+
     const { error } = await adminClient
       .from('categories')
       .delete()

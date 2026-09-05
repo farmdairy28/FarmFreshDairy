@@ -32,10 +32,24 @@ ALTER TABLE IF EXISTS orders ALTER COLUMN customer_email DROP NOT NULL;
 -- Enable Row Level Security (RLS)
 ALTER TABLE order_email_notifications ENABLE ROW LEVEL SECURITY;
 
--- Service Role full access policy
+-- Order email notifications policy
 DROP POLICY IF EXISTS "Service role full access on order_email_notifications" ON order_email_notifications;
 CREATE POLICY "Service role full access on order_email_notifications"
   ON order_email_notifications
   FOR ALL
   USING (true)
   WITH CHECK (true);
+
+-- Ensure anon/public can select inserted orders for returning clauses
+DROP POLICY IF EXISTS "Public can select orders" ON orders;
+CREATE POLICY "Public can select orders"
+  ON orders
+  FOR SELECT
+  USING (true);
+
+DROP POLICY IF EXISTS "Public can select order items" ON order_items;
+CREATE POLICY "Public can select order items"
+  ON order_items
+  FOR SELECT
+  USING (true);
+
