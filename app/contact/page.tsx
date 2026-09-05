@@ -1,6 +1,7 @@
 import React from 'react';
-import { MapPin, Phone, Mail, Clock, MessageCircle, ShieldCheck } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, MessageCircle, ShieldCheck, Facebook, Instagram } from 'lucide-react';
 import { ContactForm } from '@/components/contact/ContactForm';
+import { SOCIAL_LINKS } from '@/lib/constants';
 
 export const metadata = {
   title: 'Contact Us & Order — Farm Fresh Dairy Islamabad',
@@ -98,6 +99,33 @@ export default function ContactPage() {
                   <div>
                     <div className="font-bold text-white">Chilled Delivery Schedule</div>
                     <div>Daily Morning &amp; Evening Delivery</div>
+                  </div>
+                </div>
+
+                {/* Social Media Channels */}
+                <div className="pt-3 border-t border-farm-800/80">
+                  <div className="text-xs font-mono uppercase text-sky-300 font-bold mb-2.5">
+                    Official Social Media Channels
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2.5">
+                    <a
+                      href={SOCIAL_LINKS.facebook}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 min-w-[140px] py-2.5 px-3 rounded-xl bg-farm-800 hover:bg-[#1877F2] text-sky-100 hover:text-white border border-farm-700 hover:border-[#1877F2] transition-all text-xs font-semibold flex items-center justify-center gap-2 group shadow-xs"
+                    >
+                      <Facebook className="w-4 h-4 text-sky-300 group-hover:text-white transition-colors" />
+                      <span>Facebook Page</span>
+                    </a>
+                    <a
+                      href={SOCIAL_LINKS.instagram}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 min-w-[140px] py-2.5 px-3 rounded-xl bg-farm-800 hover:bg-gradient-to-r hover:from-[#833AB4] hover:via-[#FD1D1D] hover:to-[#F77737] text-sky-100 hover:text-white border border-farm-700 hover:border-transparent transition-all text-xs font-semibold flex items-center justify-center gap-2 group shadow-xs"
+                    >
+                      <Instagram className="w-4 h-4 text-sky-300 group-hover:text-white transition-colors" />
+                      <span>Instagram (@farmfresh,.dairy)</span>
+                    </a>
                   </div>
                 </div>
               </div>

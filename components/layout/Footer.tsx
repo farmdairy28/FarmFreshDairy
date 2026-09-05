@@ -1,7 +1,8 @@
 import React from 'react';
 import Link from 'next/link';
-import { Phone, Mail, MapPin, MessageCircle, ShieldCheck } from 'lucide-react';
+import { Phone, Mail, MapPin, MessageCircle, ShieldCheck, Facebook, Instagram } from 'lucide-react';
 import { FarmFreshLogo } from './FarmFreshLogo';
+import { SOCIAL_LINKS } from '@/lib/constants';
 
 export function Footer() {
   return (
@@ -27,6 +28,35 @@ export function Footer() {
               <p className="text-xs text-sky-100/90 font-medium">
                 Free Home Delivery in <strong>Shahzad Town</strong> & regular chilled supply across Islamabad at <strong>Rs. 250 / Litre</strong>.
               </p>
+            </div>
+
+            {/* Social Media Links */}
+            <div className="pt-1">
+              <div className="text-xs font-mono uppercase text-sky-400 font-semibold mb-2.5 tracking-wider">
+                Follow & Connect With Us
+              </div>
+              <div className="flex items-center gap-3">
+                <a
+                  href={SOCIAL_LINKS.facebook}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-farm-800 hover:bg-[#1877F2] text-sky-100 hover:text-white border border-farm-700 hover:border-[#1877F2] transition-all text-xs font-semibold shadow-xs group"
+                  aria-label="Farm Fresh Dairy on Facebook"
+                >
+                  <Facebook className="w-4 h-4 text-sky-300 group-hover:text-white transition-colors" />
+                  <span>Facebook</span>
+                </a>
+                <a
+                  href={SOCIAL_LINKS.instagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-farm-800 hover:bg-gradient-to-r hover:from-[#833AB4] hover:via-[#FD1D1D] hover:to-[#F77737] text-sky-100 hover:text-white border border-farm-700 hover:border-transparent transition-all text-xs font-semibold shadow-xs group"
+                  aria-label="Farm Fresh Dairy on Instagram"
+                >
+                  <Instagram className="w-4 h-4 text-sky-300 group-hover:text-white transition-colors" />
+                  <span>Instagram</span>
+                </a>
+              </div>
             </div>
           </div>
 
@@ -128,8 +158,28 @@ export function Footer() {
           <div>
             © {new Date().getFullYear()} Farm Fresh Dairy. 100% Original Milk. All rights reserved.
           </div>
-          <div className="flex items-center gap-6">
-            <span className="text-sky-200">Freshness You Can Trust, Quality You Deserve</span>
+          <div className="flex items-center gap-4">
+            <span className="text-sky-200 hidden md:inline">Freshness You Can Trust, Quality You Deserve</span>
+            <div className="flex items-center gap-2">
+              <a
+                href={SOCIAL_LINKS.facebook}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-8 h-8 rounded-full bg-farm-800 hover:bg-[#1877F2] text-sky-200 hover:text-white flex items-center justify-center transition-all border border-farm-700"
+                aria-label="Facebook Page"
+              >
+                <Facebook className="w-3.5 h-3.5" />
+              </a>
+              <a
+                href={SOCIAL_LINKS.instagram}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-8 h-8 rounded-full bg-farm-800 hover:bg-gradient-to-tr hover:from-[#833AB4] hover:to-[#F77737] text-sky-200 hover:text-white flex items-center justify-center transition-all border border-farm-700"
+                aria-label="Instagram Profile"
+              >
+                <Instagram className="w-3.5 h-3.5" />
+              </a>
+            </div>
           </div>
         </div>
       </div>

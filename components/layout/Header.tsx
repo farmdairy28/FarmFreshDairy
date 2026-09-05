@@ -3,9 +3,10 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ShoppingBag, Menu, X, ArrowUpRight, Phone, MessageCircle, ShieldCheck } from 'lucide-react';
+import { ShoppingBag, Menu, X, ArrowUpRight, Phone, MessageCircle, ShieldCheck, Facebook, Instagram } from 'lucide-react';
 import { useCart } from '@/lib/context/cart-context';
 import { FarmFreshLogo } from './FarmFreshLogo';
+import { SOCIAL_LINKS } from '@/lib/constants';
 
 export function Header() {
   const pathname = usePathname();
@@ -44,7 +45,7 @@ export function Header() {
 
           <div className="hidden sm:flex items-center gap-4 shrink-0 text-sky-200">
             <a
-              href="https://wa.me/923109361932?text=Hello%20Farm%20Fresh%20Dairy%2C%20I%20would%20like%20to%20order%20pure%20cow%20milk."
+              href={SOCIAL_LINKS.whatsapp}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1.5 hover:text-white transition-colors"
@@ -53,10 +54,33 @@ export function Header() {
               <span>WhatsApp: <strong>0310-9361932</strong></span>
             </a>
             <span className="text-farm-700">|</span>
-            <a href="tel:03109361932" className="flex items-center gap-1 hover:text-white transition-colors">
+            <a href={`tel:${SOCIAL_LINKS.phoneRaw}`} className="flex items-center gap-1 hover:text-white transition-colors">
               <Phone className="w-3.5 h-3.5 text-sky-300" />
               <span>0310 9361932</span>
             </a>
+            <span className="text-farm-700">|</span>
+            <div className="flex items-center gap-2">
+              <a
+                href={SOCIAL_LINKS.facebook}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-white transition-colors"
+                aria-label="Facebook Page"
+                title="Follow on Facebook"
+              >
+                <Facebook className="w-3.5 h-3.5" />
+              </a>
+              <a
+                href={SOCIAL_LINKS.instagram}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-white transition-colors"
+                aria-label="Instagram Profile"
+                title="Follow on Instagram"
+              >
+                <Instagram className="w-3.5 h-3.5" />
+              </a>
+            </div>
           </div>
         </div>
       </div>
@@ -198,6 +222,28 @@ export function Header() {
               </Link>
               <div className="text-center text-xs text-earth-500 font-mono">
                 Morning &amp; Evening Chilled Delivery
+              </div>
+
+              {/* Social Media Links in Mobile Drawer */}
+              <div className="flex items-center justify-center gap-3 pt-2">
+                <a
+                  href={SOCIAL_LINKS.facebook}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-blue-50 text-[#1877F2] font-semibold text-xs border border-blue-200 shadow-2xs"
+                >
+                  <Facebook className="w-4 h-4" />
+                  <span>Facebook</span>
+                </a>
+                <a
+                  href={SOCIAL_LINKS.instagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-pink-50 text-[#E1306C] font-semibold text-xs border border-pink-200 shadow-2xs"
+                >
+                  <Instagram className="w-4 h-4" />
+                  <span>Instagram</span>
+                </a>
               </div>
             </div>
           </div>

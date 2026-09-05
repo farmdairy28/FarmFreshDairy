@@ -1,14 +1,15 @@
 'use client';
 
 import React, { useState } from 'react';
-import { MessageCircle, Phone, X, Sparkles, ShieldCheck } from 'lucide-react';
+import { MessageCircle, Phone, X, Sparkles, ShieldCheck, Facebook, Instagram } from 'lucide-react';
+import { SOCIAL_LINKS } from '@/lib/constants';
 
 export function FloatingContactWidget() {
   const [isOpen, setIsOpen] = useState(false);
 
-  const phoneDisplay = '0310-9361932';
-  const phoneRaw = '03109361932';
-  const whatsappUrl = 'https://wa.me/923109361932?text=Hello%20Farm%20Fresh%20Dairy%2C%20I%20would%20like%20to%20order%20pure%20cow%20milk.';
+  const phoneDisplay = SOCIAL_LINKS.phoneDisplay;
+  const phoneRaw = SOCIAL_LINKS.phoneRaw;
+  const whatsappUrl = SOCIAL_LINKS.whatsapp;
 
   return (
     <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-3 pointer-events-auto">
@@ -61,6 +62,28 @@ export function FloatingContactWidget() {
               <Phone className="w-4 h-4 text-farm-700" />
               Call Helpline: {phoneDisplay}
             </a>
+
+            {/* Social Media Links */}
+            <div className="grid grid-cols-2 gap-2 pt-1">
+              <a
+                href={SOCIAL_LINKS.facebook}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="py-2 px-3 rounded-xl bg-slate-50 hover:bg-[#1877F2] hover:text-white border border-slate-200 hover:border-[#1877F2] text-slate-700 text-[11px] font-semibold flex items-center justify-center gap-1.5 transition-colors group shadow-2xs"
+              >
+                <Facebook className="w-3.5 h-3.5 text-[#1877F2] group-hover:text-white" />
+                <span>Facebook</span>
+              </a>
+              <a
+                href={SOCIAL_LINKS.instagram}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="py-2 px-3 rounded-xl bg-slate-50 hover:bg-gradient-to-tr hover:from-[#833AB4] hover:to-[#F77737] hover:text-white border border-slate-200 hover:border-transparent text-slate-700 text-[11px] font-semibold flex items-center justify-center gap-1.5 transition-colors group shadow-2xs"
+              >
+                <Instagram className="w-3.5 h-3.5 text-[#E1306C] group-hover:text-white" />
+                <span>Instagram</span>
+              </a>
+            </div>
           </div>
 
           <div className="mt-3 pt-2.5 border-t border-earth-100 flex items-center justify-between text-[10px] font-mono text-earth-500">
