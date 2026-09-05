@@ -87,7 +87,9 @@ export default function ContactPage() {
                   <Mail className="w-5 h-5 text-sky-400 shrink-0 mt-0.5" />
                   <div>
                     <div className="font-bold text-white">Email Address</div>
-                    <div>orders@farmfreshdairy.pk</div>
+                    <a href="mailto:farmfreshdairy28@gmail.com" className="hover:text-white transition-colors">
+                      farmfreshdairy28@gmail.com
+                    </a>
                   </div>
                 </div>
 

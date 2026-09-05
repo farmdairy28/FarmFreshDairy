@@ -17,6 +17,7 @@ export function JsonLd() {
       addressCountry: 'PK',
     },
     telephone: '+92-310-9361932',
+    email: 'farmfreshdairy28@gmail.com',
     servesCuisine: 'Organic Dairy Products',
     priceRange: '$$',
   };
