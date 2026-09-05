@@ -36,30 +36,46 @@ export async function getProducts(options?: { categorySlug?: string; featuredOnl
   try {
     const client = getDbClient();
     if (client) {
+      // Use outer LEFT joins — products WITHOUT images or categories still appear
+      // NOTE: PostgREST uses implicit left joins when using the embed syntax
       let query = client
         .from('products')
         .select('*, category:categories(*), images:product_images(*)')
-        .eq('is_active', true)
         .order('created_at', { ascending: false });
-
-      if (options?.featuredOnly) {
-        query = query.eq('is_featured', true);
-      }
 
       const { data, error } = await query;
 
-      if (!error && Array.isArray(data) && data.length > 0) {
-        let filtered = data as Product[];
-        if (options?.categorySlug && options.categorySlug !== 'all') {
-          filtered = filtered.filter(p => p.category?.slug === options.categorySlug || p.category_id === options.categorySlug);
+      if (!error && Array.isArray(data)) {
+        // Filter active products in JS to avoid schema-cache issues with is_active column
+        let filtered = (data as Product[]).filter(p => p.is_active !== false);
+
+        if (options?.featuredOnly) {
+          filtered = filtered.filter(p => p.is_featured === true);
         }
+
+        if (options?.categorySlug && options.categorySlug !== 'all') {
+          const slug = options.categorySlug;
+          filtered = filtered.filter(p =>
+            p.category?.slug === slug ||
+            (typeof p.category_id === 'string' && p.category_id === slug)
+          );
+        }
+
         if (options?.search) {
           const q = options.search.toLowerCase();
-          filtered = filtered.filter(p => p.name.toLowerCase().includes(q) || p.short_description.toLowerCase().includes(q));
+          filtered = filtered.filter(p =>
+            p.name.toLowerCase().includes(q) ||
+            (p.short_description || '').toLowerCase().includes(q)
+          );
         }
+
         const mapped = filtered.map(p => ({
           ...p,
-          primary_image: p.images?.find((img: any) => img.is_primary)?.image_url || p.images?.[0]?.image_url || p.primary_image || 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=1000&q=80',
+          primary_image:
+            p.images?.find((img: any) => img.is_primary)?.image_url ||
+            p.images?.[0]?.image_url ||
+            p.primary_image ||
+            'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=1000&q=80',
         }));
 
         mapped.forEach(prod => upsertServerProduct(prod));
@@ -67,31 +83,42 @@ export async function getProducts(options?: { categorySlug?: string; featuredOnl
       }
     }
   } catch (err) {
-    console.warn('Database query fallback to store products:', err);
+    console.warn('Database getProducts fallback to store:', err);
   }
 
-  // Fallback to server & local store
+  // Fallback: server memory store + local storage
   const serverStore = getServerProductsStore();
   let products = getLocalFallback<Product[]>('products', serverStore);
 
-  // Sync products from server store if not already present in local fallback
+  // Merge server store items that local storage may not have
   serverStore.forEach(sp => {
     if (!products.some(p => p.id === sp.id || (sp.slug && p.slug === sp.slug))) {
       products.push(sp);
     }
   });
 
-  if (options?.categorySlug && options.categorySlug !== 'all') {
-    products = products.filter(p => p.category?.slug === options.categorySlug || p.category_id === options.categorySlug);
-  }
+  // Apply same filters in fallback
+  products = products.filter(p => p.is_active !== false);
+
   if (options?.featuredOnly) {
-    products = products.filter(p => p.is_featured);
+    products = products.filter(p => p.is_featured === true);
+  }
+  if (options?.categorySlug && options.categorySlug !== 'all') {
+    const slug = options.categorySlug;
+    products = products.filter(p =>
+      p.category?.slug === slug ||
+      (typeof p.category_id === 'string' && p.category_id === slug)
+    );
   }
   if (options?.search) {
     const q = options.search.toLowerCase();
-    products = products.filter(p => p.name.toLowerCase().includes(q) || p.short_description.toLowerCase().includes(q));
+    products = products.filter(p =>
+      p.name.toLowerCase().includes(q) ||
+      (p.short_description || '').toLowerCase().includes(q)
+    );
   }
-  return products.filter(p => p.is_active);
+
+  return products;
 }
 
 export async function getAllProductsAdmin(): Promise<Product[]> {
