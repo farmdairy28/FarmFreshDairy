@@ -1,13 +1,19 @@
-import { Product } from '@/lib/types';
-import { INITIAL_PRODUCTS } from './mock-data';
+import { Product, Category } from '@/lib/types';
+import { INITIAL_PRODUCTS, INITIAL_CATEGORIES } from './mock-data';
 
 declare global {
   // eslint-disable-next-line no-var
   var __ffd_products_store: Product[] | undefined;
+  // eslint-disable-next-line no-var
+  var __ffd_categories_store: Category[] | undefined;
 }
 
 if (!globalThis.__ffd_products_store) {
   globalThis.__ffd_products_store = [...INITIAL_PRODUCTS];
+}
+
+if (!globalThis.__ffd_categories_store) {
+  globalThis.__ffd_categories_store = [...INITIAL_CATEGORIES];
 }
 
 export function getServerProductsStore(): Product[] {
@@ -50,3 +56,29 @@ export function deleteServerProduct(productId: string): void {
     store.splice(idx, 1);
   }
 }
+
+export function getServerCategoriesStore(): Category[] {
+  if (!globalThis.__ffd_categories_store || globalThis.__ffd_categories_store.length === 0) {
+    globalThis.__ffd_categories_store = [...INITIAL_CATEGORIES];
+  }
+  return globalThis.__ffd_categories_store;
+}
+
+export function upsertServerCategory(category: Category): void {
+  const store = getServerCategoriesStore();
+  const existingIdx = store.findIndex((c) => c.id === category.id || (category.slug && c.slug === category.slug));
+  if (existingIdx > -1) {
+    store[existingIdx] = { ...store[existingIdx], ...category };
+  } else {
+    store.push(category);
+  }
+}
+
+export function deleteServerCategory(categoryId: string): void {
+  const store = getServerCategoriesStore();
+  const idx = store.findIndex((c) => c.id === categoryId);
+  if (idx > -1) {
+    store.splice(idx, 1);
+  }
+}
+

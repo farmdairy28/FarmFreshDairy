@@ -1,6 +1,6 @@
 import { Product, Category, FarmValue, ProcessStep, DeliveryRegion, Testimonial, Order, HomepageHero, HomepagePromise } from '../types';
 import { INITIAL_CATEGORIES, INITIAL_PRODUCTS, INITIAL_VALUES, INITIAL_PROCESS, INITIAL_DELIVERY, INITIAL_TESTIMONIALS, INITIAL_HERO, INITIAL_PROMISE, INITIAL_ORDERS } from './mock-data';
-import { getServerProductsStore, upsertServerProduct, deleteServerProduct } from './products-store';
+import { getServerProductsStore, upsertServerProduct, deleteServerProduct, getServerCategoriesStore, upsertServerCategory } from './products-store';
 import { createAdminClient } from './admin';
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 
@@ -262,84 +262,109 @@ export async function deleteProduct(id: string): Promise<boolean> {
 
 // ---------------- CATEGORIES ----------------
 export async function getCategories(): Promise<Category[]> {
+  const memoryCats = getServerCategoriesStore();
+  let dbCats: Category[] = [];
+
   try {
     const adminClient = getDbClient();
     if (adminClient) {
-      const { data, error } = await adminClient
+      // First try active query
+      let res = await adminClient
         .from('categories')
         .select('*')
         .eq('is_active', true)
         .order('sort_order', { ascending: true });
 
-      if (!error && data && data.length > 0) {
-        return data as Category[];
+      // If is_active column doesn't exist in Supabase schema, query all categories
+      if (res.error && res.error.message?.includes('is_active')) {
+        res = await adminClient
+          .from('categories')
+          .select('*')
+          .order('sort_order', { ascending: true });
+      }
+
+      if (!res.error && res.data && res.data.length > 0) {
+        dbCats = res.data.map((c: any) => ({
+          ...c,
+          is_active: c.is_active !== undefined ? Boolean(c.is_active) : true,
+        })) as Category[];
       }
     }
   } catch (err) {}
 
-  return getLocalFallback<Category[]>('categories', INITIAL_CATEGORIES).filter(c => c.is_active);
+  if (dbCats.length > 0) {
+    const combined = [...dbCats];
+    for (const mem of memoryCats) {
+      const exists = combined.some((c) => c.id === mem.id || (c.slug && c.slug === mem.slug));
+      if (!exists && mem.is_active !== false) {
+        combined.push(mem);
+      }
+    }
+    return combined.filter((c) => c.is_active !== false);
+  }
+
+  const localFallback = getLocalFallback<Category[]>('categories', memoryCats);
+  return localFallback.filter((c) => c.is_active !== false);
 }
 
 export async function getAllCategoriesAdmin(): Promise<Category[]> {
+  const memoryCats = getServerCategoriesStore();
+  let dbCats: Category[] = [];
+
   try {
     const adminClient = getDbClient();
     if (adminClient) {
-      const { data, error } = await adminClient
+      const res = await adminClient
         .from('categories')
         .select('*')
         .order('sort_order', { ascending: true });
 
-      if (!error && data && data.length > 0) {
-        return data as Category[];
+      if (!res.error && res.data && res.data.length > 0) {
+        dbCats = res.data.map((c: any) => ({
+          ...c,
+          is_active: c.is_active !== undefined ? Boolean(c.is_active) : true,
+        })) as Category[];
       }
     }
   } catch (err) {}
 
-  return getLocalFallback<Category[]>('categories', INITIAL_CATEGORIES);
+  if (dbCats.length > 0) {
+    const combined = [...dbCats];
+    for (const mem of memoryCats) {
+      const exists = combined.some((c) => c.id === mem.id || (c.slug && c.slug === mem.slug));
+      if (!exists) {
+        combined.push(mem);
+      }
+    }
+    return combined;
+  }
+
+  return getLocalFallback<Category[]>('categories', memoryCats);
 }
 
 export async function saveCategory(categoryData: Partial<Category>): Promise<Category> {
-  try {
-    const adminClient = getDbClient();
-    if (adminClient) {
-      const payload = {
-        name: categoryData.name!,
-        slug: categoryData.slug || categoryData.name?.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-        description: categoryData.description || null,
-        sort_order: categoryData.sort_order || 1,
-        is_active: categoryData.is_active !== undefined ? categoryData.is_active : true,
-        updated_at: new Date().toISOString(),
-      };
-
-      if (categoryData.id) {
-        const { data } = await adminClient
-          .from('categories')
-          .update(payload)
-          .eq('id', categoryData.id)
-          .select()
-          .single();
-        if (data) return data as Category;
-      } else {
-        const { data } = await adminClient
-          .from('categories')
-          .insert({ ...payload, created_at: new Date().toISOString() })
-          .select()
-          .single();
-        if (data) return data as Category;
-      }
-    }
-  } catch (err) {}
-
-  const categories = getLocalFallback<Category[]>('categories', INITIAL_CATEGORIES);
+  const categories = getLocalFallback<Category[]>('categories', getServerCategoriesStore());
   const newCat: Category = {
-    id: `c-${Date.now()}`,
+    id: categoryData.id || `c-${Date.now()}`,
     name: categoryData.name || 'New Category',
-    slug: categoryData.slug || `cat-${Date.now()}`,
+    slug:
+      categoryData.slug ||
+      categoryData.name?.toLowerCase().replace(/[^a-z0-9]+/g, '-') ||
+      `cat-${Date.now()}`,
     description: categoryData.description || '',
-    sort_order: categories.length + 1,
-    is_active: true,
+    sort_order: categoryData.sort_order || categories.length + 1,
+    is_active: categoryData.is_active !== undefined ? categoryData.is_active : true,
   };
-  categories.push(newCat);
+
+  upsertServerCategory(newCat);
+
+  const existingIdx = categories.findIndex((c) => c.id === newCat.id || c.slug === newCat.slug);
+  if (existingIdx > -1) {
+    categories[existingIdx] = newCat;
+  } else {
+    categories.push(newCat);
+  }
+
   if (isClient) localStorage.setItem('pure_pastures_categories', JSON.stringify(categories));
   return newCat;
 }
