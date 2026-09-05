@@ -1,6 +1,6 @@
-# Pure Pastures Dairy Farm — Web Application & Dynamic Admin CMS
+# Farm Fresh Dairy — Pure Grass-Fed Dairy & E-Commerce Web Application
 
-Production-ready, highly dynamic Next.js 14 full-stack application inspired by high-end editorial farm-to-table web designs. Features a storytelling landing page, e-commerce catalog, shopping cart, Cash-on-Delivery checkout, and a separate data-driven Admin CMS.
+Production-ready, high-performance Next.js 14 full-stack application for Farm Fresh Dairy. Features a storytelling landing page, lab test milk report viewer, dynamic product catalog, floating contact widget, shopping cart, Cash-on-Delivery checkout, and a full-featured Admin CMS.
 
 ---
 
