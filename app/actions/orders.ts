@@ -29,6 +29,16 @@ function isValidUUID(str?: string | null): boolean {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str.trim());
 }
 
+// Helper to extract missing column name from PostgREST/Postgres error messages
+function extractMissingColumn(errorMessage?: string | null): string | null {
+  if (!errorMessage || typeof errorMessage !== 'string') return null;
+  const matchPostgrest = errorMessage.match(/Could not find the '([^']+)' column/i);
+  if (matchPostgrest && matchPostgrest[1]) return matchPostgrest[1];
+  const matchPostgres = errorMessage.match(/column ["']([^"']+)["'](?: of relation)? does not exist/i);
+  if (matchPostgres && matchPostgres[1]) return matchPostgres[1];
+  return null;
+}
+
 export async function submitOrderAction(input: CreateOrderInput): Promise<OrderActionResult> {
   if (!input.items || input.items.length === 0) {
     return { success: false, error: 'Cannot checkout with an empty cart.' };
@@ -134,8 +144,8 @@ export async function submitOrderAction(input: CreateOrderInput): Promise<OrderA
       let orderInsertError: any = null;
       let orderPayload = { ...newOrderRecord };
 
-      // Schema-resilient insertion loop (handles optional columns like 'city' if not yet migrated in Supabase)
-      for (let attempt = 0; attempt < 3; attempt++) {
+      // Schema-resilient insertion loop (up to 10 iterations to gracefully omit any missing remote columns)
+      for (let attempt = 0; attempt < 10; attempt++) {
         const res = await adminClient
           .from('orders')
           .insert(orderPayload)
@@ -149,10 +159,9 @@ export async function submitOrderAction(input: CreateOrderInput): Promise<OrderA
         }
 
         orderInsertError = res.error;
-        const missingColMatch = res.error?.message?.match(/Could not find the '([^']+)' column of 'orders'/i);
-        if (missingColMatch && missingColMatch[1] && missingColMatch[1] in orderPayload) {
-          const missingCol = missingColMatch[1];
-          console.warn(`[Supabase Schema Notice]: Column '${missingCol}' does not exist on 'orders' table in remote database. Omitting and retrying...`);
+        const missingCol = extractMissingColumn(res.error?.message);
+        if (missingCol && missingCol in orderPayload) {
+          console.warn(`[Supabase Schema Notice]: Column '${missingCol}' does not exist on 'orders' table. Omitting and retrying...`);
           delete orderPayload[missingCol];
         } else {
           break;
@@ -183,7 +192,7 @@ export async function submitOrderAction(input: CreateOrderInput): Promise<OrderA
         let itemsPayload: any[] = [...itemsToInsert];
         let itemsInsertError: any = null;
 
-        for (let attempt = 0; attempt < 3; attempt++) {
+        for (let attempt = 0; attempt < 10; attempt++) {
           const res = await adminClient
             .from('order_items')
             .insert(itemsPayload);
@@ -194,9 +203,8 @@ export async function submitOrderAction(input: CreateOrderInput): Promise<OrderA
           }
 
           itemsInsertError = res.error;
-          const missingColMatch = res.error?.message?.match(/Could not find the '([^']+)' column of 'order_items'/i);
-          if (missingColMatch && missingColMatch[1]) {
-            const missingCol = missingColMatch[1];
+          const missingCol = extractMissingColumn(res.error?.message);
+          if (missingCol) {
             console.warn(`[Supabase Schema Notice]: Column '${missingCol}' does not exist on 'order_items' table. Omitting and retrying...`);
             itemsPayload = itemsPayload.map((item) => {
               const copy = { ...item };
