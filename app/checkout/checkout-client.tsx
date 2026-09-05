@@ -24,6 +24,25 @@ export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
     delivery_notes: '',
   });
 
+  // Helper to determine if an area qualifies for FREE delivery (Shahzad Town only)
+  const isFreeDeliveryArea = (name?: string) => {
+    if (!name) return false;
+    const lower = name.toLowerCase();
+    return lower.includes('shahzad town') && !lower.includes('chak shahzad');
+  };
+
+  const getAreaDeliveryFee = (areaName: string) => {
+    if (isFreeDeliveryArea(areaName)) return 0;
+    const foundArea = regions.flatMap((r) => r.areas).find((a) => a.name === areaName);
+    if (foundArea && typeof foundArea.delivery_fee === 'number' && foundArea.delivery_fee > 0) {
+      return foundArea.delivery_fee;
+    }
+    return 150; // standard delivery fee for paid areas
+  };
+
+  const currentDeliveryFee = getAreaDeliveryFee(formData.area_name);
+  const totalPayable = cartSubtotal + currentDeliveryFee;
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -194,11 +213,15 @@ export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
               >
                 {regions.map((reg) => (
                   <optgroup key={reg.id} label={reg.name}>
-                    {reg.areas.map((area) => (
-                      <option key={area.id} value={area.name}>
-                        {area.name} (Free Delivery)
-                      </option>
-                    ))}
+                    {reg.areas.map((area) => {
+                      const isFree = isFreeDeliveryArea(area.name);
+                      const fee = isFree ? 0 : (area.delivery_fee > 0 ? area.delivery_fee : 150);
+                      return (
+                        <option key={area.id} value={area.name}>
+                          {area.name} — {isFree ? 'FREE Delivery' : `Paid Delivery (Rs. ${fee})`}
+                        </option>
+                      );
+                    })}
                   </optgroup>
                 ))}
               </select>
@@ -342,13 +365,21 @@ export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
             <span>Estimated Subtotal</span>
             <span className="font-mono font-semibold">Rs. {cartSubtotal}</span>
           </div>
-          <div className="flex justify-between text-earth-600">
+          <div className="flex justify-between text-earth-600 items-center">
             <span>Delivery Fee</span>
-            <span className="font-mono font-bold text-emerald-600 uppercase text-xs">FREE</span>
+            {currentDeliveryFee === 0 ? (
+              <span className="font-mono font-bold text-emerald-600 uppercase text-xs bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                FREE (Shahzad Town)
+              </span>
+            ) : (
+              <span className="font-mono font-bold text-earth-900 text-sm">
+                Rs. {currentDeliveryFee}
+              </span>
+            )}
           </div>
           <div className="flex justify-between font-serif font-bold text-2xl text-earth-900 pt-3 border-t border-earth-300">
             <span>Total Payable</span>
-            <span className="text-farm-700">Rs. {cartSubtotal}</span>
+            <span className="text-farm-700">Rs. {totalPayable}</span>
           </div>
         </div>
 
@@ -376,7 +407,9 @@ export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
         <div className="text-center text-xs font-mono text-earth-500 space-y-1">
           <div className="flex items-center justify-center gap-1.5 text-emerald-700 font-semibold">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-            Direct Doorstep Chilled Delivery
+            {currentDeliveryFee === 0
+              ? 'Direct Doorstep Chilled Delivery (FREE in Shahzad Town)'
+              : `Direct Doorstep Chilled Delivery (Rs. ${currentDeliveryFee} delivery fee)`}
           </div>
           <div>Morning &amp; Evening Delivery Routes • Cash on Delivery</div>
         </div>

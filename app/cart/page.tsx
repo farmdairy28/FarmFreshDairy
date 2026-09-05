@@ -117,9 +117,11 @@ export default function CartPage() {
                   <span>Subtotal</span>
                   <span className="font-mono font-semibold">Rs. {cartSubtotal}</span>
                 </div>
-                <div className="flex justify-between text-earth-600">
-                  <span>Chilled Delivery</span>
-                  <span className="font-mono font-bold text-farm-700 uppercase text-xs">FREE</span>
+                <div className="flex justify-between text-earth-600 items-center">
+                  <span>Delivery Fee</span>
+                  <span className="font-mono font-bold text-farm-700 uppercase text-[10px] bg-farm-100/70 px-2 py-0.5 rounded border border-farm-200">
+                    FREE in Shahzad Town
+                  </span>
                 </div>
                 <div className="flex justify-between font-serif font-bold text-xl text-earth-900 pt-2 border-t border-earth-300/40">
                   <span>Total Payable</span>

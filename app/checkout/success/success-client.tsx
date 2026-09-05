@@ -57,12 +57,14 @@ export function OrderSuccessClient() {
       .join('\n');
 
     const slot = (order as any)?.delivery_slot || 'Morning';
+    const feeText = order.delivery_fee && order.delivery_fee > 0 ? `Rs. ${order.delivery_fee}` : 'FREE (Shahzad Town)';
 
     const text = `🥛 FARM FRESH DAIRY — ORDER #${order.order_number}
 Customer: ${order.customer_name}
 Phone: ${order.customer_phone}
 Address: ${order.delivery_address}, ${order.area_name || order.city || 'Islamabad'}
 ${itemsSummary ? `Items:\n${itemsSummary}\n` : ''}
+Delivery Fee: ${feeText}
 Total Payable: Rs. ${order.total_amount} (Cash on Delivery)
 Delivery Slot: ${slot}`;
 
@@ -72,9 +74,10 @@ Delivery Slot: ${slot}`;
   };
 
   const slot = (order as any)?.delivery_slot || 'Morning';
+  const feeLabel = order?.delivery_fee && order.delivery_fee > 0 ? `Rs. ${order.delivery_fee}` : 'FREE';
   const whatsappMessage = order
     ? encodeURIComponent(
-        `🥛 Hello Farm Fresh Dairy! I just placed order #${order.order_number} for ${slot.toLowerCase()} delivery to ${order.delivery_address}, ${order.area_name || ''}. Total: Rs. ${order.total_amount}. Please confirm delivery!`
+        `🥛 Hello Farm Fresh Dairy! I just placed order #${order.order_number} for ${slot.toLowerCase()} delivery to ${order.delivery_address}, ${order.area_name || ''}. Total: Rs. ${order.total_amount} (Delivery: ${feeLabel}). Please confirm delivery!`
       )
     : encodeURIComponent(`🥛 Hello Farm Fresh Dairy! Please confirm my milk delivery order #${orderNumberParam}.`);
 
@@ -172,7 +175,11 @@ Delivery Slot: ${slot}`;
             <div className="pt-1">
               <strong>Total Payable:</strong>{' '}
               <span className="text-farm-800 font-bold text-sm">Rs. {totalAmount}</span>{' '}
-              <span className="text-emerald-700 font-bold">(FREE Delivery)</span>
+              {order?.delivery_fee && order.delivery_fee > 0 ? (
+                <span className="text-earth-600 font-semibold text-[11px]">(Includes Rs. {order.delivery_fee} delivery fee)</span>
+              ) : (
+                <span className="text-emerald-700 font-bold">(FREE Delivery in Shahzad Town)</span>
+              )}
             </div>
           )}
         </div>

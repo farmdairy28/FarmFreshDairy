@@ -18,7 +18,7 @@ export function DeliverySection({ regions }: { regions: DeliveryRegion[] }) {
         <div className="text-center max-w-3xl mx-auto space-y-4 mb-16">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-farm-100 text-farm-800 text-xs font-mono font-semibold uppercase border border-farm-200">
             <MapPin className="w-3.5 h-3.5" />
-            FREE MORNING &amp; EVENING DOORSTEP DELIVERY
+            FREE IN SHAHZAD TOWN · DOORSTEP ROUTES ACROSS ISLAMABAD
           </div>
 
           <h2 className="font-serif text-4xl sm:text-5xl font-bold tracking-tight text-earth-900">
@@ -26,7 +26,7 @@ export function DeliverySection({ regions }: { regions: DeliveryRegion[] }) {
           </h2>
 
           <p className="text-earth-600 text-base sm:text-lg">
-            We deliver temperature-controlled, chilled milk across Islamabad with morning and evening routes daily.
+            We deliver temperature-controlled, chilled milk across Islamabad daily. Doorstep delivery is 100% FREE in Shahzad Town; standard paid delivery applies to other sectors.
           </p>
         </div>
 
@@ -70,22 +70,33 @@ export function DeliverySection({ regions }: { regions: DeliveryRegion[] }) {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
-              {activeRegion.areas?.map((area) => (
-                <div
-                  key={area.id}
-                  className="p-3.5 sm:p-4 rounded-xl bg-cream-50 border border-earth-200 flex items-center justify-between gap-2"
-                >
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <Check className="w-4 h-4 text-farm-700 shrink-0" />
-                    <span className="text-xs sm:text-sm font-medium text-earth-800 truncate">
-                      {area.name}
-                    </span>
+              {activeRegion.areas?.map((area) => {
+                const isShahzad = area.name.toLowerCase().includes('shahzad town') && !area.name.toLowerCase().includes('chak shahzad');
+                const fee = isShahzad ? 0 : (area.delivery_fee > 0 ? area.delivery_fee : 150);
+
+                return (
+                  <div
+                    key={area.id}
+                    className="p-3.5 sm:p-4 rounded-xl bg-cream-50 border border-earth-200 flex items-center justify-between gap-2"
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <Check className="w-4 h-4 text-farm-700 shrink-0" />
+                      <span className="text-xs sm:text-sm font-medium text-earth-800 truncate">
+                        {area.name}
+                      </span>
+                    </div>
+                    {isShahzad ? (
+                      <span className="text-[10px] font-mono uppercase bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold shrink-0">
+                        Free
+                      </span>
+                    ) : (
+                      <span className="text-[10px] font-mono uppercase bg-earth-200/80 text-earth-800 px-2 py-0.5 rounded font-bold shrink-0">
+                        Rs. {fee}
+                      </span>
+                    )}
                   </div>
-                  <span className="text-[10px] font-mono uppercase bg-farm-100 text-farm-800 px-2 py-0.5 rounded font-bold shrink-0">
-                    Free
-                  </span>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             <div className="pt-8 mt-6 border-t border-earth-200 flex flex-col sm:flex-row items-center justify-between gap-4">

@@ -325,9 +325,9 @@ export const INITIAL_DELIVERY: DeliveryRegion[] = [
     is_active: true,
     areas: [
       { id: 'da14', name: 'Shahzad Town (FREE Doorstep Delivery)', delivery_fee: 0, timing_info: 'Morning & Evening Delivery', sort_order: 1, is_active: true },
-      { id: 'da15', name: 'Chak Shahzad Farm Houses & Park Road', delivery_fee: 0, timing_info: 'Morning & Evening Delivery', sort_order: 2, is_active: true },
-      { id: 'da16', name: 'Park View City & Bani Gala Surrounds', delivery_fee: 0, timing_info: 'Morning & Evening Delivery', sort_order: 3, is_active: true },
-      { id: 'da17', name: 'Naval Anchorage & Gulberg Greens', delivery_fee: 0, timing_info: 'Morning & Evening Delivery', sort_order: 4, is_active: true },
+      { id: 'da15', name: 'Chak Shahzad Farm Houses & Park Road', delivery_fee: 150, timing_info: 'Morning & Evening Delivery', sort_order: 2, is_active: true },
+      { id: 'da16', name: 'Park View City & Bani Gala Surrounds', delivery_fee: 150, timing_info: 'Morning & Evening Delivery', sort_order: 3, is_active: true },
+      { id: 'da17', name: 'Naval Anchorage & Gulberg Greens', delivery_fee: 150, timing_info: 'Morning & Evening Delivery', sort_order: 4, is_active: true },
     ]
   },
   {
@@ -336,10 +336,10 @@ export const INITIAL_DELIVERY: DeliveryRegion[] = [
     sort_order: 2,
     is_active: true,
     areas: [
-      { id: 'da1', name: 'F-6 (Super Market & Embassy Area)', delivery_fee: 0, timing_info: 'Morning & Evening Delivery', sort_order: 1, is_active: true },
-      { id: 'da2', name: 'F-7 (Jinnah Super & Surrounds)', delivery_fee: 0, timing_info: 'Morning & Evening Delivery', sort_order: 2, is_active: true },
-      { id: 'da3', name: 'F-8 & F-10 Sectors', delivery_fee: 0, timing_info: 'Morning & Evening Delivery', sort_order: 3, is_active: true },
-      { id: 'da4', name: 'F-11 (Markaz & Residential Blocks)', delivery_fee: 0, timing_info: 'Morning & Evening Delivery', sort_order: 4, is_active: true },
+      { id: 'da1', name: 'F-6 (Super Market & Embassy Area)', delivery_fee: 150, timing_info: 'Morning & Evening Delivery', sort_order: 1, is_active: true },
+      { id: 'da2', name: 'F-7 (Jinnah Super & Surrounds)', delivery_fee: 150, timing_info: 'Morning & Evening Delivery', sort_order: 2, is_active: true },
+      { id: 'da3', name: 'F-8 & F-10 Sectors', delivery_fee: 150, timing_info: 'Morning & Evening Delivery', sort_order: 3, is_active: true },
+      { id: 'da4', name: 'F-11 (Markaz & Residential Blocks)', delivery_fee: 150, timing_info: 'Morning & Evening Delivery', sort_order: 4, is_active: true },
     ]
   },
   {
@@ -348,9 +348,9 @@ export const INITIAL_DELIVERY: DeliveryRegion[] = [
     sort_order: 3,
     is_active: true,
     areas: [
-      { id: 'da5', name: 'E-7 & E-11 (FECHS / MPCHS)', delivery_fee: 0, timing_info: 'Morning & Evening Delivery', sort_order: 1, is_active: true },
-      { id: 'da6', name: 'G-6, G-7 & G-8 Sectors', delivery_fee: 0, timing_info: 'Morning & Evening Delivery', sort_order: 2, is_active: true },
-      { id: 'da7', name: 'G-9, G-10 & G-11 Sectors', delivery_fee: 0, timing_info: 'Morning & Evening Delivery', sort_order: 3, is_active: true },
+      { id: 'da5', name: 'E-7 & E-11 (FECHS / MPCHS)', delivery_fee: 150, timing_info: 'Morning & Evening Delivery', sort_order: 1, is_active: true },
+      { id: 'da6', name: 'G-6, G-7 & G-8 Sectors', delivery_fee: 150, timing_info: 'Morning & Evening Delivery', sort_order: 2, is_active: true },
+      { id: 'da7', name: 'G-9, G-10 & G-11 Sectors', delivery_fee: 150, timing_info: 'Morning & Evening Delivery', sort_order: 3, is_active: true },
     ]
   },
   {
@@ -359,8 +359,8 @@ export const INITIAL_DELIVERY: DeliveryRegion[] = [
     sort_order: 4,
     is_active: true,
     areas: [
-      { id: 'da8', name: 'I-8 Sector (All Sub-Sectors)', delivery_fee: 0, timing_info: 'Morning & Evening Delivery', sort_order: 1, is_active: true },
-      { id: 'da9', name: 'I-9, I-10 & H-8/H-9', delivery_fee: 0, timing_info: 'Morning & Evening Delivery', sort_order: 2, is_active: true },
+      { id: 'da8', name: 'I-8 Sector (All Sub-Sectors)', delivery_fee: 150, timing_info: 'Morning & Evening Delivery', sort_order: 1, is_active: true },
+      { id: 'da9', name: 'I-9, I-10 & H-8/H-9', delivery_fee: 150, timing_info: 'Morning & Evening Delivery', sort_order: 2, is_active: true },
     ]
   },
   {
@@ -369,10 +369,10 @@ export const INITIAL_DELIVERY: DeliveryRegion[] = [
     sort_order: 5,
     is_active: true,
     areas: [
-      { id: 'da10', name: 'DHA Phase 1 & Phase 2', delivery_fee: 0, timing_info: 'Morning & Evening Delivery', sort_order: 1, is_active: true },
-      { id: 'da11', name: 'DHA Phase 3, 5 & Valley', delivery_fee: 0, timing_info: 'Morning & Evening Delivery', sort_order: 2, is_active: true },
-      { id: 'da12', name: 'Bahria Town Phase 1-8', delivery_fee: 0, timing_info: 'Morning & Evening Delivery', sort_order: 3, is_active: true },
-      { id: 'da13', name: 'Bahria Enclave Islamabad', delivery_fee: 0, timing_info: 'Morning & Evening Delivery', sort_order: 4, is_active: true },
+      { id: 'da10', name: 'DHA Phase 1 & Phase 2', delivery_fee: 150, timing_info: 'Morning & Evening Delivery', sort_order: 1, is_active: true },
+      { id: 'da11', name: 'DHA Phase 3, 5 & Valley', delivery_fee: 150, timing_info: 'Morning & Evening Delivery', sort_order: 2, is_active: true },
+      { id: 'da12', name: 'Bahria Town Phase 1-8', delivery_fee: 150, timing_info: 'Morning & Evening Delivery', sort_order: 3, is_active: true },
+      { id: 'da13', name: 'Bahria Enclave Islamabad', delivery_fee: 150, timing_info: 'Morning & Evening Delivery', sort_order: 4, is_active: true },
     ]
   }
 ];

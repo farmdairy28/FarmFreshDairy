@@ -140,9 +140,11 @@ export function CartDrawer() {
                   <span>Subtotal</span>
                   <span className="font-mono font-semibold">Rs. {cartSubtotal}</span>
                 </div>
-                <div className="flex justify-between text-earth-600">
-                  <span>Doorstep Delivery</span>
-                  <span className="font-mono text-emerald-600 font-bold uppercase text-xs">FREE</span>
+                <div className="flex justify-between text-earth-600 items-center">
+                  <span>Delivery Fee</span>
+                  <span className="font-mono text-emerald-600 font-bold uppercase text-[10px] bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                    FREE in Shahzad Town
+                  </span>
                 </div>
                 <div className="flex justify-between font-serif font-bold text-lg text-earth-900 pt-2 border-t border-farm-200">
                   <span>Total Amount</span>

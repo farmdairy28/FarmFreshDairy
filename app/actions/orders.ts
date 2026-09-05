@@ -117,7 +117,32 @@ export async function submitOrderAction(input: CreateOrderInput): Promise<OrderA
       });
     }
 
-    const deliveryFee = 0.00; // Free morning chilled delivery route
+    // Authoritative server-side delivery fee calculation:
+    // Shahzad Town is FREE (0.00); all other areas have a paid delivery fee (Rs. 150 or configured fee)
+    const areaLower = input.area_name.toLowerCase();
+    const isShahzadTown = areaLower.includes('shahzad town') && !areaLower.includes('chak shahzad');
+
+    let deliveryFee = 0.00;
+    if (!isShahzadTown) {
+      deliveryFee = 150.00; // standard paid delivery fee for non-Shahzad Town areas
+      if (adminClient) {
+        try {
+          const cleanArea = input.area_name.split('(')[0].split('—')[0].trim();
+          const { data: areaRecord } = await adminClient
+            .from('delivery_areas')
+            .select('delivery_fee')
+            .ilike('name', `%${cleanArea}%`)
+            .maybeSingle();
+
+          if (areaRecord && typeof areaRecord.delivery_fee === 'number' && areaRecord.delivery_fee > 0) {
+            deliveryFee = Number(areaRecord.delivery_fee);
+          }
+        } catch (e) {
+          // ignore and keep standard paid delivery fee
+        }
+      }
+    }
+
     const totalAmount = calculatedSubtotal + deliveryFee;
     const orderNumber = `FFD-${Math.floor(1000 + Math.random() * 9000)}`;
     let orderId = `ord-${Date.now()}`;
