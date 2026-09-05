@@ -15,6 +15,7 @@ import {
   Menu,
   X,
   Sparkles,
+  Star,
 } from 'lucide-react';
 import { logoutAdminAction } from '@/app/actions/auth';
 
@@ -28,6 +29,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     { name: 'Products', href: '/admin/products', icon: Package },
     { name: 'Categories', href: '/admin/categories', icon: Layers },
     { name: 'Orders', href: '/admin/orders', icon: ShoppingBag },
+    { name: 'Reviews', href: '/admin/reviews', icon: Star },
     { name: 'Homepage CMS', href: '/admin/content', icon: FileText },
     { name: 'Delivery Areas', href: '/admin/delivery', icon: Truck },
     { name: 'Settings', href: '/admin/settings', icon: Settings },

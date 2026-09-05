@@ -527,6 +527,25 @@ export async function getTestimonials(): Promise<Testimonial[]> {
   return getLocalFallback<Testimonial[]>('testimonials', serverStore).filter(t => t.is_active);
 }
 
+export async function getAllReviewsAdmin(): Promise<Testimonial[]> {
+  try {
+    const adminClient = getDbClient();
+    if (adminClient) {
+      const { data, error } = await adminClient
+        .from('testimonials')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (!error && data && data.length > 0) {
+        return data as Testimonial[];
+      }
+    }
+  } catch (err) {}
+
+  const serverStore = getServerTestimonialsStore();
+  return getLocalFallback<Testimonial[]>('testimonials', serverStore);
+}
+
 // ---------------- HOMEPAGE CMS ----------------
 export async function getHomepageHero(): Promise<HomepageHero> {
   try {

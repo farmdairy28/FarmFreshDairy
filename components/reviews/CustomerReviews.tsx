@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import Image from 'next/image';
-import { Star, CheckCircle2, AlertCircle, PenLine, X, ChevronLeft, ChevronRight, Quote, ShieldCheck } from 'lucide-react';
+import { Star, CheckCircle2, AlertCircle, PenLine, X, ChevronLeft, ChevronRight, Quote, ShieldCheck, Camera, Upload, Trash2 } from 'lucide-react';
 import { Testimonial } from '@/lib/types';
 import { submitReviewAction } from '@/app/actions/reviews';
 
@@ -32,6 +32,8 @@ export function CustomerReviews({
   const [customerName, setCustomerName] = useState('');
   const [customerType, setCustomerType] = useState('');
   const [reviewText, setReviewText] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const current = reviews[currentIndex] || reviews[0];
 
@@ -44,6 +46,38 @@ export function CustomerReviews({
   const handlePrev = () => {
     if (reviews.length > 0) {
       setCurrentIndex((prev) => (prev - 1 + reviews.length) % reviews.length);
+    }
+  };
+
+  const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      setErrorMessage('Please select a valid image file (PNG, JPG, WebP).');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setErrorMessage('Photo size should be under 5MB.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setAvatarUrl(reader.result as string);
+      setErrorMessage('');
+    };
+    reader.onerror = () => {
+      setErrorMessage('Failed to load image.');
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemovePhoto = () => {
+    setAvatarUrl('');
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
   };
 
@@ -61,6 +95,7 @@ export function CustomerReviews({
         customer_type: customerType || 'Verified Customer',
         rating,
         review: reviewText,
+        avatar_url: avatarUrl || undefined,
       });
 
       if (res.success && res.testimonial) {
@@ -71,6 +106,8 @@ export function CustomerReviews({
         setCustomerName('');
         setCustomerType('');
         setReviewText('');
+        setAvatarUrl('');
+        if (fileInputRef.current) fileInputRef.current.value = '';
         setRating(5);
 
         // Auto close modal after brief delay
@@ -260,9 +297,21 @@ export function CustomerReviews({
                     </div>
 
                     <div className="flex items-center gap-3 pt-3 border-t border-earth-100">
-                      <div className="w-8 h-8 rounded-full bg-farm-700 text-cream-100 font-serif font-bold text-xs flex items-center justify-center shrink-0">
-                        {rev.customer_name ? rev.customer_name.charAt(0).toUpperCase() : 'U'}
-                      </div>
+                      {rev.avatar_url ? (
+                        <div className="relative w-8 h-8 rounded-full overflow-hidden border border-farm-600 shrink-0 shadow-xs">
+                          <Image
+                            src={rev.avatar_url}
+                            alt={rev.customer_name}
+                            fill
+                            className="object-cover"
+                            sizes="32px"
+                          />
+                        </div>
+                      ) : (
+                        <div className="w-8 h-8 rounded-full bg-farm-700 text-cream-100 font-serif font-bold text-xs flex items-center justify-center shrink-0 shadow-xs">
+                          {rev.customer_name ? rev.customer_name.charAt(0).toUpperCase() : 'U'}
+                        </div>
+                      )}
                       <div className="min-w-0">
                         <div className="font-serif font-bold text-xs text-earth-900 truncate">
                           {rev.customer_name}
@@ -390,6 +439,71 @@ export function CustomerReviews({
                   placeholder="e.g. Shahzad Town Resident / Daily Subscriber"
                   className="w-full px-4 py-3 rounded-2xl bg-white border border-earth-300 text-earth-900 text-sm focus:outline-none focus:ring-2 focus:ring-farm-600"
                 />
+              </div>
+
+              {/* Optional Photo / Avatar */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-mono uppercase text-earth-700 font-semibold">
+                    Profile Photo (Optional)
+                  </label>
+                  <span className="text-[11px] font-mono text-earth-400">Optional</span>
+                </div>
+
+                <div className="p-3 rounded-2xl bg-cream-100/70 border border-earth-200 flex flex-col sm:flex-row items-center gap-4">
+                  {/* Photo Preview Thumbnail or Placeholder */}
+                  <div className="relative w-14 h-14 rounded-full overflow-hidden border-2 border-dashed border-earth-300 bg-white flex items-center justify-center shrink-0">
+                    {avatarUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={avatarUrl}
+                        alt="Preview"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <Camera className="w-5 h-5 text-earth-400" />
+                    )}
+                  </div>
+
+                  <div className="flex-1 min-w-0 w-full space-y-2">
+                    <div className="flex items-center gap-2">
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handlePhotoSelect}
+                        className="hidden"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white hover:bg-earth-50 border border-earth-300 text-earth-800 text-xs font-semibold shadow-xs transition-colors"
+                      >
+                        <Upload className="w-3.5 h-3.5 text-farm-600" />
+                        <span>{avatarUrl ? 'Change Photo' : 'Upload Photo'}</span>
+                      </button>
+
+                      {avatarUrl && (
+                        <button
+                          type="button"
+                          onClick={handleRemovePhoto}
+                          className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 text-xs font-semibold transition-colors"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          <span>Remove</span>
+                        </button>
+                      )}
+                    </div>
+
+                    <input
+                      type="url"
+                      value={avatarUrl.startsWith('data:') ? '' : avatarUrl}
+                      onChange={(e) => setAvatarUrl(e.target.value)}
+                      placeholder="Or paste an image web link (optional)..."
+                      className="w-full px-3 py-1.5 text-xs rounded-xl bg-white border border-earth-200 text-earth-800 placeholder-earth-400 focus:outline-none focus:ring-1 focus:ring-farm-600"
+                    />
+                  </div>
+                </div>
               </div>
 
               {/* Review Text */}
