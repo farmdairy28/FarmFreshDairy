@@ -85,6 +85,14 @@ export async function submitOrderAction(input: CreateOrderInput): Promise<OrderA
         return { success: false, error: `Product "${dbProd?.name || cartItem.productId}" is no longer available.` };
       }
 
+      // Check stock availability
+      if (typeof dbProd.stock === 'number' && dbProd.stock < cartItem.quantity) {
+        return {
+          success: false,
+          error: `Insufficient stock for "${dbProd.name}". Available: ${dbProd.stock}, requested: ${cartItem.quantity}.`,
+        };
+      }
+
       const itemPrice = Number(dbProd.price);
       const itemSubtotal = itemPrice * cartItem.quantity;
       calculatedSubtotal += itemSubtotal;
@@ -105,7 +113,7 @@ export async function submitOrderAction(input: CreateOrderInput): Promise<OrderA
 
     // 3. Insert order record into Supabase PostgreSQL
     if (adminClient) {
-      const newOrderRecord = {
+      const newOrderRecord: Record<string, any> = {
         order_number: orderNumber,
         customer_name: input.customer_name.trim(),
         customer_email: (input.customer_email || '').trim(),
@@ -122,17 +130,40 @@ export async function submitOrderAction(input: CreateOrderInput): Promise<OrderA
         payment_status: 'Pending',
       };
 
-      const { data: insertedOrder, error: orderInsertError } = await adminClient
-        .from('orders')
-        .insert(newOrderRecord)
-        .select()
-        .single();
+      let insertedOrder: any = null;
+      let orderInsertError: any = null;
+      let orderPayload = { ...newOrderRecord };
 
-      if (orderInsertError) {
+      // Schema-resilient insertion loop (handles optional columns like 'city' if not yet migrated in Supabase)
+      for (let attempt = 0; attempt < 3; attempt++) {
+        const res = await adminClient
+          .from('orders')
+          .insert(orderPayload)
+          .select()
+          .single();
+
+        if (!res.error && res.data) {
+          insertedOrder = res.data;
+          orderInsertError = null;
+          break;
+        }
+
+        orderInsertError = res.error;
+        const missingColMatch = res.error?.message?.match(/Could not find the '([^']+)' column of 'orders'/i);
+        if (missingColMatch && missingColMatch[1] && missingColMatch[1] in orderPayload) {
+          const missingCol = missingColMatch[1];
+          console.warn(`[Supabase Schema Notice]: Column '${missingCol}' does not exist on 'orders' table in remote database. Omitting and retrying...`);
+          delete orderPayload[missingCol];
+        } else {
+          break;
+        }
+      }
+
+      if (orderInsertError || !insertedOrder) {
         console.error('[DATABASE ORDER INSERT ERROR]:', orderInsertError);
         return {
           success: false,
-          error: `Database order placement failed: ${orderInsertError.message || 'Could not insert record into orders table.'}`,
+          error: `Database order placement failed: ${orderInsertError?.message || 'Could not insert record into orders table.'}`,
         };
       }
 
@@ -149,14 +180,52 @@ export async function submitOrderAction(input: CreateOrderInput): Promise<OrderA
           subtotal: it.subtotal,
         }));
 
-        const { error: itemsInsertError } = await adminClient
-          .from('order_items')
-          .insert(itemsToInsert);
+        let itemsPayload: any[] = [...itemsToInsert];
+        let itemsInsertError: any = null;
+
+        for (let attempt = 0; attempt < 3; attempt++) {
+          const res = await adminClient
+            .from('order_items')
+            .insert(itemsPayload);
+
+          if (!res.error) {
+            itemsInsertError = null;
+            break;
+          }
+
+          itemsInsertError = res.error;
+          const missingColMatch = res.error?.message?.match(/Could not find the '([^']+)' column of 'order_items'/i);
+          if (missingColMatch && missingColMatch[1]) {
+            const missingCol = missingColMatch[1];
+            console.warn(`[Supabase Schema Notice]: Column '${missingCol}' does not exist on 'order_items' table. Omitting and retrying...`);
+            itemsPayload = itemsPayload.map((item) => {
+              const copy = { ...item };
+              delete copy[missingCol];
+              return copy;
+            });
+          } else {
+            break;
+          }
+        }
 
         if (itemsInsertError) {
           console.error('[DATABASE ORDER ITEMS INSERT ERROR]:', itemsInsertError);
         } else {
           console.log(`[DATABASE SUCCESS] Inserted ${itemsToInsert.length} order items for order ${orderId}`);
+        }
+
+        // 3b. Decrement stock for purchased products in database
+        for (const item of input.items) {
+          if (isValidUUID(item.productId)) {
+            const dbProd = verifiedProducts.find((p) => p.id === item.productId);
+            if (dbProd && typeof dbProd.stock === 'number') {
+              const newStock = Math.max(0, dbProd.stock - item.quantity);
+              await adminClient
+                .from('products')
+                .update({ stock: newStock, updated_at: new Date().toISOString() })
+                .eq('id', item.productId);
+            }
+          }
         }
       }
     } else {
