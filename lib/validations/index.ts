@@ -1,20 +1,20 @@
 import { z } from 'zod';
 
 export const ProductSchema = z.object({
-  name: z.string().min(3, 'Product name must be at least 3 characters'),
-  slug: z.string().min(3, 'Slug is required'),
-  short_description: z.string().min(10, 'Short description must be at least 10 characters'),
-  full_description: z.string().min(20, 'Full description must be at least 20 characters'),
+  name: z.string().min(2, 'Product name must be at least 2 characters'),
+  slug: z.string().min(2, 'Slug is required'),
+  short_description: z.string().min(1, 'Short description is required'),
+  full_description: z.string().optional().nullable().or(z.literal('')),
   price: z.coerce.number().positive('Price must be greater than 0'),
-  compare_at_price: z.coerce.number().optional(),
+  compare_at_price: z.coerce.number().optional().nullable(),
   unit: z.string().min(1, 'Unit is required (e.g. litre, kg)'),
-  weight_volume: z.string().optional(),
-  category_id: z.string().optional(),
-  stock: z.coerce.number().int().nonnegative('Stock cannot be negative'),
+  weight_volume: z.string().optional().nullable(),
+  category_id: z.string().optional().nullable().or(z.literal('')),
+  stock: z.coerce.number().int().nonnegative('Stock cannot be negative').default(100),
   is_active: z.boolean().default(true),
   is_featured: z.boolean().default(false),
   show_on_homepage: z.boolean().default(true),
-  primary_image: z.string().url('Invalid image URL').or(z.string().min(1)),
+  primary_image: z.string().optional().nullable().or(z.literal('')),
 });
 
 export const CheckoutSchema = z.object({

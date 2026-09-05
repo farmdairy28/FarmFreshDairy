@@ -149,21 +149,31 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
       const payload = {
         ...formData,
         id: initialProduct?.id,
+        category_id: formData.category_id?.trim() ? formData.category_id.trim() : null,
+        is_active: formData.is_active !== undefined ? Boolean(formData.is_active) : true,
+        stock: formData.stock !== undefined ? Number(formData.stock) : 100,
+        show_on_homepage: formData.show_on_homepage !== undefined ? Boolean(formData.show_on_homepage) : true,
       };
 
-      // 1. Save via Server Action for database persistence
+      // 1. Save via Server Action for database persistence and cache invalidation
       const actionResult = await saveProductAction(payload);
 
-      if (!actionResult.success && actionResult.error) {
-        // Fallback to local storage API if database connection failed
-        await saveProduct(payload);
+      if (!actionResult.success) {
+        setFormError(actionResult.error || 'Failed to save product to server database.');
+        setLoading(false);
+        return;
+      }
+
+      // 2. Also sync local storage for client-side offline resilience
+      if (actionResult.product) {
+        await saveProduct(actionResult.product);
       }
 
       router.push('/admin/products');
       router.refresh();
     } catch (err: any) {
       console.error(err);
-      setFormError(err.message || 'Failed to save product.');
+      setFormError(err?.message || 'Failed to save product.');
     } finally {
       setLoading(false);
     }
@@ -302,7 +312,7 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
             </label>
             <input
               type="text"
-              value={formData.sku}
+              value={formData.sku || ''}
               onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
               className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500"
             />
@@ -414,7 +424,7 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
             Category
           </label>
           <select
-            value={formData.category_id}
+            value={formData.category_id || ''}
             onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
             className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500"
           >

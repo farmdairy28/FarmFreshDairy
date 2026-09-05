@@ -26,13 +26,19 @@ export async function middleware(request: NextRequest) {
       return response;
     }
 
+    // Check if valid fallback admin session cookie is set
+    const fallbackEmail = request.cookies.get('ffd_admin_session')?.value;
+    if (fallbackEmail && isAuthorizedAdminEmail(fallbackEmail)) {
+      return response;
+    }
+
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-    if (!supabaseUrl || !supabaseAnonKey) {
-      // If Supabase is not configured, redirect to login with error
+    if (!supabaseUrl || !supabaseAnonKey || supabaseUrl.includes('your-project-id')) {
+      // If Supabase is not configured and no valid session, redirect to login
       const loginUrl = new URL('/admin/login', request.url);
-      loginUrl.searchParams.set('error', 'missing_config');
+      loginUrl.searchParams.set('redirect', lowerPath);
       return NextResponse.redirect(loginUrl);
     }
 

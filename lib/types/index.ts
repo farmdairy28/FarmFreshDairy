@@ -26,13 +26,13 @@ export interface Product {
   short_description: string;
   full_description: string;
   price: number;
-  compare_at_price?: number;
+  compare_at_price?: number | null;
   currency: string;
-  category_id?: string;
-  category?: Category;
-  sku?: string;
+  category_id?: string | null;
+  category?: Category | null;
+  sku?: string | null;
   unit: string; // e.g. 'litre', 'kg', 'pack'
-  weight_volume?: string;
+  weight_volume?: string | null;
   stock: number;
   availability: boolean;
   is_active: boolean;
