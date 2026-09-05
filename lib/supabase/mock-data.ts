@@ -46,25 +46,25 @@ export const INITIAL_CATEGORIES: Category[] = [
 export const INITIAL_PRODUCTS: Product[] = [
   {
     id: 'p1000000-0000-0000-0000-000000000001',
-    name: 'Pure Farm Fresh Whole Milk',
+    name: '100% Pure Farm Fresh Cow Milk',
     slug: 'pure-farm-fresh-whole-milk',
-    short_description: '100% pure, unpasteurized farm-fresh milk straight from pasture-raised cows.',
-    full_description: 'Our flagship whole milk comes directly from our pasture-raised cows who graze on nutrient-rich green grass. Chilled immediately after milking to preserve all natural vitamins, enzymes, and rich cream layer. Delivered within hours of milking.',
-    price: 260,
+    short_description: '100% pure, unadulterated cow milk straight from happy cows. Lab certified adulterant-free.',
+    full_description: 'Our flagship pure cow milk comes directly from our pasture-raised healthy cows. Chilled immediately after touchless milking to preserve all natural vitamins, enzymes, and rich cream layer. Tested 100% negative for urea, formalin, and chemical adulterants.',
+    price: 250,
     compare_at_price: 280,
     currency: 'Rs.',
     category_id: 'c1000000-0000-0000-0000-000000000001',
     category: INITIAL_CATEGORIES[0],
     sku: 'MILK-001',
     unit: 'litre',
-    weight_volume: '1 Litre Glass Bottle',
-    stock: 150,
+    weight_volume: '1 Litre Chilled Bottle/Pouch',
+    stock: 200,
     availability: true,
     is_active: true,
     is_featured: true,
     show_on_homepage: true,
-    seo_title: 'Pure Farm Fresh Whole Milk - Pure Pastures',
-    seo_description: 'Order 100% pure, raw pasture-fed farm fresh milk delivered straight to your doorstep.',
+    seo_title: '100% Pure Cow Milk - Farm Fresh Dairy Islamabad',
+    seo_description: 'Order 100% pure raw pasture cow milk at Rs. 250/Litre. Free home delivery in Shahzad Town.',
     primary_image: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=1000&q=80',
     images: [
       { id: 'img-1', image_url: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=1000&q=80', sort_order: 1, is_primary: true },
@@ -320,8 +320,20 @@ export const INITIAL_PROCESS: ProcessStep[] = [
 export const INITIAL_DELIVERY: DeliveryRegion[] = [
   {
     id: 'dr1',
-    name: 'Capital Core (F-Sectors)',
+    name: 'Shahzad Town & Park Road (Priority Area)',
     sort_order: 1,
+    is_active: true,
+    areas: [
+      { id: 'da14', name: 'Shahzad Town (FREE Doorstep Delivery)', delivery_fee: 0, timing_info: '6:00 AM - 8:30 AM', sort_order: 1, is_active: true },
+      { id: 'da15', name: 'Chak Shahzad Farm Houses & Park Road', delivery_fee: 0, timing_info: '6:00 AM - 8:30 AM', sort_order: 2, is_active: true },
+      { id: 'da16', name: 'Park View City & Bani Gala Surrounds', delivery_fee: 0, timing_info: '6:00 AM - 8:30 AM', sort_order: 3, is_active: true },
+      { id: 'da17', name: 'Naval Anchorage & Gulberg Greens', delivery_fee: 0, timing_info: '6:00 AM - 8:30 AM', sort_order: 4, is_active: true },
+    ]
+  },
+  {
+    id: 'dr2',
+    name: 'Capital Core (F-Sectors)',
+    sort_order: 2,
     is_active: true,
     areas: [
       { id: 'da1', name: 'F-6 (Super Market & Embassy Area)', delivery_fee: 0, timing_info: '6:00 AM - 8:30 AM', sort_order: 1, is_active: true },
@@ -331,9 +343,9 @@ export const INITIAL_DELIVERY: DeliveryRegion[] = [
     ]
   },
   {
-    id: 'dr2',
+    id: 'dr3',
     name: 'Central Islamabad (E & G Sectors)',
-    sort_order: 2,
+    sort_order: 3,
     is_active: true,
     areas: [
       { id: 'da5', name: 'E-7 & E-11 (FECHS / MPCHS)', delivery_fee: 0, timing_info: '6:00 AM - 8:30 AM', sort_order: 1, is_active: true },
@@ -342,9 +354,9 @@ export const INITIAL_DELIVERY: DeliveryRegion[] = [
     ]
   },
   {
-    id: 'dr3',
+    id: 'dr4',
     name: 'H & I Sectors',
-    sort_order: 3,
+    sort_order: 4,
     is_active: true,
     areas: [
       { id: 'da8', name: 'I-8 Sector (All Sub-Sectors)', delivery_fee: 0, timing_info: '6:00 AM - 8:30 AM', sort_order: 1, is_active: true },
@@ -352,27 +364,15 @@ export const INITIAL_DELIVERY: DeliveryRegion[] = [
     ]
   },
   {
-    id: 'dr4',
+    id: 'dr5',
     name: 'DHA & Bahria Town Islamabad',
-    sort_order: 4,
+    sort_order: 5,
     is_active: true,
     areas: [
       { id: 'da10', name: 'DHA Phase 1 & Phase 2', delivery_fee: 0, timing_info: '6:30 AM - 9:00 AM', sort_order: 1, is_active: true },
       { id: 'da11', name: 'DHA Phase 3, 5 & Valley', delivery_fee: 0, timing_info: '6:30 AM - 9:00 AM', sort_order: 2, is_active: true },
       { id: 'da12', name: 'Bahria Town Phase 1-8', delivery_fee: 0, timing_info: '6:30 AM - 9:00 AM', sort_order: 3, is_active: true },
       { id: 'da13', name: 'Bahria Enclave Islamabad', delivery_fee: 0, timing_info: '6:30 AM - 9:00 AM', sort_order: 4, is_active: true },
-    ]
-  },
-  {
-    id: 'dr5',
-    name: 'Park Road, Chak Shahzad & Suburbs',
-    sort_order: 5,
-    is_active: true,
-    areas: [
-      { id: 'da14', name: 'Chak Shahzad Farm Houses', delivery_fee: 0, timing_info: '6:30 AM - 9:00 AM', sort_order: 1, is_active: true },
-      { id: 'da15', name: 'Park View City & Bani Gala', delivery_fee: 0, timing_info: '6:30 AM - 9:00 AM', sort_order: 2, is_active: true },
-      { id: 'da16', name: 'Naval Anchorage & Gulberg Greens', delivery_fee: 0, timing_info: '6:30 AM - 9:00 AM', sort_order: 3, is_active: true },
-      { id: 'da17', name: 'Diplomatic Enclave', delivery_fee: 0, timing_info: '6:00 AM - 8:30 AM', sort_order: 4, is_active: true },
     ]
   }
 ];
@@ -383,7 +383,7 @@ export const INITIAL_TESTIMONIALS: Testimonial[] = [
     rating: 5,
     customer_name: 'Dr. Ayesha Malik',
     customer_type: 'Family Physician & Parent',
-    review: 'The difference in purity and aroma between supermarket milk and Pure Pastures is astounding. My children drink it whole, and our morning tea finally tastes like authentic farm milk.',
+    review: 'The difference in purity and aroma between supermarket milk and Farm Fresh Dairy is astounding. The lab test report gave me complete peace of mind, and our morning tea finally tastes like authentic pure milk.',
     avatar_url: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80',
     sort_order: 1,
     is_active: true,
@@ -393,7 +393,7 @@ export const INITIAL_TESTIMONIALS: Testimonial[] = [
     rating: 5,
     customer_name: 'Chef Tariq Hameed',
     customer_type: 'Executive Pastry Chef',
-    review: 'Their desi ghee and thick malai are unmatched. In professional pastry making, ingredient consistency is key, and Pure Pastures delivers 100% pure quality every morning without fail.',
+    review: 'Their desi ghee and whole cow milk at Rs. 250 are unmatched. In pastry making, ingredient consistency is key, and Farm Fresh Dairy delivers 100% pure quality every single morning.',
     avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
     sort_order: 2,
     is_active: true,
@@ -402,8 +402,8 @@ export const INITIAL_TESTIMONIALS: Testimonial[] = [
     id: 't3',
     rating: 5,
     customer_name: 'Zainab Ahmed',
-    customer_type: 'Home Customer (Clifton)',
-    review: 'I have been subscribing to morning bottle deliveries for 8 months now. The delivery is always chilled, prompt by 7 AM, and the glass bottle system feels so clean and sustainable.',
+    customer_type: 'Resident (Shahzad Town)',
+    review: 'I have been subscribing to morning deliveries for 8 months. The free delivery in Shahzad Town is always prompt by 7 AM, chilled, with a thick natural malai cream layer.',
     avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
     sort_order: 3,
     is_active: true,
@@ -411,28 +411,28 @@ export const INITIAL_TESTIMONIALS: Testimonial[] = [
 ];
 
 export const INITIAL_HERO: HomepageHero = {
-  eyebrow: "100% PURE PASTURE DAIRY",
-  heading: "Pure. Naturally. From our farm to your table.",
-  description: "Nurtured under open skies with wholesome green pastures and daily veterinarian care. Pure, unadulterated fresh milk chilled within minutes of milking.",
-  primaryCtaText: "Explore Fresh Products",
-  secondaryCtaText: "Our Farm Story",
+  eyebrow: "100% PURE COW MILK",
+  heading: "Fresh & Pure Cow Milk Straight From Happy Cows",
+  description: "Certified adulterant-free, whole cow milk delivered direct to your home every morning. Pure, fresh, and healthy for your whole family.",
+  primaryCtaText: "Order Milk (Rs. 250/L)",
+  secondaryCtaText: "View Lab Report",
   stats: [
-    { label: "Fresh Dairy", value: "100%" },
-    { label: "Pasture Raised", value: "25+ Yrs" },
-    { label: "Local Delivery", value: "Daily Morning" }
+    { label: "Adulterant-Free", value: "100% Pure" },
+    { label: "Per Litre", value: "Rs. 250" },
+    { label: "Morning Supply", value: "Chilled Daily" }
   ],
   imageUrl: "https://images.unsplash.com/photo-1527153857715-3908f2bae5e8?auto=format&fit=crop&w=1200&q=80"
 };
 
 export const INITIAL_PROMISE: HomepagePromise = {
   eyebrow: "OUR PROMISE",
-  heading: "Nothing unnecessary.",
-  subtitle: "100% Pure. Farm to table. Naturally pure.",
+  heading: "100% Original Milk.",
+  subtitle: "Pure · Fresh · Healthy — Straight From Happy Cows",
   description: "We never add water, synthetic thickeners, preservatives, or artificial milk powders. What you receive is pure, natural milk just as nature intended.",
   stats: [
     { number: "0%", label: "Chemicals or Preservatives" },
     { number: "100%", label: "Grass-fed Pasture Care" },
-    { number: "6-9 AM", label: "Chilled Morning Delivery" }
+    { number: "Rs. 250", label: "Per Litre Whole Cow Milk" }
   ]
 };
 

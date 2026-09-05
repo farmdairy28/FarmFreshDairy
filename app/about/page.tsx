@@ -6,8 +6,8 @@ import { getFarmValues } from '@/lib/supabase/api';
 import { FarmValues } from '@/components/home/FarmValues';
 
 export const metadata = {
-  title: 'Our Farm Story — Pure Pastures Dairy',
-  description: 'Learn about our 25-year heritage of organic pasture grazing, humane animal care, and unadulterated dairy production.',
+  title: 'Our Story — Farm Fresh Dairy Islamabad',
+  description: 'Learn about our commitment to 100% pure cow milk, humane cattle care, and certified adulterant-free dairy production.',
 };
 
 export default async function AboutPage() {

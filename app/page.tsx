@@ -5,6 +5,7 @@ import { FarmIntro } from '@/components/home/FarmIntro';
 import { FarmValues } from '@/components/home/FarmValues';
 import { BrandMarquee } from '@/components/home/BrandMarquee';
 import { ProcessJourney } from '@/components/home/ProcessJourney';
+import { MilkReportSection } from '@/components/home/MilkReportSection';
 import { DeliverySection } from '@/components/home/DeliverySection';
 import { ProductCollection } from '@/components/home/ProductCollection';
 import { AboutStory } from '@/components/home/AboutStory';
@@ -49,22 +50,25 @@ export default async function HomePage() {
       {/* 2. Our Promise Section */}
       <OurPromise data={promiseData} />
 
-      {/* 3. Farm Introduction */}
+      {/* 3. Official Lab Milk Quality Report */}
+      <MilkReportSection />
+
+      {/* 4. Farm Introduction */}
       <FarmIntro data={introData} />
 
-      {/* 4. Farm Values */}
+      {/* 5. Farm Values */}
       <FarmValues values={farmValues} />
 
-      {/* 5. Visual Marquee */}
+      {/* 6. Visual Marquee */}
       <BrandMarquee />
 
-      {/* 6. Process / Journey Section */}
+      {/* 7. Process / Journey Section */}
       <ProcessJourney steps={processSteps} />
 
-      {/* 7. Delivery Section */}
+      {/* 8. Delivery Section */}
       <DeliverySection regions={deliveryRegions} />
 
-      {/* 8. Product Collection */}
+      {/* 9. Product Collection */}
       <ProductCollection products={products} categories={categories} />
 
       {/* 9. About / Story Section */}

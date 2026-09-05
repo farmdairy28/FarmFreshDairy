@@ -9,34 +9,42 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        brand: {
+          blue: '#00AEEF',
+          sky: '#0284C7',
+          navy: '#0B2545',
+          deep: '#071B33',
+          green: '#22C55E',
+          whatsapp: '#25D366',
+        },
         cream: {
-          50: '#FFFEFA',
-          100: '#FDFBF7',
-          200: '#F5F0E6',
-          300: '#EBE3D3',
-          400: '#DCD0B9',
+          50: '#FFFFFF',
+          100: '#F8FAFC',
+          200: '#F0F7FF',
+          300: '#E0F2FE',
+          400: '#BAE6FD',
         },
         earth: {
-          900: '#1C1917',
-          800: '#292524',
-          700: '#44403C',
-          600: '#57534E',
-          500: '#78716C',
-          400: '#A8A29E',
-          300: '#D6D3D1',
-          200: '#E7E5E4',
-          100: '#F5F5F4',
+          900: '#0F172A',
+          800: '#1E293B',
+          700: '#334155',
+          600: '#475569',
+          500: '#64748B',
+          400: '#94A3B8',
+          300: '#CBD5E1',
+          200: '#E2E8F0',
+          100: '#F1F5F9',
         },
         farm: {
-          900: '#182417',
-          800: '#233421',
-          700: '#2D3A26',
-          600: '#3F4E36',
-          500: '#546849',
-          400: '#738A66',
-          300: '#9DB190',
-          200: '#C8D5BE',
-          100: '#EAF0E5',
+          900: '#0B2545', // Deep Navy Blue
+          800: '#0E3A6C', // Royal Dark Blue
+          700: '#0284C7', // Signature Blue
+          600: '#00AEEF', // Vibrant Sky Blue (from images)
+          500: '#38BDF8', // Bright Cyan/Sky
+          400: '#7DD3FC', // Light Sky
+          300: '#BAE6FD', // Soft Sky
+          200: '#E0F2FE', // Pale Ice Blue
+          100: '#F0F9FF', // Ultra Light Blue Tint
         },
         gold: {
           600: '#B45309',

@@ -23,7 +23,7 @@ export function AboutStory() {
             </h2>
 
             <p className="text-earth-700 text-base sm:text-lg leading-relaxed">
-              Founded over two decades ago on the principles of natural pasture feeding and humane animal care, Pure Pastures Dairy Farm began with a simple belief: milk should reach families exactly as nature created it.
+              Founded on the principles of natural pasture feeding and humane animal care, Farm Fresh Dairy began with a simple belief: pure milk should reach families exactly as nature created it.
             </p>
 
             <p className="text-earth-600 text-sm sm:text-base leading-relaxed">

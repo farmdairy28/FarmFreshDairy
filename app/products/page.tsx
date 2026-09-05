@@ -4,8 +4,8 @@ import { ProductCard } from '@/components/products/ProductCard';
 import { ProductFilterControls } from '@/components/products/ProductFilterControls';
 
 export const metadata = {
-  title: 'Fresh Farm Products — Pure Pastures Dairy',
-  description: 'Browse our complete dynamic collection of fresh pasture milk, clay-pot dahi, bilona desi ghee, paneer, and malai.',
+  title: 'Fresh Products — Farm Fresh Dairy Islamabad',
+  description: 'Order 100% pure cow milk (Rs. 250/L), thick dahi, bilona desi ghee, paneer, and malai with free delivery in Shahzad Town.',
 };
 
 export default async function ProductsPage({
@@ -30,19 +30,19 @@ export default async function ProductsPage({
   }
 
   return (
-    <div className="pt-32 pb-24 bg-cream-100 min-h-screen">
+    <div className="pt-36 pb-24 bg-cream-100 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
         <div className="max-w-3xl mb-12 space-y-3">
-          <span className="text-xs font-mono uppercase tracking-widest text-farm-700 font-semibold">
-            100% PURE & UNADULTERATED
+          <span className="text-xs font-mono uppercase tracking-widest text-farm-600 font-semibold">
+            100% PURE & ADULTERANT FREE · RS. 250/LITRE
           </span>
           <h1 className="font-serif text-4xl sm:text-5xl font-bold tracking-tight text-earth-900">
             Fresh Farm Products
           </h1>
           <p className="text-earth-600 text-base sm:text-lg">
-            Directly from our pasture herd. Chilled within minutes of milking and delivered to your home every morning.
+            Directly from our healthy pasture herd. Chilled within minutes of touchless milking and delivered to your home every morning in Islamabad.
           </p>
         </div>
 

@@ -3,10 +3,45 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { CheckCircle2, ShieldCheck, ArrowRight, AlertCircle } from 'lucide-react';
+import { CheckCircle2, ShieldCheck, ArrowRight, AlertCircle, MessageCircle, Phone, Copy, Check } from 'lucide-react';
 import { useCart } from '@/lib/context/cart-context';
 import { DeliveryRegion, Order } from '@/lib/types';
 import { submitOrderAction } from '@/app/actions/orders';
+
+const WHATSAPP_NUMBER = '923109361932';
+const WHATSAPP_DISPLAY = '0310-9361932';
+
+function buildWhatsAppMessage(
+  order: Order, 
+  items: { product: any; quantity: number }[], 
+  subtotal: number, 
+  formData: { customer_name: string; customer_phone: string; customer_email: string; area_name: string; delivery_address: string; delivery_notes: string }
+) {
+  const itemsList = items.map((it, idx) => {
+    const itemTotal = it.product.price * it.quantity;
+    return `${idx + 1}. *${it.product.name}* (${it.product.weight_volume || it.product.unit || '1 Litre'})\n   Qty: ${it.quantity} × Rs. ${it.product.price} = *Rs. ${itemTotal}*`;
+  }).join('\n\n');
+
+  return `🥛 *NEW ORDER - FARM FRESH DAIRY*
+━━━━━━━━━━━━━━━━━━━━
+📦 *Order ID:* #${order.order_number}
+👤 *Name:* ${formData.customer_name}
+📞 *Phone:* ${formData.customer_phone}
+${formData.customer_email ? `📧 *Email:* ${formData.customer_email}\n` : ''}📍 *Delivery Area:* ${formData.area_name}
+🏠 *Address:* ${formData.delivery_address}
+${formData.delivery_notes ? `📝 *Special Notes:* ${formData.delivery_notes}\n` : ''}
+🛒 *ORDER ITEMS:*
+${itemsList}
+
+━━━━━━━━━━━━━━━━━━━━
+💰 *Estimated Subtotal:* Rs. ${subtotal}
+🚚 *Delivery Fee:* FREE (Shahzad Town & Islamabad)
+💵 *TOTAL AMOUNT PAYABLE:* *Rs. ${subtotal}*
+💳 *Payment:* Cash on Delivery (COD)
+⏰ *Delivery Slot:* Morning 6:00 AM - 9:00 AM
+━━━━━━━━━━━━━━━━━━━━
+_Please confirm my morning milk delivery order!_`;
+}
 
 export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
   const { items, cartSubtotal, clearCart } = useCart();
@@ -17,13 +52,15 @@ export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
     customer_phone: '',
     delivery_address: '',
     city: 'Islamabad',
-    area_name: regions[0]?.areas[0]?.name || 'F-6 (Super Market & Embassy Area)',
+    area_name: regions[0]?.areas[0]?.name || 'Shahzad Town (FREE Doorstep Delivery)',
     delivery_notes: '',
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [completedOrder, setCompletedOrder] = useState<Order | null>(null);
+  const [whatsappLink, setWhatsappLink] = useState('');
+  const [copied, setCopied] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,7 +70,6 @@ export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
     setErrorMessage('');
 
     try {
-      // Send only product ID and quantity to the server. The server calculates authoritative prices!
       const orderPayload = {
         items: items.map((item) => ({
           productId: item.product.id,
@@ -51,8 +87,22 @@ export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
       const result = await submitOrderAction(orderPayload);
 
       if (result.success && result.order) {
-        clearCart();
+        // Construct the full formatted WhatsApp payload
+        const messageText = buildWhatsAppMessage(result.order, items, cartSubtotal, formData);
+        const encodedUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(messageText)}`;
+        
+        setWhatsappLink(encodedUrl);
         setCompletedOrder(result.order);
+        clearCart();
+
+        // Attempt to directly open WhatsApp in new tab
+        if (typeof window !== 'undefined') {
+          const win = window.open(encodedUrl, '_blank');
+          if (!win) {
+            // Popup blocked by browser, user can click the button
+            console.log('Popup blocked, using fallback link button.');
+          }
+        }
       } else {
         setErrorMessage(result.error || 'Failed to place order. Please try again.');
       }
@@ -64,35 +114,98 @@ export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
     }
   };
 
+  const handleCopyOrderSummary = () => {
+    if (!completedOrder) return;
+    const messageText = buildWhatsAppMessage(completedOrder, completedOrder.items as any || [], completedOrder.total_amount, formData);
+    navigator.clipboard.writeText(messageText);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2500);
+  };
+
   if (completedOrder) {
     return (
-      <div className="max-w-2xl mx-auto text-center py-16 px-6 rounded-3xl bg-cream-50 border border-earth-200 shadow-float space-y-6 animate-fade-in">
-        <div className="w-20 h-20 rounded-full bg-farm-100 text-farm-700 mx-auto flex items-center justify-center">
-          <CheckCircle2 className="w-10 h-10" />
+      <div className="max-w-2xl mx-auto py-12 px-6 sm:px-10 rounded-3xl bg-white border border-farm-200 shadow-float space-y-6 animate-fade-in text-center">
+        
+        {/* Animated Check & WhatsApp Badge */}
+        <div className="relative w-20 h-20 mx-auto">
+          <div className="w-20 h-20 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-sm">
+            <CheckCircle2 className="w-10 h-10" />
+          </div>
+          <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-md">
+            <MessageCircle className="w-4 h-4 fill-current" />
+          </div>
         </div>
 
-        <h2 className="font-serif text-3xl sm:text-4xl font-bold text-earth-900">
-          Thank You! Your Order is Confirmed.
-        </h2>
-
-        <div className="p-4 rounded-2xl bg-cream-200/60 font-mono text-xs text-earth-700 max-w-sm mx-auto">
-          Order Number: <span className="font-bold text-farm-900">{completedOrder.order_number}</span>
+        <div className="space-y-2">
+          <span className="text-xs font-mono uppercase tracking-widest text-emerald-600 font-bold bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+            Order Saved & Sent to WhatsApp
+          </span>
+          <h2 className="font-serif text-3xl sm:text-4xl font-bold text-earth-900">
+            Thank You, {completedOrder.customer_name}!
+          </h2>
+          <p className="text-earth-600 text-sm max-w-md mx-auto">
+            Your morning milk order has been saved with Order ID: <strong className="font-mono text-farm-800">#{completedOrder.order_number}</strong>.
+          </p>
         </div>
 
-        <p className="text-earth-600 text-sm max-w-md mx-auto leading-relaxed">
-          Your order has been logged into our farm dispatch system. Our chilled morning delivery team will deliver your products to <span className="font-semibold text-earth-900">{completedOrder.delivery_address}</span> tomorrow morning between 6:00 AM and 9:00 AM.
-        </p>
+        {/* Big WhatsApp CTA Button */}
+        {whatsappLink && (
+          <div className="p-6 rounded-2xl bg-gradient-to-r from-emerald-50 via-emerald-100/60 to-emerald-50 border border-emerald-300 space-y-3">
+            <div className="text-xs font-mono uppercase text-emerald-800 font-bold flex items-center justify-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              WhatsApp Message Ready
+            </div>
+            <p className="text-xs text-earth-700 leading-relaxed max-w-md mx-auto">
+              Tap below to open WhatsApp with your full order payload and send it directly to our farm dispatch desk:
+            </p>
+            <a
+              href={whatsappLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-sm uppercase tracking-wider transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+            >
+              <MessageCircle className="w-5 h-5 fill-current" />
+              Send Order on WhatsApp ({WHATSAPP_DISPLAY})
+            </a>
+          </div>
+        )}
 
-        <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
+        {/* Order Details Receipt Box */}
+        <div className="p-6 rounded-2xl bg-farm-50/70 border border-farm-200/80 text-left space-y-3 font-mono text-xs text-earth-800">
+          <div className="flex items-center justify-between pb-2 border-b border-farm-200 font-bold text-farm-900">
+            <span>RECEIPT #{completedOrder.order_number}</span>
+            <span className="text-emerald-700">Cash on Delivery (COD)</span>
+          </div>
+
+          <div className="space-y-1 text-[11px] text-earth-700">
+            <div><strong>Deliver to:</strong> {completedOrder.customer_name} ({completedOrder.customer_phone})</div>
+            <div><strong>Area:</strong> {completedOrder.area_name}</div>
+            <div><strong>Address:</strong> {completedOrder.delivery_address}</div>
+            <div><strong>Total Payable:</strong> <span className="text-farm-800 font-bold text-sm">Rs. {completedOrder.total_amount}</span> (FREE Delivery)</div>
+          </div>
+
+          <div className="pt-2 border-t border-farm-200 flex justify-end">
+            <button
+              type="button"
+              onClick={handleCopyOrderSummary}
+              className="inline-flex items-center gap-1.5 text-farm-700 hover:text-farm-900 text-[11px] font-semibold"
+            >
+              {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+              {copied ? 'Copied to Clipboard!' : 'Copy Order Text'}
+            </button>
+          </div>
+        </div>
+
+        <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3.5">
           <Link
             href="/products"
-            className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-farm-700 hover:bg-farm-800 text-cream-100 font-bold text-xs uppercase tracking-wider transition-colors"
+            className="w-full sm:w-auto px-7 py-3 rounded-full bg-farm-600 hover:bg-farm-700 text-white font-bold text-xs uppercase tracking-wider transition-colors shadow-sm"
           >
-            Continue Shopping
+            Order More Products
           </Link>
           <Link
             href="/"
-            className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-cream-200 hover:bg-cream-300 text-earth-800 font-bold text-xs uppercase tracking-wider transition-colors border border-earth-300"
+            className="w-full sm:w-auto px-7 py-3 rounded-full bg-white hover:bg-farm-100 text-earth-800 font-bold text-xs uppercase tracking-wider transition-colors border border-earth-300"
           >
             Back to Home
           </Link>
@@ -168,15 +281,14 @@ export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
 
           <div>
             <label className="block text-xs font-mono uppercase text-earth-600 mb-1 font-semibold">
-              Email Address *
+              Email Address (Optional)
             </label>
             <input
               type="email"
-              required
               value={formData.customer_email}
               onChange={(e) => setFormData({ ...formData, customer_email: e.target.value })}
-              placeholder="ayesha@example.com"
-              className="w-full px-4 py-3 rounded-2xl bg-cream-100 border border-earth-300 text-earth-900 text-sm focus:outline-none focus:ring-2 focus:ring-farm-600"
+              placeholder="ayesha@example.com (optional)"
+              className="w-full px-4 py-3 rounded-2xl bg-white border border-earth-300 text-earth-900 text-sm focus:outline-none focus:ring-2 focus:ring-farm-600"
             />
           </div>
         </div>
@@ -206,7 +318,7 @@ export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
               <select
                 value={formData.area_name}
                 onChange={(e) => setFormData({ ...formData, area_name: e.target.value })}
-                className="w-full px-4 py-3 rounded-2xl bg-cream-100 border border-earth-300 text-earth-900 text-sm focus:outline-none focus:ring-2 focus:ring-farm-600"
+                className="w-full px-4 py-3 rounded-2xl bg-white border border-earth-300 text-earth-900 text-sm focus:outline-none focus:ring-2 focus:ring-farm-600"
               >
                 {regions.map((reg) => (
                   <optgroup key={reg.id} label={reg.name}>
@@ -231,7 +343,7 @@ export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
               value={formData.delivery_address}
               onChange={(e) => setFormData({ ...formData, delivery_address: e.target.value })}
               placeholder="House #, Street #, Sector/Block, Landmark"
-              className="w-full px-4 py-3 rounded-2xl bg-cream-100 border border-earth-300 text-earth-900 text-sm focus:outline-none focus:ring-2 focus:ring-farm-600"
+              className="w-full px-4 py-3 rounded-2xl bg-white border border-earth-300 text-earth-900 text-sm focus:outline-none focus:ring-2 focus:ring-farm-600"
             ></textarea>
           </div>
 
@@ -244,7 +356,7 @@ export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
               value={formData.delivery_notes}
               onChange={(e) => setFormData({ ...formData, delivery_notes: e.target.value })}
               placeholder="e.g. Leave bottle on front door hook if before 7:00 AM"
-              className="w-full px-4 py-3 rounded-2xl bg-cream-100 border border-earth-300 text-earth-900 text-sm focus:outline-none focus:ring-2 focus:ring-farm-600"
+              className="w-full px-4 py-3 rounded-2xl bg-white border border-earth-300 text-earth-900 text-sm focus:outline-none focus:ring-2 focus:ring-farm-600"
             />
           </div>
         </div>
@@ -253,22 +365,24 @@ export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
           <h2 className="font-serif text-2xl font-bold text-earth-900">
             3. Payment Method
           </h2>
-          <div className="p-4 rounded-2xl bg-farm-100 border border-farm-300 flex items-center justify-between">
+          <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-300 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <ShieldCheck className="w-6 h-6 text-farm-700 shrink-0" />
+              <ShieldCheck className="w-6 h-6 text-emerald-600 shrink-0" />
               <div>
-                <div className="font-serif font-bold text-sm text-farm-900">Cash on Delivery (COD)</div>
+                <div className="font-serif font-bold text-sm text-earth-900">Cash on Delivery (COD)</div>
                 <div className="text-xs text-earth-600">Pay cash upon receiving morning chilled milk</div>
               </div>
             </div>
-            <span className="text-xs font-mono uppercase font-bold text-farm-800">Active</span>
+            <span className="text-xs font-mono uppercase font-bold text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-full">
+              Active
+            </span>
           </div>
         </div>
 
       </div>
 
       {/* Order Summary Sidebar */}
-      <div className="lg:col-span-5 p-6 sm:p-8 rounded-3xl bg-cream-50 border border-earth-200 shadow-soft space-y-6 sticky top-32">
+      <div className="lg:col-span-5 p-6 sm:p-8 rounded-3xl bg-white border border-farm-200 shadow-soft space-y-6 sticky top-32">
         <h2 className="font-serif font-bold text-2xl text-earth-900">
           Order Items ({items.length})
         </h2>
@@ -304,25 +418,32 @@ export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
           </div>
           <div className="flex justify-between text-earth-600">
             <span>Morning Delivery Fee</span>
-            <span className="font-mono font-bold text-farm-700 uppercase text-xs">FREE</span>
+            <span className="font-mono font-bold text-emerald-600 uppercase text-xs">FREE</span>
           </div>
           <div className="flex justify-between font-serif font-bold text-2xl text-earth-900 pt-3 border-t border-earth-300">
             <span>Total Payable</span>
-            <span className="text-farm-900">Rs. {cartSubtotal}</span>
+            <span className="text-farm-700">Rs. {cartSubtotal}</span>
           </div>
         </div>
 
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="w-full flex items-center justify-center gap-2 py-4 rounded-full bg-farm-700 hover:bg-farm-800 disabled:opacity-50 text-cream-100 font-bold text-sm uppercase tracking-wider transition-colors shadow-md"
-        >
-          {isSubmitting ? 'Verifying & Placing Order...' : 'Confirm Morning Order'}
-          <ArrowRight className="w-4 h-4" />
-        </button>
+        <div className="space-y-2.5 pt-2">
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="w-full flex items-center justify-center gap-2.5 py-4 rounded-full bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-white font-bold text-sm uppercase tracking-wider transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+          >
+            <MessageCircle className="w-5 h-5 fill-current" />
+            {isSubmitting ? 'Processing & Opening WhatsApp...' : 'Confirm Morning Order'}
+            <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
 
-        <div className="text-center text-xs font-mono text-earth-500">
-          Chilled Delivery 6:00 AM - 9:00 AM • Cancel Anytime
+        <div className="text-center text-xs font-mono text-earth-500 space-y-1">
+          <div className="flex items-center justify-center gap-1.5 text-emerald-700 font-semibold">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            Direct WhatsApp Integration Enabled
+          </div>
+          <div>Chilled Delivery 6:00 AM – 9:00 AM • Cancel Anytime</div>
         </div>
       </div>
 

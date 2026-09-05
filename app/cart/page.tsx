@@ -127,13 +127,26 @@ export default function CartPage() {
                 </div>
               </div>
 
-              <Link
-                href="/checkout"
-                className="w-full flex items-center justify-center gap-2 py-4 rounded-full bg-farm-700 hover:bg-farm-800 text-cream-100 font-bold text-sm uppercase tracking-wider transition-colors shadow-md"
-              >
-                Proceed to Checkout
-                <ArrowRight className="w-4 h-4" />
-              </Link>
+              <div className="space-y-2.5">
+                <Link
+                  href="/checkout"
+                  className="w-full flex items-center justify-center gap-2 py-4 rounded-full bg-farm-600 hover:bg-farm-700 text-white font-bold text-sm uppercase tracking-wider transition-all shadow-md"
+                >
+                  Proceed to Checkout
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+
+                <a
+                  href={`https://wa.me/923109361932?text=${encodeURIComponent(
+                    `🥛 *FARM FRESH DAIRY ORDER*\n━━━━━━━━━━━━━━━━━━━━\nI would like to order:\n${items.map((it, i) => `${i + 1}. *${it.product.name}* (Qty: ${it.quantity}) = Rs. ${it.product.price * it.quantity}`).join('\n')}\n━━━━━━━━━━━━━━━━━━━━\n💰 *Total:* Rs. ${cartSubtotal}\n🚚 *Delivery:* FREE in Shahzad Town & Islamabad\n\nPlease confirm morning delivery!`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs uppercase tracking-wider transition-colors shadow-sm"
+                >
+                  Order on WhatsApp (0310-9361932)
+                </a>
+              </div>
             </div>
 
           </div>

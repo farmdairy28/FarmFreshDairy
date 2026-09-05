@@ -5,15 +5,15 @@ import { ArrowRight } from 'lucide-react';
 import { getProcessSteps } from '@/lib/supabase/api';
 
 export const metadata = {
-  title: 'Farm Process — From Pasture to Pour | Pure Pastures Dairy',
-  description: 'Discover our 6-step hygienic journey from open pasture grazing to chilled morning doorstep delivery.',
+  title: 'Farm Process — From Pasture to Pour | Farm Fresh Dairy',
+  description: 'Discover our 6-step hygienic journey from open pasture grazing to chilled morning doorstep delivery across Islamabad.',
 };
 
 export default async function ProcessPage() {
   const steps = await getProcessSteps();
 
   return (
-    <div className="pt-32 pb-24 bg-cream-100">
+    <div className="pt-36 pb-24 bg-cream-100">
       
       {/* Page Header */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-20 text-center">

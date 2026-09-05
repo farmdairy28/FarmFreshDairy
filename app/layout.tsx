@@ -6,6 +6,7 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { CartDrawer } from '@/components/cart/CartDrawer';
 import { JsonLd } from '@/components/seo/JsonLd';
+import { FloatingContactWidget } from '@/components/layout/FloatingContactWidget';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -20,18 +21,18 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: 'Pure Pastures Farm — 100% Pure Pasture Dairy Direct to Doorstep',
-  description: 'Pasture-raised, unadulterated fresh milk, clay-pot dahi, desi ghee, and organic butter delivered straight from our farm to your family table.',
-  metadataBase: new URL('https://purepasturesfarm.com'),
+  title: 'Farm Fresh Dairy — 100% Pure & Original Cow Milk | Islamabad',
+  description: 'Farm Fresh Dairy: 100% pure cow milk delivered straight from happy cows to your home. Lab tested, adulterant free, Rs. 250/Litre with Free Delivery in Shahzad Town.',
+  metadataBase: new URL('https://farmfreshdairy.pk'),
   icons: {
     icon: '/icon',
     apple: '/apple-icon',
   },
   openGraph: {
-    title: 'Pure Pastures Farm — Pure Dairy Direct to Doorstep',
-    description: '100% pure pasture-raised fresh dairy delivered daily.',
-    url: 'https://purepasturesfarm.com',
-    siteName: 'Pure Pastures Farm',
+    title: 'Farm Fresh Dairy — 100% Pure Cow Milk | Islamabad',
+    description: 'Fresh & pure cow milk straight from happy cows. Free home delivery in Shahzad Town & across Islamabad.',
+    url: 'https://farmfreshdairy.pk',
+    siteName: 'Farm Fresh Dairy',
     locale: 'en_US',
     type: 'website',
   },
@@ -44,13 +45,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`scroll-smooth ${inter.variable} ${playfair.variable}`}>
-      <body className="min-h-screen flex flex-col antialiased font-sans bg-cream-100 text-earth-900 selection:bg-farm-600 selection:text-cream-100">
+      <body className="min-h-screen flex flex-col antialiased font-sans bg-cream-100 text-earth-900 selection:bg-farm-600 selection:text-white">
         <CartProvider>
           <JsonLd />
           <Header />
           <main className="flex-1">{children}</main>
           <Footer />
           <CartDrawer />
+          <FloatingContactWidget />
         </CartProvider>
       </body>
     </html>
