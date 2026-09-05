@@ -31,11 +31,17 @@ export default function AdminProductsPage() {
 
   const handleDelete = async (id: string, name: string) => {
     if (confirm(`Are you sure you want to delete "${name}"?`)) {
-      const res = await deleteProductAction(id);
-      if (!res.success) {
-        await deleteProduct(id);
-      }
-      fetchProducts();
+      // 1. Instantly remove from local UI state
+      setProducts((prev) => prev.filter((p) => p.id !== id && p.slug !== id));
+
+      // 2. Clean up client-side localStorage
+      await deleteProduct(id);
+
+      // 3. Delete from server database & server store
+      await deleteProductAction(id);
+
+      // 4. Refetch fresh products
+      await fetchProducts();
     }
   };
 

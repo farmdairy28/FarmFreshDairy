@@ -301,18 +301,38 @@ export async function deleteProductAction(
   productId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const adminClient = createAdminClient();
-    if (adminClient && isValidUUID(productId)) {
-      const { error } = await adminClient.from('products').delete().eq('id', productId);
-      if (error) {
-        console.error('Delete product error:', error);
-        return { success: false, error: error.message };
-      }
+    const cleanId = (productId || '').trim();
+    if (!cleanId) {
+      return { success: false, error: 'Product ID is required.' };
     }
 
-    // Delete from server memory store
-    deleteServerProduct(productId);
+    const adminClient = createAdminClient();
+    if (adminClient) {
+      // 1. Delete associated product_images first to prevent foreign key constraint violations
+      try {
+        await adminClient.from('product_images').delete().eq('product_id', cleanId);
+      } catch (_) {}
 
+      // 2. Delete from products table by id
+      try {
+        const { error } = await adminClient.from('products').delete().eq('id', cleanId);
+        if (error) {
+          console.warn('[DB Product Delete by ID Notice]:', error.message);
+        }
+      } catch (dbErr) {
+        console.warn('[DB Product Delete by ID Exception]:', dbErr);
+      }
+
+      // 3. Also try delete by slug if cleanId is a slug or custom key
+      try {
+        await adminClient.from('products').delete().eq('slug', cleanId);
+      } catch (_) {}
+    }
+
+    // 4. ALWAYS delete from server memory store
+    deleteServerProduct(cleanId);
+
+    // 5. Invalidate Next.js static and dynamic cache
     try {
       revalidatePath('/', 'layout');
       revalidatePath('/', 'page');

@@ -33,11 +33,20 @@ function getLocalFallback<T>(key: string, initial: T): T {
 
 // ---------------- PRODUCTS ----------------
 export async function getProducts(options?: { categorySlug?: string; featuredOnly?: boolean; search?: string }): Promise<Product[]> {
+  const normalizeSlug = (s?: string) => (s || '').toLowerCase().replace(/^\/+|\/+$/g, '').trim();
+  const targetCategorySlug = options?.categorySlug && options.categorySlug !== 'all'
+    ? normalizeSlug(options.categorySlug)
+    : null;
+
+  const serverStore = getServerProductsStore();
+  const allCategories = getServerCategoriesStore();
+  const categoryMap = new Map(allCategories.map(c => [c.id, c]));
+
+  let rawList: Product[] = [];
+
   try {
     const client = getDbClient();
     if (client) {
-      // Use outer LEFT joins — products WITHOUT images or categories still appear
-      // NOTE: PostgREST uses implicit left joins when using the embed syntax
       let query = client
         .from('products')
         .select('*, category:categories(*), images:product_images(*)')
@@ -45,31 +54,8 @@ export async function getProducts(options?: { categorySlug?: string; featuredOnl
 
       const { data, error } = await query;
 
-      if (!error && Array.isArray(data)) {
-        // Filter active products in JS to avoid schema-cache issues with is_active column
-        let filtered = (data as Product[]).filter(p => p.is_active !== false);
-
-        if (options?.featuredOnly) {
-          filtered = filtered.filter(p => p.is_featured === true);
-        }
-
-        if (options?.categorySlug && options.categorySlug !== 'all') {
-          const slug = options.categorySlug;
-          filtered = filtered.filter(p =>
-            p.category?.slug === slug ||
-            (typeof p.category_id === 'string' && p.category_id === slug)
-          );
-        }
-
-        if (options?.search) {
-          const q = options.search.toLowerCase();
-          filtered = filtered.filter(p =>
-            p.name.toLowerCase().includes(q) ||
-            (p.short_description || '').toLowerCase().includes(q)
-          );
-        }
-
-        const mapped = filtered.map(p => ({
+      if (!error && Array.isArray(data) && data.length > 0) {
+        rawList = (data as Product[]).map(p => ({
           ...p,
           primary_image:
             p.images?.find((img: any) => img.is_primary)?.image_url ||
@@ -77,51 +63,77 @@ export async function getProducts(options?: { categorySlug?: string; featuredOnl
             p.primary_image ||
             'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=1000&q=80',
         }));
-
-        mapped.forEach(prod => upsertServerProduct(prod));
-        return mapped;
       }
     }
   } catch (err) {
-    console.warn('Database getProducts fallback to store:', err);
+    console.warn('Database getProducts fetch notice:', err);
   }
 
-  // Fallback: server memory store + local storage
-  const serverStore = getServerProductsStore();
-  let products = getLocalFallback<Product[]>('products', serverStore);
+  // If DB returned nothing or is not configured, start with server memory store
+  if (rawList.length === 0) {
+    rawList = [...serverStore];
+  } else {
+    // Merge any products in serverStore (e.g. newly added by admin) that might not be in DB yet
+    serverStore.forEach(sp => {
+      if (!rawList.some(p => p.id === sp.id || (sp.slug && p.slug === sp.slug))) {
+        rawList.push(sp);
+      }
+    });
+  }
 
-  // Merge server store items that local storage may not have
-  serverStore.forEach(sp => {
-    if (!products.some(p => p.id === sp.id || (sp.slug && p.slug === sp.slug))) {
-      products.push(sp);
+  // Also merge with client-side localStorage fallback if running in browser
+  if (isClient) {
+    const local = getLocalFallback<Product[]>('products', []);
+    local.forEach(lp => {
+      if (!rawList.some(p => p.id === lp.id || (lp.slug && p.slug === lp.slug))) {
+        rawList.push(lp);
+      }
+    });
+  }
+
+  // Ensure category object is attached if missing but category_id is set
+  rawList.forEach(p => {
+    if (!p.category && p.category_id && categoryMap.has(p.category_id)) {
+      p.category = categoryMap.get(p.category_id);
     }
   });
 
-  // Apply same filters in fallback
-  products = products.filter(p => p.is_active !== false);
+  // Filter out inactive products (is_active === false)
+  let filtered = rawList.filter(p => p.is_active !== false);
 
+  // Filter featured
   if (options?.featuredOnly) {
-    products = products.filter(p => p.is_featured === true);
+    filtered = filtered.filter(p => p.is_featured === true);
   }
-  if (options?.categorySlug && options.categorySlug !== 'all') {
-    const slug = options.categorySlug;
-    products = products.filter(p =>
-      p.category?.slug === slug ||
-      (typeof p.category_id === 'string' && p.category_id === slug)
-    );
+
+  // Filter by category slug (handling slashes like /fresh-milk vs fresh-milk)
+  if (targetCategorySlug) {
+    filtered = filtered.filter(p => {
+      const prodCatSlug = normalizeSlug(p.category?.slug);
+      const prodCatId = (p.category_id || '').trim();
+      return prodCatSlug === targetCategorySlug || prodCatId === targetCategorySlug;
+    });
   }
+
+  // Filter search
   if (options?.search) {
-    const q = options.search.toLowerCase();
-    products = products.filter(p =>
+    const q = options.search.toLowerCase().trim();
+    filtered = filtered.filter(p =>
       p.name.toLowerCase().includes(q) ||
       (p.short_description || '').toLowerCase().includes(q)
     );
   }
 
-  return products;
+  return filtered;
 }
 
 export async function getAllProductsAdmin(): Promise<Product[]> {
+  const serverStore = getServerProductsStore();
+  const allCategories = getServerCategoriesStore();
+  const categoryMap = new Map(allCategories.map(c => [c.id, c]));
+
+  let adminProducts: Product[] = [];
+
   try {
     const adminClient = getDbClient();
     if (adminClient) {
@@ -131,26 +143,39 @@ export async function getAllProductsAdmin(): Promise<Product[]> {
         .order('created_at', { ascending: false });
 
       if (!error && Array.isArray(data) && data.length > 0) {
-        const mapped = (data as Product[]).map(p => ({
+        adminProducts = (data as Product[]).map(p => ({
           ...p,
           primary_image: p.images?.find((img: any) => img.is_primary)?.image_url || p.images?.[0]?.image_url || p.primary_image || 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=1000&q=80',
         }));
-        mapped.forEach(prod => upsertServerProduct(prod));
-        return mapped;
       }
     }
   } catch (err) {
     console.warn('Admin products DB fetch fallback:', err);
   }
 
-  const serverStore = getServerProductsStore();
-  let products = getLocalFallback<Product[]>('products', serverStore);
-  serverStore.forEach(sp => {
-    if (!products.some(p => p.id === sp.id || (sp.slug && p.slug === sp.slug))) {
-      products.push(sp);
+  if (adminProducts.length === 0) {
+    adminProducts = [...serverStore];
+  } else {
+    serverStore.forEach(sp => {
+      if (!adminProducts.some(p => p.id === sp.id || (sp.slug && p.slug === sp.slug))) {
+        adminProducts.push(sp);
+      }
+    });
+  }
+
+  // Attach category if missing
+  adminProducts.forEach(p => {
+    if (!p.category && p.category_id && categoryMap.has(p.category_id)) {
+      p.category = categoryMap.get(p.category_id);
     }
   });
-  return products;
+
+  // Sync localStorage with authoritative state on client
+  if (isClient) {
+    localStorage.setItem('farm_fresh_products', JSON.stringify(adminProducts));
+  }
+
+  return adminProducts;
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
@@ -276,10 +301,11 @@ export async function saveProduct(productData: Partial<Product>): Promise<Produc
 }
 
 export async function deleteProduct(id: string): Promise<boolean> {
-  deleteServerProduct(id);
+  const cleanId = (id || '').trim();
+  deleteServerProduct(cleanId);
   const serverStore = getServerProductsStore();
   let products = getLocalFallback<Product[]>('products', serverStore);
-  products = products.filter(p => p.id !== id);
+  products = products.filter(p => p.id !== cleanId && p.slug !== cleanId);
   if (isClient) {
     localStorage.setItem('pure_pastures_products', JSON.stringify(products));
     localStorage.setItem('farm_fresh_products', JSON.stringify(products));
@@ -313,6 +339,7 @@ export async function getCategories(): Promise<Category[]> {
       if (!res.error && res.data && res.data.length > 0) {
         dbCats = res.data.map((c: any) => ({
           ...c,
+          slug: (c.slug || '').replace(/^\/+|\/+$/g, ''),
           is_active: c.is_active !== undefined ? Boolean(c.is_active) : true,
         })) as Category[];
       }
@@ -322,16 +349,19 @@ export async function getCategories(): Promise<Category[]> {
   if (dbCats.length > 0) {
     const combined = [...dbCats];
     for (const mem of memoryCats) {
-      const exists = combined.some((c) => c.id === mem.id || (c.slug && c.slug === mem.slug));
+      const memSlug = (mem.slug || '').replace(/^\/+|\/+$/g, '');
+      const exists = combined.some((c) => c.id === mem.id || (c.slug && c.slug === memSlug));
       if (!exists && mem.is_active !== false) {
-        combined.push(mem);
+        combined.push({ ...mem, slug: memSlug });
       }
     }
     return combined.filter((c) => c.is_active !== false);
   }
 
   const localFallback = getLocalFallback<Category[]>('categories', memoryCats);
-  return localFallback.filter((c) => c.is_active !== false);
+  return localFallback
+    .map(c => ({ ...c, slug: (c.slug || '').replace(/^\/+|\/+$/g, '') }))
+    .filter((c) => c.is_active !== false);
 }
 
 export async function getAllCategoriesAdmin(): Promise<Category[]> {
@@ -349,6 +379,7 @@ export async function getAllCategoriesAdmin(): Promise<Category[]> {
       if (!res.error && res.data && res.data.length > 0) {
         dbCats = res.data.map((c: any) => ({
           ...c,
+          slug: (c.slug || '').replace(/^\/+|\/+$/g, ''),
           is_active: c.is_active !== undefined ? Boolean(c.is_active) : true,
         })) as Category[];
       }

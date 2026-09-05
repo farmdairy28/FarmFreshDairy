@@ -56,11 +56,12 @@ export function upsertServerProduct(product: Product): void {
 }
 
 export function deleteServerProduct(productId: string): void {
+  const cleanId = (productId || '').trim();
+  if (!cleanId) return;
   const store = getServerProductsStore();
-  const idx = store.findIndex((p) => p.id === productId);
-  if (idx > -1) {
-    store.splice(idx, 1);
-  }
+  globalThis.__ffd_products_store = store.filter(
+    (p) => p.id !== cleanId && p.slug !== cleanId
+  );
 }
 
 export function getServerCategoriesStore(): Category[] {
