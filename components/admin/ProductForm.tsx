@@ -465,9 +465,15 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
         <h3 className="font-bold text-slate-900 text-base">Product Media & Storage Upload</h3>
 
         {uploadError && (
-          <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
-            <span>{uploadError}</span>
+          <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs space-y-1">
+            <div className="flex items-center gap-2 font-semibold text-amber-800">
+              <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+              <span>Image Upload Notice</span>
+            </div>
+            <p className="text-[11px] leading-relaxed pl-6">{uploadError}</p>
+            <p className="text-[11px] text-amber-700 pl-6 font-medium">
+              💡 <strong>Alternative:</strong> You can directly paste any online image link into the <strong>&quot;Image Public URL&quot;</strong> input below.
+            </p>
           </div>
         )}
 
