@@ -1,5 +1,10 @@
 import { Product, Category, Testimonial } from '@/lib/types';
-import { INITIAL_PRODUCTS, INITIAL_CATEGORIES, INITIAL_TESTIMONIALS } from './mock-data';
+import { INITIAL_CATEGORIES, INITIAL_TESTIMONIALS } from './mock-data';
+
+// NOTE: Products intentionally do NOT seed from INITIAL_PRODUCTS mock data.
+// The server store is the runtime cache for products added/updated via the admin panel.
+// Source of truth is Supabase PostgreSQL → server memory store → empty array.
+// Categories and testimonials keep their seeds as UI/content fallbacks.
 
 declare global {
   // eslint-disable-next-line no-var
@@ -8,16 +13,11 @@ declare global {
   var __ffd_categories_store: Category[] | undefined;
   // eslint-disable-next-line no-var
   var __ffd_testimonials_store: Testimonial[] | undefined;
-  // eslint-disable-next-line no-var
-  var __ffd_deleted_product_ids: Set<string> | undefined;
 }
 
-if (!globalThis.__ffd_deleted_product_ids) {
-  globalThis.__ffd_deleted_product_ids = new Set<string>();
-}
-
+// Products start empty — populated from DB or admin panel actions only
 if (!globalThis.__ffd_products_store) {
-  globalThis.__ffd_products_store = [...INITIAL_PRODUCTS];
+  globalThis.__ffd_products_store = [];
 }
 
 if (!globalThis.__ffd_categories_store) {
@@ -28,21 +28,11 @@ if (!globalThis.__ffd_testimonials_store) {
   globalThis.__ffd_testimonials_store = [...INITIAL_TESTIMONIALS];
 }
 
-export function isProductDeleted(idOrSlug?: string): boolean {
-  if (!idOrSlug) return false;
-  const clean = idOrSlug.trim().toLowerCase();
-  const deletedSet = globalThis.__ffd_deleted_product_ids || new Set<string>();
-  return deletedSet.has(clean) || deletedSet.has(idOrSlug.trim());
-}
-
 export function getServerProductsStore(): Product[] {
   if (!globalThis.__ffd_products_store) {
-    globalThis.__ffd_products_store = [...INITIAL_PRODUCTS];
+    globalThis.__ffd_products_store = [];
   }
-  const deletedSet = globalThis.__ffd_deleted_product_ids || new Set<string>();
-  return globalThis.__ffd_products_store.filter(
-    (p) => !deletedSet.has(p.id) && !deletedSet.has((p.slug || '').toLowerCase())
-  );
+  return globalThis.__ffd_products_store;
 }
 
 export function upsertServerProduct(product: Product): void {
@@ -62,15 +52,7 @@ export function upsertServerProduct(product: Product): void {
       normalized.images.find((img) => img.is_primary)?.image_url || normalized.images[0].image_url;
   }
 
-  // Remove from deleted tombstone set if re-added
-  if (globalThis.__ffd_deleted_product_ids) {
-    globalThis.__ffd_deleted_product_ids.delete(normalized.id);
-    if (normalized.slug) {
-      globalThis.__ffd_deleted_product_ids.delete(normalized.slug.toLowerCase());
-    }
-  }
-
-  const store = globalThis.__ffd_products_store || [...INITIAL_PRODUCTS];
+  const store = globalThis.__ffd_products_store || [];
   const existingIdx = store.findIndex((p) => p.id === normalized.id || (normalized.slug && p.slug === normalized.slug));
   if (existingIdx > -1) {
     store[existingIdx] = { ...store[existingIdx], ...normalized };
@@ -83,22 +65,7 @@ export function upsertServerProduct(product: Product): void {
 export function deleteServerProduct(productId: string): void {
   const cleanId = (productId || '').trim();
   if (!cleanId) return;
-  
-  if (!globalThis.__ffd_deleted_product_ids) {
-    globalThis.__ffd_deleted_product_ids = new Set<string>();
-  }
-  globalThis.__ffd_deleted_product_ids.add(cleanId);
-  globalThis.__ffd_deleted_product_ids.add(cleanId.toLowerCase());
-
   const store = globalThis.__ffd_products_store || [];
-  const matched = store.filter((p) => p.id === cleanId || p.slug === cleanId);
-  matched.forEach((p) => {
-    globalThis.__ffd_deleted_product_ids?.add(p.id);
-    if (p.slug) {
-      globalThis.__ffd_deleted_product_ids?.add(p.slug.toLowerCase());
-    }
-  });
-
   globalThis.__ffd_products_store = store.filter(
     (p) => p.id !== cleanId && p.slug !== cleanId
   );
@@ -153,4 +120,3 @@ export function deleteServerTestimonial(testimonialId: string): void {
     store.splice(idx, 1);
   }
 }
-

@@ -1,45 +1,10 @@
 import { Product, Category, FarmValue, ProcessStep, DeliveryRegion, Testimonial, Order, HomepageHero, HomepagePromise } from '../types';
-import { INITIAL_CATEGORIES, INITIAL_PRODUCTS, INITIAL_VALUES, INITIAL_PROCESS, INITIAL_DELIVERY, INITIAL_TESTIMONIALS, INITIAL_HERO, INITIAL_PROMISE, INITIAL_ORDERS } from './mock-data';
-import { getServerProductsStore, upsertServerProduct, deleteServerProduct, isProductDeleted, getServerCategoriesStore, upsertServerCategory, getServerTestimonialsStore } from './products-store';
+import { INITIAL_CATEGORIES, INITIAL_VALUES, INITIAL_PROCESS, INITIAL_DELIVERY, INITIAL_TESTIMONIALS, INITIAL_HERO, INITIAL_PROMISE, INITIAL_ORDERS } from './mock-data';
+import { getServerProductsStore, upsertServerProduct, deleteServerProduct, getServerCategoriesStore, upsertServerCategory, getServerTestimonialsStore } from './products-store';
 import { createAdminClient } from './admin';
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 
 const isClient = typeof window !== 'undefined';
-
-function isValidUUID(str?: string | null): boolean {
-  if (!str) return false;
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(str.trim());
-}
-
-function getClientDeletedIds(): Set<string> {
-  const set = new Set<string>();
-  if (!isClient) return set;
-  try {
-    const raw = localStorage.getItem('farm_fresh_deleted_product_ids');
-    if (raw) {
-      const arr = JSON.parse(raw);
-      if (Array.isArray(arr)) {
-        arr.forEach((item: string) => {
-          if (item) {
-            set.add(item);
-            set.add(item.toLowerCase());
-          }
-        });
-      }
-    }
-  } catch (_) {}
-  return set;
-}
-
-function addClientDeletedId(idOrSlug: string) {
-  if (!isClient || !idOrSlug) return;
-  try {
-    const set = getClientDeletedIds();
-    set.add(idOrSlug);
-    set.add(idOrSlug.toLowerCase());
-    localStorage.setItem('farm_fresh_deleted_product_ids', JSON.stringify(Array.from(set)));
-  } catch (_) {}
-}
 
 function getDbClient() {
   try {
@@ -73,7 +38,7 @@ export async function getProducts(options?: { categorySlug?: string; featuredOnl
     ? normalizeSlug(options.categorySlug)
     : null;
 
-  const clientDeletedIds = getClientDeletedIds();
+  // Source of truth: Supabase DB → server memory store → empty
   const serverStore = getServerProductsStore();
   const allCategories = getServerCategoriesStore();
   const categoryMap = new Map(allCategories.map(c => [c.id, c]));
@@ -83,12 +48,11 @@ export async function getProducts(options?: { categorySlug?: string; featuredOnl
   try {
     const client = getDbClient();
     if (client) {
-      let query = client
+      const { data, error } = await client
         .from('products')
         .select('*, category:categories(*), images:product_images(*)')
+        .eq('is_active', true)
         .order('created_at', { ascending: false });
-
-      const { data, error } = await query;
 
       if (!error && Array.isArray(data) && data.length > 0) {
         rawList = (data as Product[]).map(p => ({
@@ -105,59 +69,35 @@ export async function getProducts(options?: { categorySlug?: string; featuredOnl
     console.warn('Database getProducts fetch notice:', err);
   }
 
-  // If DB returned nothing or is not configured, start with server memory store
+  // DB not connected: use server store (admin-added products only, no mocks)
   if (rawList.length === 0) {
     rawList = [...serverStore];
-    // Also merge with client-side localStorage fallback ONLY when DB returned nothing
-    if (isClient) {
-      const local = getLocalFallback<Product[]>('products', []);
-      local.forEach(lp => {
-        if (!rawList.some(p => p.id === lp.id || (lp.slug && p.slug === lp.slug))) {
-          rawList.push(lp);
-        }
-      });
-    }
+    // Merge server store products with any newly admin-created items in the session
+    // (no localStorage merging — server store is the only runtime source)
   } else {
-    // DB returned active products! Merge any newly added local serverStore products that are NOT deleted
+    // DB returned results; also include any products newly added via admin that
+    // may not yet be in the DB (e.g. if DB insert is pending)
     serverStore.forEach(sp => {
-      const isDeleted =
-        isProductDeleted(sp.id) ||
-        isProductDeleted(sp.slug) ||
-        clientDeletedIds.has(sp.id) ||
-        clientDeletedIds.has((sp.slug || '').toLowerCase());
-
-      if (!isDeleted && !rawList.some(p => p.id === sp.id || (sp.slug && p.slug === sp.slug))) {
+      if (!rawList.some(p => p.id === sp.id || (sp.slug && p.slug === sp.slug))) {
         rawList.push(sp);
       }
     });
   }
 
-  // Ensure category object is attached if missing but category_id is set
+  // Attach category if missing
   rawList.forEach(p => {
     if (!p.category && p.category_id && categoryMap.has(p.category_id)) {
       p.category = categoryMap.get(p.category_id);
     }
   });
 
-  // CRITICAL: Filter out ANY deleted products from catalog
-  rawList = rawList.filter(p => {
-    const isDeleted =
-      isProductDeleted(p.id) ||
-      isProductDeleted(p.slug) ||
-      clientDeletedIds.has(p.id) ||
-      clientDeletedIds.has((p.slug || '').toLowerCase());
-    return !isDeleted;
-  });
-
-  // Filter out inactive products (is_active === false)
+  // Filter out inactive products
   let filtered = rawList.filter(p => p.is_active !== false);
 
-  // Filter featured
   if (options?.featuredOnly) {
     filtered = filtered.filter(p => p.is_featured === true);
   }
 
-  // Filter by category slug (handling slashes like /fresh-milk vs fresh-milk)
   if (targetCategorySlug) {
     filtered = filtered.filter(p => {
       const prodCatSlug = normalizeSlug(p.category?.slug);
@@ -166,7 +106,6 @@ export async function getProducts(options?: { categorySlug?: string; featuredOnl
     });
   }
 
-  // Filter search
   if (options?.search) {
     const q = options.search.toLowerCase().trim();
     filtered = filtered.filter(p =>
@@ -179,7 +118,6 @@ export async function getProducts(options?: { categorySlug?: string; featuredOnl
 }
 
 export async function getAllProductsAdmin(): Promise<Product[]> {
-  const clientDeletedIds = getClientDeletedIds();
   const serverStore = getServerProductsStore();
   const allCategories = getServerCategoriesStore();
   const categoryMap = new Map(allCategories.map(c => [c.id, c]));
@@ -205,17 +143,12 @@ export async function getAllProductsAdmin(): Promise<Product[]> {
     console.warn('Admin products DB fetch fallback:', err);
   }
 
+  // Merge server store (admin-created this session) with DB results
   if (adminProducts.length === 0) {
-    adminProducts = isClient ? [...getLocalFallback<Product[]>('products', serverStore)] : [...serverStore];
+    adminProducts = [...serverStore];
   } else {
     serverStore.forEach(sp => {
-      const isDeleted =
-        isProductDeleted(sp.id) ||
-        isProductDeleted(sp.slug) ||
-        clientDeletedIds.has(sp.id) ||
-        clientDeletedIds.has((sp.slug || '').toLowerCase());
-
-      if (!isDeleted && !adminProducts.some(p => p.id === sp.id || (sp.slug && p.slug === sp.slug))) {
+      if (!adminProducts.some(p => p.id === sp.id || (sp.slug && p.slug === sp.slug))) {
         adminProducts.push(sp);
       }
     });
@@ -228,31 +161,10 @@ export async function getAllProductsAdmin(): Promise<Product[]> {
     }
   });
 
-  // Permanently filter out any deleted products
-  adminProducts = adminProducts.filter(p => {
-    const isDeleted =
-      isProductDeleted(p.id) ||
-      isProductDeleted(p.slug) ||
-      clientDeletedIds.has(p.id) ||
-      clientDeletedIds.has((p.slug || '').toLowerCase());
-    return !isDeleted;
-  });
-
-  // Sync localStorage with authoritative state on client
-  if (isClient) {
-    localStorage.setItem('farm_fresh_products', JSON.stringify(adminProducts));
-  }
-
   return adminProducts;
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
-  const clientDeletedIds = getClientDeletedIds();
-  const cleanSlug = (slug || '').trim().toLowerCase();
-  if (isProductDeleted(cleanSlug) || clientDeletedIds.has(cleanSlug)) {
-    return null;
-  }
-
   try {
     const adminClient = getDbClient();
     if (adminClient) {
@@ -260,18 +172,11 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
         .from('products')
         .select('*, category:categories(*), images:product_images(*)')
         .eq('slug', slug)
+        .eq('is_active', true)
         .maybeSingle();
 
       if (!error && data) {
         const prod = data as Product;
-        if (
-          isProductDeleted(prod.id) ||
-          isProductDeleted(prod.slug) ||
-          clientDeletedIds.has(prod.id) ||
-          clientDeletedIds.has((prod.slug || '').toLowerCase())
-        ) {
-          return null;
-        }
         const mapped: Product = {
           ...prod,
           primary_image: prod.images?.find((img: any) => img.is_primary)?.image_url || prod.images?.[0]?.image_url || prod.primary_image || 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=1000&q=80',
@@ -279,46 +184,19 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
         upsertServerProduct(mapped);
         return mapped;
       }
+      // DB connected but no result: product deleted or not found
+      if (!error && !data) return null;
     }
   } catch (err) {
     console.warn('Product by slug DB fetch fallback:', err);
   }
 
+  // Only fall back to server store if DB is not configured
   const serverStore = getServerProductsStore();
-  const foundInServer = serverStore.find(p => p.slug === slug);
-  if (foundInServer) {
-    if (
-      isProductDeleted(foundInServer.id) ||
-      isProductDeleted(foundInServer.slug) ||
-      clientDeletedIds.has(foundInServer.id) ||
-      clientDeletedIds.has((foundInServer.slug || '').toLowerCase())
-    ) {
-      return null;
-    }
-    return foundInServer;
-  }
-
-  const products = getLocalFallback<Product[]>('products', serverStore);
-  const foundInLocal = products.find(p => p.slug === slug);
-  if (
-    foundInLocal &&
-    (isProductDeleted(foundInLocal.id) ||
-      isProductDeleted(foundInLocal.slug) ||
-      clientDeletedIds.has(foundInLocal.id) ||
-      clientDeletedIds.has((foundInLocal.slug || '').toLowerCase()))
-  ) {
-    return null;
-  }
-  return foundInLocal || null;
+  return serverStore.find(p => p.slug === slug && p.is_active !== false) || null;
 }
 
 export async function getProductById(id: string): Promise<Product | null> {
-  const clientDeletedIds = getClientDeletedIds();
-  const cleanId = (id || '').trim();
-  if (isProductDeleted(cleanId) || clientDeletedIds.has(cleanId)) {
-    return null;
-  }
-
   try {
     const adminClient = getDbClient();
     if (adminClient) {
@@ -330,14 +208,6 @@ export async function getProductById(id: string): Promise<Product | null> {
 
       if (!error && data) {
         const prod = data as Product;
-        if (
-          isProductDeleted(prod.id) ||
-          isProductDeleted(prod.slug) ||
-          clientDeletedIds.has(prod.id) ||
-          clientDeletedIds.has((prod.slug || '').toLowerCase())
-        ) {
-          return null;
-        }
         const mapped: Product = {
           ...prod,
           primary_image: prod.images?.find((img: any) => img.is_primary)?.image_url || prod.images?.[0]?.image_url || prod.primary_image || 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=1000&q=80',
@@ -345,60 +215,31 @@ export async function getProductById(id: string): Promise<Product | null> {
         upsertServerProduct(mapped);
         return mapped;
       }
+      if (!error && !data) return null;
     }
   } catch (err) {
     console.warn('Product by ID DB fetch fallback:', err);
   }
 
   const serverStore = getServerProductsStore();
-  const foundInServer = serverStore.find(p => p.id === id);
-  if (foundInServer) {
-    if (
-      isProductDeleted(foundInServer.id) ||
-      isProductDeleted(foundInServer.slug) ||
-      clientDeletedIds.has(foundInServer.id) ||
-      clientDeletedIds.has((foundInServer.slug || '').toLowerCase())
-    ) {
-      return null;
-    }
-    return foundInServer;
-  }
-
-  const products = getLocalFallback<Product[]>('products', serverStore);
-  const foundInLocal = products.find(p => p.id === id);
-  if (
-    foundInLocal &&
-    (isProductDeleted(foundInLocal.id) ||
-      isProductDeleted(foundInLocal.slug) ||
-      clientDeletedIds.has(foundInLocal.id) ||
-      clientDeletedIds.has((foundInLocal.slug || '').toLowerCase()))
-  ) {
-    return null;
-  }
-  return foundInLocal || null;
+  return serverStore.find(p => p.id === id) || null;
 }
 
 export async function saveProduct(productData: Partial<Product>): Promise<Product> {
   const serverStore = getServerProductsStore();
-  const products = getLocalFallback<Product[]>('products', serverStore);
-  const categories = getLocalFallback<Category[]>('categories', INITIAL_CATEGORIES);
-  const categoryObj = categories.find(c => c.id === productData.category_id);
+  const allCategories = getServerCategoriesStore();
+  const categoryObj = allCategories.find(c => c.id === productData.category_id);
 
   if (productData.id) {
-    const idx = products.findIndex(p => p.id === productData.id);
-    if (idx !== -1) {
+    const existing = serverStore.find(p => p.id === productData.id);
+    if (existing) {
       const updated: Product = {
-        ...products[idx],
+        ...existing,
         ...productData,
-        category: categoryObj || products[idx].category,
+        category: categoryObj || existing.category,
         updated_at: new Date().toISOString(),
       };
-      products[idx] = updated;
       upsertServerProduct(updated);
-      if (isClient) {
-        localStorage.setItem('pure_pastures_products', JSON.stringify(products));
-        localStorage.setItem('farm_fresh_products', JSON.stringify(products));
-      }
       return updated;
     }
   }
@@ -428,63 +269,29 @@ export async function saveProduct(productData: Partial<Product>): Promise<Produc
   };
 
   upsertServerProduct(newProduct);
-  products.unshift(newProduct);
-  if (isClient) {
-    localStorage.setItem('pure_pastures_products', JSON.stringify(products));
-    localStorage.setItem('farm_fresh_products', JSON.stringify(products));
-  }
   return newProduct;
 }
 
 export async function deleteProduct(id: string): Promise<boolean> {
   const cleanId = (id || '').trim();
+  // Remove from server memory store immediately
   deleteServerProduct(cleanId);
-  addClientDeletedId(cleanId);
-
-  // Best effort direct DB delete on client if client has credentials
-  try {
-    const client = getDbClient();
-    if (client) {
-      if (isValidUUID(cleanId)) {
-        await client.from('order_items').update({ product_id: null }).eq('product_id', cleanId);
-        await client.from('product_images').delete().eq('product_id', cleanId);
-        await client.from('products').update({ is_active: false, availability: false, show_on_homepage: false }).eq('id', cleanId);
-        await client.from('products').delete().eq('id', cleanId);
-      } else {
-        await client.from('products').update({ is_active: false, availability: false, show_on_homepage: false }).eq('slug', cleanId);
-        await client.from('products').delete().eq('slug', cleanId);
-      }
-    }
-  } catch (e) {
-    console.warn('[Client DB delete notice]:', e);
-  }
-
-  const serverStore = getServerProductsStore();
-  let products = getLocalFallback<Product[]>('products', serverStore);
-  products = products.filter(p => p.id !== cleanId && p.slug !== cleanId);
-  if (isClient) {
-    localStorage.setItem('pure_pastures_products', JSON.stringify(products));
-    localStorage.setItem('farm_fresh_products', JSON.stringify(products));
-  }
   return true;
 }
 
 // ---------------- CATEGORIES ----------------
 export async function getCategories(): Promise<Category[]> {
   const memoryCats = getServerCategoriesStore();
-  let dbCats: Category[] = [];
 
   try {
     const adminClient = getDbClient();
     if (adminClient) {
-      // First try active query
       let res = await adminClient
         .from('categories')
         .select('*')
         .eq('is_active', true)
         .order('sort_order', { ascending: true });
 
-      // If is_active column doesn't exist in Supabase schema, query all categories
       if (res.error && res.error.message?.includes('is_active')) {
         res = await adminClient
           .from('categories')
@@ -493,36 +300,32 @@ export async function getCategories(): Promise<Category[]> {
       }
 
       if (!res.error && res.data && res.data.length > 0) {
-        dbCats = res.data.map((c: any) => ({
+        const dbCats = res.data.map((c: any) => ({
           ...c,
           slug: (c.slug || '').replace(/^\/+|\/+$/g, ''),
           is_active: c.is_active !== undefined ? Boolean(c.is_active) : true,
         })) as Category[];
+
+        const combined = [...dbCats];
+        for (const mem of memoryCats) {
+          const memSlug = (mem.slug || '').replace(/^\/+|\/+$/g, '');
+          const exists = combined.some((c) => c.id === mem.id || (c.slug && c.slug === memSlug));
+          if (!exists && mem.is_active !== false) {
+            combined.push({ ...mem, slug: memSlug });
+          }
+        }
+        return combined.filter((c) => c.is_active !== false);
       }
     }
   } catch (err) {}
 
-  if (dbCats.length > 0) {
-    const combined = [...dbCats];
-    for (const mem of memoryCats) {
-      const memSlug = (mem.slug || '').replace(/^\/+|\/+$/g, '');
-      const exists = combined.some((c) => c.id === mem.id || (c.slug && c.slug === memSlug));
-      if (!exists && mem.is_active !== false) {
-        combined.push({ ...mem, slug: memSlug });
-      }
-    }
-    return combined.filter((c) => c.is_active !== false);
-  }
-
-  const localFallback = getLocalFallback<Category[]>('categories', memoryCats);
-  return localFallback
+  return memoryCats
     .map(c => ({ ...c, slug: (c.slug || '').replace(/^\/+|\/+$/g, '') }))
     .filter((c) => c.is_active !== false);
 }
 
 export async function getAllCategoriesAdmin(): Promise<Category[]> {
   const memoryCats = getServerCategoriesStore();
-  let dbCats: Category[] = [];
 
   try {
     const adminClient = getDbClient();
@@ -533,31 +336,27 @@ export async function getAllCategoriesAdmin(): Promise<Category[]> {
         .order('sort_order', { ascending: true });
 
       if (!res.error && res.data && res.data.length > 0) {
-        dbCats = res.data.map((c: any) => ({
+        const dbCats = res.data.map((c: any) => ({
           ...c,
           slug: (c.slug || '').replace(/^\/+|\/+$/g, ''),
           is_active: c.is_active !== undefined ? Boolean(c.is_active) : true,
         })) as Category[];
+
+        const combined = [...dbCats];
+        for (const mem of memoryCats) {
+          const exists = combined.some((c) => c.id === mem.id || (c.slug && c.slug === mem.slug));
+          if (!exists) combined.push(mem);
+        }
+        return combined;
       }
     }
   } catch (err) {}
 
-  if (dbCats.length > 0) {
-    const combined = [...dbCats];
-    for (const mem of memoryCats) {
-      const exists = combined.some((c) => c.id === mem.id || (c.slug && c.slug === mem.slug));
-      if (!exists) {
-        combined.push(mem);
-      }
-    }
-    return combined;
-  }
-
-  return getLocalFallback<Category[]>('categories', memoryCats);
+  return memoryCats;
 }
 
 export async function saveCategory(categoryData: Partial<Category>): Promise<Category> {
-  const categories = getLocalFallback<Category[]>('categories', getServerCategoriesStore());
+  const categories = getServerCategoriesStore();
   const newCat: Category = {
     id: categoryData.id || `c-${Date.now()}`,
     name: categoryData.name || 'New Category',
@@ -572,14 +371,7 @@ export async function saveCategory(categoryData: Partial<Category>): Promise<Cat
 
   upsertServerCategory(newCat);
 
-  const existingIdx = categories.findIndex((c) => c.id === newCat.id || c.slug === newCat.slug);
-  if (existingIdx > -1) {
-    categories[existingIdx] = newCat;
-  } else {
-    categories.push(newCat);
-  }
-
-  if (isClient) localStorage.setItem('pure_pastures_categories', JSON.stringify(categories));
+  if (isClient) localStorage.setItem('pure_pastures_categories', JSON.stringify(getServerCategoriesStore()));
   return newCat;
 }
 
@@ -711,7 +503,7 @@ export async function getTestimonials(): Promise<Testimonial[]> {
   } catch (err) {}
 
   const serverStore = getServerTestimonialsStore();
-  return getLocalFallback<Testimonial[]>('testimonials', serverStore).filter(t => t.is_active);
+  return serverStore.filter(t => t.is_active);
 }
 
 export async function getAllReviewsAdmin(): Promise<Testimonial[]> {
@@ -729,8 +521,7 @@ export async function getAllReviewsAdmin(): Promise<Testimonial[]> {
     }
   } catch (err) {}
 
-  const serverStore = getServerTestimonialsStore();
-  return getLocalFallback<Testimonial[]>('testimonials', serverStore);
+  return getServerTestimonialsStore();
 }
 
 // ---------------- HOMEPAGE CMS ----------------
