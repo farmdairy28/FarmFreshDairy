@@ -306,33 +306,88 @@ export async function deleteProductAction(
       return { success: false, error: 'Product ID is required.' };
     }
 
+    let targetDbId: string | null = isValidUUID(cleanId) ? cleanId : null;
+    let targetSlug: string | null = cleanId;
+
     const adminClient = createAdminClient();
     if (adminClient) {
-      // 1. Delete associated product_images first to prevent foreign key constraint violations
+      // 1. Look up existing product in DB to obtain both exact UUID and slug
       try {
-        await adminClient.from('product_images').delete().eq('product_id', cleanId);
-      } catch (_) {}
-
-      // 2. Delete from products table by id
-      try {
-        const { error } = await adminClient.from('products').delete().eq('id', cleanId);
-        if (error) {
-          console.warn('[DB Product Delete by ID Notice]:', error.message);
+        let lookupQuery = adminClient.from('products').select('id, slug');
+        if (isValidUUID(cleanId)) {
+          lookupQuery = lookupQuery.or(`id.eq.${cleanId},slug.eq.${cleanId}`);
+        } else {
+          lookupQuery = lookupQuery.eq('slug', cleanId);
         }
-      } catch (dbErr) {
-        console.warn('[DB Product Delete by ID Exception]:', dbErr);
+        const { data: foundProd } = await lookupQuery.maybeSingle();
+        if (foundProd) {
+          if (foundProd.id) targetDbId = foundProd.id;
+          if (foundProd.slug) targetSlug = foundProd.slug;
+        }
+      } catch (e) {
+        console.warn('[DB Product Lookup Notice]:', e);
       }
 
-      // 3. Also try delete by slug if cleanId is a slug or custom key
+      // 2. Nullify foreign keys in order_items so constraint violations never block deletion
+      if (targetDbId) {
+        try {
+          await adminClient.from('order_items').update({ product_id: null }).eq('product_id', targetDbId);
+        } catch (_) {}
+      }
+
+      // 3. Delete linked product_images
+      if (targetDbId) {
+        try {
+          await adminClient.from('product_images').delete().eq('product_id', targetDbId);
+        } catch (_) {}
+      }
+
+      // 4. Deactivate product first (instant failsafe: customer queries will never show it)
       try {
-        await adminClient.from('products').delete().eq('slug', cleanId);
+        if (targetDbId) {
+          await adminClient
+            .from('products')
+            .update({ is_active: false, availability: false, show_on_homepage: false })
+            .eq('id', targetDbId);
+        }
+        if (targetSlug) {
+          await adminClient
+            .from('products')
+            .update({ is_active: false, availability: false, show_on_homepage: false })
+            .eq('slug', targetSlug);
+        }
       } catch (_) {}
+
+      // 5. HARD DELETE from products table by ID
+      if (targetDbId) {
+        try {
+          const { error: delIdError } = await adminClient.from('products').delete().eq('id', targetDbId);
+          if (delIdError) {
+            console.warn('[DB Product Delete by ID Notice]:', delIdError.message);
+          }
+        } catch (dbErr) {
+          console.warn('[DB Product Delete by ID Exception]:', dbErr);
+        }
+      }
+
+      // 6. HARD DELETE from products table by slug
+      if (targetSlug) {
+        try {
+          await adminClient.from('products').delete().eq('slug', targetSlug);
+        } catch (_) {}
+      }
     }
 
-    // 4. ALWAYS delete from server memory store
+    // 7. Permanently purge from server memory store & mark in tombstone blacklist
     deleteServerProduct(cleanId);
+    if (targetDbId && targetDbId !== cleanId) {
+      deleteServerProduct(targetDbId);
+    }
+    if (targetSlug && targetSlug !== cleanId) {
+      deleteServerProduct(targetSlug);
+    }
 
-    // 5. Invalidate Next.js static and dynamic cache
+    // 8. Invalidate Next.js cache so storefront and admin update immediately
     try {
       revalidatePath('/', 'layout');
       revalidatePath('/', 'page');

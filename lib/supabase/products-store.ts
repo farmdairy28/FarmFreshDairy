@@ -8,6 +8,12 @@ declare global {
   var __ffd_categories_store: Category[] | undefined;
   // eslint-disable-next-line no-var
   var __ffd_testimonials_store: Testimonial[] | undefined;
+  // eslint-disable-next-line no-var
+  var __ffd_deleted_product_ids: Set<string> | undefined;
+}
+
+if (!globalThis.__ffd_deleted_product_ids) {
+  globalThis.__ffd_deleted_product_ids = new Set<string>();
 }
 
 if (!globalThis.__ffd_products_store) {
@@ -22,11 +28,21 @@ if (!globalThis.__ffd_testimonials_store) {
   globalThis.__ffd_testimonials_store = [...INITIAL_TESTIMONIALS];
 }
 
+export function isProductDeleted(idOrSlug?: string): boolean {
+  if (!idOrSlug) return false;
+  const clean = idOrSlug.trim().toLowerCase();
+  const deletedSet = globalThis.__ffd_deleted_product_ids || new Set<string>();
+  return deletedSet.has(clean) || deletedSet.has(idOrSlug.trim());
+}
+
 export function getServerProductsStore(): Product[] {
-  if (!globalThis.__ffd_products_store || globalThis.__ffd_products_store.length === 0) {
+  if (!globalThis.__ffd_products_store) {
     globalThis.__ffd_products_store = [...INITIAL_PRODUCTS];
   }
-  return globalThis.__ffd_products_store;
+  const deletedSet = globalThis.__ffd_deleted_product_ids || new Set<string>();
+  return globalThis.__ffd_products_store.filter(
+    (p) => !deletedSet.has(p.id) && !deletedSet.has((p.slug || '').toLowerCase())
+  );
 }
 
 export function upsertServerProduct(product: Product): void {
@@ -46,19 +62,43 @@ export function upsertServerProduct(product: Product): void {
       normalized.images.find((img) => img.is_primary)?.image_url || normalized.images[0].image_url;
   }
 
-  const store = getServerProductsStore();
+  // Remove from deleted tombstone set if re-added
+  if (globalThis.__ffd_deleted_product_ids) {
+    globalThis.__ffd_deleted_product_ids.delete(normalized.id);
+    if (normalized.slug) {
+      globalThis.__ffd_deleted_product_ids.delete(normalized.slug.toLowerCase());
+    }
+  }
+
+  const store = globalThis.__ffd_products_store || [...INITIAL_PRODUCTS];
   const existingIdx = store.findIndex((p) => p.id === normalized.id || (normalized.slug && p.slug === normalized.slug));
   if (existingIdx > -1) {
     store[existingIdx] = { ...store[existingIdx], ...normalized };
   } else {
     store.unshift(normalized);
   }
+  globalThis.__ffd_products_store = store;
 }
 
 export function deleteServerProduct(productId: string): void {
   const cleanId = (productId || '').trim();
   if (!cleanId) return;
-  const store = getServerProductsStore();
+  
+  if (!globalThis.__ffd_deleted_product_ids) {
+    globalThis.__ffd_deleted_product_ids = new Set<string>();
+  }
+  globalThis.__ffd_deleted_product_ids.add(cleanId);
+  globalThis.__ffd_deleted_product_ids.add(cleanId.toLowerCase());
+
+  const store = globalThis.__ffd_products_store || [];
+  const matched = store.filter((p) => p.id === cleanId || p.slug === cleanId);
+  matched.forEach((p) => {
+    globalThis.__ffd_deleted_product_ids?.add(p.id);
+    if (p.slug) {
+      globalThis.__ffd_deleted_product_ids?.add(p.slug.toLowerCase());
+    }
+  });
+
   globalThis.__ffd_products_store = store.filter(
     (p) => p.id !== cleanId && p.slug !== cleanId
   );
