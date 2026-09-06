@@ -8,6 +8,7 @@ import { CheckCircle2, ShieldCheck, ArrowRight, AlertCircle } from 'lucide-react
 import { useCart } from '@/lib/context/cart-context';
 import { DeliveryRegion, Order } from '@/lib/types';
 import { submitOrderAction } from '@/app/actions/orders';
+import { isFreeDeliveryArea } from '@/lib/constants';
 
 export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
   const router = useRouter();
@@ -23,13 +24,6 @@ export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
     delivery_slot: 'Morning',
     delivery_notes: '',
   });
-
-  // Helper to determine if an area qualifies for FREE delivery (Shahzad Town only)
-  const isFreeDeliveryArea = (name?: string) => {
-    if (!name) return false;
-    const lower = name.toLowerCase();
-    return lower.includes('shahzad town') && !lower.includes('chak shahzad');
-  };
 
   const isFreeDelivery = isFreeDeliveryArea(formData.area_name);
   const currentDeliveryFee = isFreeDelivery ? 0 : 0; // Rider charges are collected by rider on delivery for other areas
@@ -360,7 +354,7 @@ export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
             <span>Delivery</span>
             {isFreeDelivery ? (
               <span className="font-mono font-bold text-emerald-600 uppercase text-xs bg-emerald-50 px-2.5 py-1 rounded border border-emerald-200">
-                FREE (Shahzad Town)
+                FREE Delivery
               </span>
             ) : (
               <span className="font-mono font-bold text-amber-900 text-xs bg-amber-50 px-2.5 py-1 rounded border border-amber-200">
@@ -399,7 +393,7 @@ export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
           <div className="flex items-center justify-center gap-1.5 text-emerald-700 font-semibold">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
             {isFreeDelivery
-              ? 'Direct Doorstep Chilled Delivery (FREE in Shahzad Town)'
+              ? 'Direct Doorstep Chilled Delivery (100% FREE in Shahzad Town, I-8 & I-9)'
               : 'Delivered via Rider (Rider charges payable to rider on delivery)'}
           </div>
           <div>Morning &amp; Evening Delivery Routes • Cash on Delivery</div>

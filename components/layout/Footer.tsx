@@ -30,7 +30,7 @@ export async function Footer() {
                 Fresh Supply & Free Delivery
               </div>
               <p className="text-xs text-sky-100/90 font-medium">
-                Free Home Delivery in <strong>Shahzad Town</strong> & regular chilled supply across Islamabad at <strong>Rs. 250 / Litre</strong>.
+                Free Home Delivery in <strong>Shahzad Town, I-8 &amp; I-9</strong> &amp; regular chilled supply across Islamabad at <strong>Rs. 250 / Litre</strong>.
               </p>
             </div>
 

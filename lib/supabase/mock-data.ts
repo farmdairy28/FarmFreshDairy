@@ -359,8 +359,9 @@ export const INITIAL_DELIVERY: DeliveryRegion[] = [
     sort_order: 4,
     is_active: true,
     areas: [
-      { id: 'da8', name: 'I-8 Sector (All Sub-Sectors)', delivery_fee: 0, timing_info: 'Delivered via Rider (Charges as per Rider)', sort_order: 1, is_active: true },
-      { id: 'da9', name: 'I-9, I-10 & H-8/H-9', delivery_fee: 0, timing_info: 'Delivered via Rider (Charges as per Rider)', sort_order: 2, is_active: true },
+      { id: 'da8', name: 'I-8 Sector (All Sub-Sectors / I-8/1, I-8/2, I-8/3, I-8/4)', delivery_fee: 0, timing_info: 'FREE Doorstep Delivery · Morning & Evening', sort_order: 1, is_active: true },
+      { id: 'da9', name: 'I-9 Sector (All Sub-Sectors / I-9/1, I-9/2, I-9/3, I-9/4)', delivery_fee: 0, timing_info: 'FREE Doorstep Delivery · Morning & Evening', sort_order: 2, is_active: true },
+      { id: 'da10-alt', name: 'I-10 & H-8 / H-9 Sectors', delivery_fee: 0, timing_info: 'Delivered via Rider (Charges as per Rider)', sort_order: 3, is_active: true },
     ]
   },
   {

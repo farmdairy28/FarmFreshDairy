@@ -4,21 +4,24 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { MapPin, Clock, ArrowRight, Check } from 'lucide-react';
 import { DeliveryRegion } from '@/lib/types';
+import { isFreeDeliveryArea } from '@/lib/constants';
 
 export function DeliverySection({ regions }: { regions: DeliveryRegion[] }) {
-  const [selectedRegionId, setSelectedRegionId] = useState(regions[0]?.id || '');
+  const [selectedRegionId, setSelectedRegionId] = useState<string>(
+    regions[0]?.id || ''
+  );
 
   const activeRegion = regions.find((r) => r.id === selectedRegionId) || regions[0];
 
   return (
-    <section className="py-24 bg-cream-200/50 border-t border-earth-200">
+    <section id="delivery" className="py-20 md:py-28 bg-cream-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Title */}
         <div className="text-center max-w-3xl mx-auto space-y-4 mb-16">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-farm-100 text-farm-800 text-xs font-mono font-semibold uppercase border border-farm-200">
-            <MapPin className="w-3.5 h-3.5" />
-            FREE IN SHAHZAD TOWN · OTHER AREAS DELIVERED VIA RIDER
+            <MapPin className="w-3.5 h-3.5 text-emerald-600" />
+            FREE IN SHAHZAD TOWN, I-8 &amp; I-9 · OTHER AREAS VIA RIDER
           </div>
 
           <h2 className="font-serif text-4xl sm:text-5xl font-bold tracking-tight text-earth-900">
@@ -26,13 +29,13 @@ export function DeliverySection({ regions }: { regions: DeliveryRegion[] }) {
           </h2>
 
           <p className="text-earth-600 text-base sm:text-lg">
-            We deliver temperature-controlled, chilled milk across Islamabad daily. Doorstep delivery is 100% FREE in Shahzad Town; all other sectors and areas across Islamabad are delivered via rider (charges as per rider).
+            We deliver temperature-controlled, chilled milk across Islamabad daily. Doorstep delivery is 100% FREE in Shahzad Town, I-8, and I-9 Sectors; all other sectors and areas across Islamabad are delivered via rider (charges as per rider).
           </p>
         </div>
 
         {/* Region Selector Tabs */}
         <div className="flex flex-wrap justify-center gap-2.5 sm:gap-3 mb-10">
-          {regions.map((reg, idx) => {
+          {regions.map((reg) => {
             const isSelected = reg.id === selectedRegionId;
             return (
               <button
@@ -44,7 +47,7 @@ export function DeliverySection({ regions }: { regions: DeliveryRegion[] }) {
                     : 'bg-cream-100 text-earth-700 border-earth-300 hover:bg-cream-200'
                 }`}
               >
-                0{idx + 1} — {reg.name} ({reg.areas?.length || 0})
+                {reg.name}
               </button>
             );
           })}
@@ -71,7 +74,7 @@ export function DeliverySection({ regions }: { regions: DeliveryRegion[] }) {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
               {activeRegion.areas?.map((area) => {
-                const isShahzad = area.name.toLowerCase().includes('shahzad town') && !area.name.toLowerCase().includes('chak shahzad');
+                const isFree = isFreeDeliveryArea(area.name);
 
                 return (
                   <div
@@ -84,7 +87,7 @@ export function DeliverySection({ regions }: { regions: DeliveryRegion[] }) {
                         {area.name}
                       </span>
                     </div>
-                    {isShahzad ? (
+                    {isFree ? (
                       <span className="text-[10px] font-mono uppercase bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold shrink-0">
                         Free Delivery
                       </span>

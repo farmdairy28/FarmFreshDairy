@@ -2,6 +2,7 @@ import { Order, OrderItem } from '@/lib/types';
 import { renderEmailHeader } from './EmailHeader';
 import { renderEmailFooter } from './EmailFooter';
 import { escapeHtml, formatCurrency } from './sanitize';
+import { isFreeDeliveryArea } from '@/lib/constants';
 
 export function generateCustomerOrderConfirmationHtml(order: Order, items?: OrderItem[]): string {
   const safeCustomerName = escapeHtml(order.customer_name);
@@ -125,7 +126,7 @@ export function generateCustomerOrderConfirmationHtml(order: Order, items?: Orde
                     <tr>
                       <td style="color: #61736A;">Chilled Delivery:</td>
                       <td style="text-align: right; font-family: monospace; color: #1B4D3E; font-weight: bold;">
-                        ${(order.area_name || '').toLowerCase().includes('shahzad town') && !(order.area_name || '').toLowerCase().includes('chak shahzad') ? 'FREE (Shahzad Town)' : (order.delivery_fee && order.delivery_fee > 0 ? formatCurrency(order.delivery_fee) : 'Via Rider (Pay on delivery)')}
+                        ${isFreeDeliveryArea(order.area_name) ? 'FREE Doorstep Delivery' : (order.delivery_fee && order.delivery_fee > 0 ? formatCurrency(order.delivery_fee) : 'Via Rider (Pay on delivery)')}
                       </td>
                     </tr>
                     <tr style="border-top: 2px solid #1B4D3E;">

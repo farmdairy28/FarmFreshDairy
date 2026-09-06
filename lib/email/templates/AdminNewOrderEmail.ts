@@ -2,6 +2,7 @@ import { Order, OrderItem } from '@/lib/types';
 import { renderEmailHeader } from './EmailHeader';
 import { renderEmailFooter } from './EmailFooter';
 import { escapeHtml, formatCurrency } from './sanitize';
+import { isFreeDeliveryArea } from '@/lib/constants';
 
 export function generateAdminNewOrderHtml(order: Order, items?: OrderItem[]): string {
   const safeCustomerName = escapeHtml(order.customer_name);
@@ -134,7 +135,7 @@ export function generateAdminNewOrderHtml(order: Order, items?: OrderItem[]): st
                     <tr>
                       <td style="color: #61736A;">Delivery:</td>
                       <td style="text-align: right; font-family: monospace; color: #2C3E35;">
-                        ${(order.area_name || '').toLowerCase().includes('shahzad town') && !(order.area_name || '').toLowerCase().includes('chak shahzad') ? 'Rs. 0 (Free in Shahzad Town)' : 'Via Rider (Rider charges apply)'}
+                        ${isFreeDeliveryArea(order.area_name) ? 'Rs. 0 (Free Delivery)' : 'Via Rider (Rider charges apply)'}
                       </td>
                     </tr>
                     <tr style="border-top: 2px solid #1B4D3E;">

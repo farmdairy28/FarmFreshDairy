@@ -27,7 +27,7 @@ export function HeroSection({ data }: { data: HomepageHero }) {
               </div>
               <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-900 text-xs font-mono font-bold border border-emerald-300/80">
                 <MapPin className="w-3.5 h-3.5 text-emerald-700" />
-                FREE Delivery in Shahzad Town
+                FREE Delivery: Shahzad Town, I-8 &amp; I-9
               </div>
             </div>
 

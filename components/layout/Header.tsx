@@ -39,7 +39,7 @@ export function Header() {
           <div className="flex items-center gap-2 truncate">
             <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
             <span className="truncate">
-              <strong>FREE Home Delivery</strong> in Shahzad Town · Islamabad Delivery Available · <strong>Rs. 250 / Litre</strong>
+              <strong>FREE Home Delivery</strong> in Shahzad Town, I-8 &amp; I-9 · Islamabad Delivery Available · <strong>Rs. 250 / Litre</strong>
             </span>
           </div>
 

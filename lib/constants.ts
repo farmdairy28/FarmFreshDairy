@@ -6,3 +6,20 @@ export const SOCIAL_LINKS = {
   phoneRaw: '03109361932',
   email: 'farmfreshdairy28@gmail.com',
 };
+
+/**
+ * Checks if a delivery area qualifies for 100% FREE doorstep delivery.
+ * Free delivery locations:
+ * 1. Shahzad Town
+ * 2. I-8 Sector (All Sub-sectors)
+ * 3. I-9 Sector (All Sub-sectors)
+ */
+export function isFreeDeliveryArea(name?: string): boolean {
+  if (!name) return false;
+  const lower = name.toLowerCase();
+  const isShahzad = lower.includes('shahzad town') && !lower.includes('chak shahzad');
+  const isI8 = lower.includes('i-8') || lower.includes('i8');
+  const isI9 = lower.includes('i-9') || lower.includes('i9');
+  return isShahzad || isI8 || isI9;
+}
+

@@ -61,7 +61,7 @@ export function FinalCTA() {
             </span>
             <span>•</span>
             <span className="flex items-center gap-1.5">
-              <MapPin className="w-4 h-4 text-emerald-400" /> FREE Delivery in Shahzad Town
+              <MapPin className="w-4 h-4 text-emerald-400" /> FREE Delivery in Shahzad Town, I-8 &amp; I-9
             </span>
             <span>•</span>
             <span>Morning Chilled Delivery 6-9 AM</span>
