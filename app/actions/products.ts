@@ -122,8 +122,9 @@ export async function saveProductAction(
         }
 
         if (updateError || !savedProductRecord) {
-          // DB update failed — fall through to memory store; do not return hard error
-          console.error('[DB Product Update Error]:', updateError);
+          const errMsg = updateError?.message || 'Unknown DB update error';
+          console.error('[DB Product Update Error]:', errMsg);
+          return { success: false, error: `Database update failed: ${errMsg}` };
         }
 
         // Update product images (best-effort)
@@ -193,8 +194,9 @@ export async function saveProductAction(
         }
 
         if (insertError || !savedProductRecord) {
-          // Even if DB insert failed, fall through to memory store below
-          console.error('[DB Product Insert Error]:', insertError);
+          const errMsg = insertError?.message || 'Unknown DB insert error';
+          console.error('[DB Product Insert Error]:', errMsg);
+          return { success: false, error: `Database insert failed: ${errMsg}` };
         }
 
         // Insert primary image into product_images (only if DB insert succeeded)
@@ -210,63 +212,10 @@ export async function saveProductAction(
         }
       }
 
-      // If DB failed for any reason, build a memory record so save still succeeds
-      if (!savedProductRecord) {
-        console.warn('[Products Action]: DB failed; falling back to memory store.');
-        const existingId = isValidUUID(productData.id) ? productData.id! : `prod-${Date.now()}`;
-        savedProductRecord = {
-          id: existingId,
-          name: basePayload.name,
-          slug: basePayload.slug,
-          short_description: basePayload.short_description,
-          full_description: basePayload.full_description,
-          price: basePayload.price,
-          compare_at_price: basePayload.compare_at_price,
-          currency: basePayload.currency,
-          category_id: basePayload.category_id || undefined,
-          sku: basePayload.sku,
-          unit: basePayload.unit,
-          weight_volume: basePayload.weight_volume,
-          stock: basePayload.stock,
-          availability: basePayload.availability,
-          is_active: basePayload.is_active,
-          is_featured: basePayload.is_featured,
-          show_on_homepage: basePayload.show_on_homepage,
-          primary_image: primaryImage,
-          seo_title: basePayload.seo_title,
-          seo_description: basePayload.seo_description,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        };
-      }
     } else {
-      // IN-MEMORY / LOCAL SERVER FALLBACK (When Supabase is offline or in local mock dev)
-      console.warn('[Products Action]: Supabase offline. Product saved in server-side memory store.');
-      const existingId = productData.id || `prod-${Date.now()}`;
-      savedProductRecord = {
-        id: existingId,
-        name: basePayload.name,
-        slug: basePayload.slug,
-        short_description: basePayload.short_description,
-        full_description: basePayload.full_description,
-        price: basePayload.price,
-        compare_at_price: basePayload.compare_at_price,
-        currency: basePayload.currency,
-        category_id: basePayload.category_id || undefined,
-        sku: basePayload.sku,
-        unit: basePayload.unit,
-        weight_volume: basePayload.weight_volume,
-        stock: basePayload.stock,
-        availability: basePayload.availability,
-        is_active: basePayload.is_active,
-        is_featured: basePayload.is_featured,
-        show_on_homepage: basePayload.show_on_homepage,
-        primary_image: primaryImage,
-        seo_title: basePayload.seo_title,
-        seo_description: basePayload.seo_description,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
+      // Supabase admin client not configured
+      console.error('[Products Action]: Supabase admin client not available. Check SUPABASE_SERVICE_ROLE_KEY in .env.local');
+      return { success: false, error: 'Supabase is not configured. Please check your .env.local file (SUPABASE_SERVICE_ROLE_KEY).' };
     }
 
     // 2. Authoritatively sync with server memory store
