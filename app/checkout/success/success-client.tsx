@@ -3,9 +3,10 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { CheckCircle2, Copy, Check, MessageCircle, Phone, ArrowRight, Truck, Clock } from 'lucide-react';
+import { CheckCircle2, Copy, Check, MessageCircle, Phone, ArrowRight, Truck, Clock, Star, Sparkles, Send, AlertCircle } from 'lucide-react';
 import { Order } from '@/lib/types';
 import { getOrderByNumberAction } from '@/app/actions/orders';
+import { submitReviewAction } from '@/app/actions/reviews';
 import { isFreeDeliveryArea } from '@/lib/constants';
 
 const WHATSAPP_NUMBER = '923109361932';
@@ -18,6 +19,13 @@ export function OrderSuccessClient() {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewHover, setReviewHover] = useState(0);
+  const [reviewComment, setReviewComment] = useState('');
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const [reviewSuccess, setReviewSuccess] = useState(false);
+  const [reviewError, setReviewError] = useState('');
 
   useEffect(() => {
     let foundOrder: Order | null = null;
@@ -109,6 +117,40 @@ Delivery Slot: ${slot}`;
   const deliveryAddress = order?.delivery_address;
   const areaName = order?.area_name || 'Islamabad';
   const totalAmount = order?.total_amount;
+
+  const handleReviewSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reviewComment.trim() || isSubmittingReview) return;
+
+    setIsSubmittingReview(true);
+    setReviewError('');
+
+    try {
+      const res = await submitReviewAction({
+        customer_name: customerName,
+        customer_type: areaName ? `Verified Customer • ${areaName}` : 'Verified Customer',
+        rating: reviewRating,
+        review: reviewComment.trim(),
+      });
+
+      if (res.success) {
+        setReviewSuccess(true);
+      } else {
+        setReviewError(res.error || 'Failed to submit review. Please try again.');
+      }
+    } catch (err: any) {
+      setReviewError(err?.message || 'Error submitting review.');
+    } finally {
+      setIsSubmittingReview(false);
+    }
+  };
+
+  const quickReviewTags = [
+    '🥛 100% Pure & Fresh Milk',
+    '🚚 Fast Morning/Evening Delivery',
+    '👑 Excellent Quality & Taste',
+    '❤️ Highly Recommended for Families',
+  ];
 
   return (
     <div className="max-w-2xl mx-auto py-10 px-6 sm:px-10 rounded-3xl bg-white border border-farm-200 shadow-float space-y-6 animate-fade-in text-center">
@@ -234,6 +276,144 @@ Delivery Slot: ${slot}`;
             )}
           </button>
         </div>
+      </div>
+
+      {/* Customer Review & Rating Section */}
+      <div className="p-6 sm:p-7 rounded-3xl bg-gradient-to-b from-amber-50/80 to-white border-2 border-amber-200/90 text-left space-y-4 shadow-sm">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <span className="p-2 rounded-xl bg-amber-100 text-amber-700">
+              <Sparkles className="w-5 h-5 fill-amber-400" />
+            </span>
+            <div>
+              <h3 className="font-serif font-bold text-lg text-earth-900 leading-tight">
+                Leave a Quick Review
+              </h3>
+              <p className="text-xs text-earth-600">
+                How was your ordering experience? Your feedback helps fellow dairy lovers!
+              </p>
+            </div>
+          </div>
+          <span className="hidden sm:inline-block text-[11px] font-mono font-bold text-amber-800 bg-amber-100 px-2.5 py-1 rounded-full border border-amber-300">
+            Live on Website
+          </span>
+        </div>
+
+        {reviewSuccess ? (
+          <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-center space-y-1.5 animate-fade-in">
+            <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
+              <Check className="w-5 h-5" />
+            </div>
+            <div className="font-serif font-bold text-sm text-emerald-950">
+              Thank You for Your Feedback!
+            </div>
+            <p className="text-xs text-emerald-700">
+              Your {reviewRating}★ review has been submitted and is now featured live on our homepage!
+            </p>
+          </div>
+        ) : (
+          <form onSubmit={handleReviewSubmit} className="space-y-3.5 pt-1">
+            {reviewError && (
+              <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-red-700 flex items-center gap-2 font-medium">
+                <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+                <span>{reviewError}</span>
+              </div>
+            )}
+
+            {/* Star Picker */}
+            <div className="space-y-1">
+              <label className="block text-[11px] font-mono uppercase font-bold text-earth-700">
+                Your Rating
+              </label>
+              <div className="flex items-center gap-2">
+                {[1, 2, 3, 4, 5].map((star) => {
+                  const isFilled = (reviewHover || reviewRating) >= star;
+                  return (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => setReviewRating(star)}
+                      onMouseEnter={() => setReviewHover(star)}
+                      onMouseLeave={() => setReviewHover(0)}
+                      className="p-1 text-2xl transition-transform hover:scale-125 focus:outline-none"
+                      aria-label={`${star} star`}
+                    >
+                      <Star
+                        className={`w-7 h-7 transition-colors ${
+                          isFilled
+                            ? 'fill-amber-400 text-amber-400 drop-shadow-xs'
+                            : 'text-earth-300'
+                        }`}
+                      />
+                    </button>
+                  );
+                })}
+                <span className="text-xs font-mono font-bold text-amber-800 ml-1">
+                  {reviewRating === 5
+                    ? '5.0 — Excellent!'
+                    : reviewRating === 4
+                    ? '4.0 — Very Good'
+                    : reviewRating === 3
+                    ? '3.0 — Good'
+                    : `${reviewRating}.0`}
+                </span>
+              </div>
+            </div>
+
+            {/* Quick Tag Suggestions */}
+            <div className="space-y-1.5">
+              <label className="block text-[11px] font-mono uppercase font-bold text-earth-600">
+                Quick Comments (Tap to fill)
+              </label>
+              <div className="flex flex-wrap gap-1.5">
+                {quickReviewTags.map((tag) => (
+                  <button
+                    key={tag}
+                    type="button"
+                    onClick={() => {
+                      setReviewComment((prev) =>
+                        prev ? `${prev} ${tag}` : tag
+                      );
+                    }}
+                    className="text-[11px] px-2.5 py-1 rounded-full bg-white hover:bg-amber-100 text-earth-700 hover:text-amber-950 border border-earth-300/80 hover:border-amber-300 transition-all font-medium"
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Review Comment Text Area */}
+            <div>
+              <textarea
+                rows={2}
+                required
+                value={reviewComment}
+                onChange={(e) => setReviewComment(e.target.value)}
+                placeholder="Share your experience with our fresh milk, delivery speed, or packaging..."
+                className="w-full px-3.5 py-2.5 rounded-2xl bg-white border border-earth-300 text-earth-900 text-xs focus:outline-none focus:ring-2 focus:ring-amber-400"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={isSubmittingReview || !reviewComment.trim()}
+              className="w-full py-3 rounded-2xl bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-sm"
+            >
+              {isSubmittingReview ? (
+                <>
+                  <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>Submitting Review...</span>
+                </>
+              ) : (
+                <>
+                  <Send className="w-3.5 h-3.5" />
+                  <span>Submit Customer Review</span>
+                </>
+              )}
+            </button>
+          </form>
+        )}
       </div>
 
       {/* WhatsApp Dispatch Desk CTA */}

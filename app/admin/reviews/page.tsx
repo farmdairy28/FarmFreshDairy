@@ -14,10 +14,13 @@ import {
   User,
   Eye,
   EyeOff,
+  Plus,
+  PenLine,
+  X,
 } from 'lucide-react';
 import { Testimonial } from '@/lib/types';
 import { getAllReviewsAdmin } from '@/lib/supabase/api';
-import { deleteReviewAction, toggleReviewStatusAction } from '@/app/actions/reviews';
+import { deleteReviewAction, toggleReviewStatusAction, submitReviewAction } from '@/app/actions/reviews';
 
 export default function AdminReviewsPage() {
   const [reviews, setReviews] = useState<Testimonial[]>([]);
@@ -26,6 +29,16 @@ export default function AdminReviewsPage() {
   const [filterRating, setFilterRating] = useState<number | 'all'>('all');
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+
+  // Add review modal state
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [newCustomerName, setNewCustomerName] = useState('');
+  const [newCustomerType, setNewCustomerType] = useState('Verified Customer • Shahzad Town');
+  const [newRating, setNewRating] = useState(5);
+  const [newHoverRating, setNewHoverRating] = useState(0);
+  const [newReviewText, setNewReviewText] = useState('');
+  const [isSubmittingNew, setIsSubmittingNew] = useState(false);
+  const [addError, setAddError] = useState('');
 
   const fetchReviews = async () => {
     setLoading(true);
@@ -42,6 +55,40 @@ export default function AdminReviewsPage() {
   useEffect(() => {
     fetchReviews();
   }, []);
+
+  const handleAddReview = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCustomerName.trim() || !newReviewText.trim() || isSubmittingNew) return;
+
+    setIsSubmittingNew(true);
+    setAddError('');
+
+    try {
+      const res = await submitReviewAction({
+        customer_name: newCustomerName.trim(),
+        customer_type: newCustomerType.trim() || 'Verified Customer',
+        rating: newRating,
+        review: newReviewText.trim(),
+      });
+
+      if (res.success && res.testimonial) {
+        setReviews((prev) => [res.testimonial!, ...prev]);
+        setMessage({ text: `Review from "${newCustomerName}" successfully published.`, type: 'success' });
+        setIsAddModalOpen(false);
+        setNewCustomerName('');
+        setNewCustomerType('Verified Customer • Shahzad Town');
+        setNewRating(5);
+        setNewReviewText('');
+      } else {
+        setAddError(res.error || 'Failed to create review.');
+      }
+    } catch (err: any) {
+      setAddError(err?.message || 'Failed to submit review.');
+    } finally {
+      setIsSubmittingNew(false);
+      setTimeout(() => setMessage(null), 4000);
+    }
+  };
 
   const handleDelete = async (id: string, name: string) => {
     const confirmed = window.confirm(`Are you sure you want to delete the review from "${name}"? This action cannot be undone.`);
@@ -117,14 +164,23 @@ export default function AdminReviewsPage() {
             Monitor, moderate, and delete reviews submitted by customers across Islamabad
           </p>
         </div>
-        <button
-          onClick={fetchReviews}
-          disabled={loading}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-xs transition-colors self-start sm:self-auto"
-        >
-          <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
-          <span>Refresh</span>
-        </button>
+        <div className="flex items-center gap-2.5 self-start sm:self-auto">
+          <button
+            onClick={() => setIsAddModalOpen(true)}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider shadow-sm transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Add Testimonial</span>
+          </button>
+          <button
+            onClick={fetchReviews}
+            disabled={loading}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-xs transition-colors"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+            <span>Refresh</span>
+          </button>
+        </div>
       </div>
 
       {/* Notification Toast */}
@@ -377,6 +433,144 @@ export default function AdminReviewsPage() {
           </div>
         )}
       </div>
+
+      {/* Add Review / Testimonial Modal */}
+      {isAddModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in">
+          <div className="relative w-full max-w-lg bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-6 max-h-[90vh] overflow-y-auto">
+            
+            {/* Modal Header */}
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <span className="p-2 rounded-xl bg-emerald-100 text-emerald-800">
+                  <PenLine className="w-5 h-5 text-emerald-700" />
+                </span>
+                <div>
+                  <h3 className="font-bold text-lg text-slate-900 leading-tight">
+                    Add Customer Testimonial
+                  </h3>
+                  <p className="text-xs text-slate-500 font-mono">
+                    Publish customer feedback directly to the storefront
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsAddModalOpen(false)}
+                className="p-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {addError && (
+              <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-semibold flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+                <span>{addError}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleAddReview} className="space-y-4 text-left">
+              {/* Star Rating */}
+              <div>
+                <label className="block text-xs font-mono uppercase text-slate-700 font-semibold mb-1.5">
+                  Rating (Stars) *
+                </label>
+                <div className="flex items-center gap-1.5">
+                  {[1, 2, 3, 4, 5].map((star) => {
+                    const filled = (newHoverRating || newRating) >= star;
+                    return (
+                      <button
+                        key={star}
+                        type="button"
+                        onClick={() => setNewRating(star)}
+                        onMouseEnter={() => setNewHoverRating(star)}
+                        onMouseLeave={() => setNewHoverRating(0)}
+                        className="p-1 text-2xl transition-transform hover:scale-125 focus:outline-none"
+                        aria-label={`${star} Star rating`}
+                      >
+                        <Star
+                          className={`w-7 h-7 ${
+                            filled
+                              ? 'fill-amber-400 text-amber-400'
+                              : 'text-slate-200'
+                          }`}
+                        />
+                      </button>
+                    );
+                  })}
+                  <span className="text-xs font-mono font-bold text-slate-700 ml-2">
+                    {newRating}.0 / 5.0 Stars
+                  </span>
+                </div>
+              </div>
+
+              {/* Customer Name */}
+              <div>
+                <label className="block text-xs font-mono uppercase text-slate-700 font-semibold mb-1">
+                  Customer Name *
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Fatima Zahra"
+                  value={newCustomerName}
+                  onChange={(e) => setNewCustomerName(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
+
+              {/* Area / Customer Type */}
+              <div>
+                <label className="block text-xs font-mono uppercase text-slate-700 font-semibold mb-1">
+                  Location / Tag *
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Verified Customer • Shahzad Town or F-8/2"
+                  value={newCustomerType}
+                  onChange={(e) => setNewCustomerType(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
+
+              {/* Review Text */}
+              <div>
+                <label className="block text-xs font-mono uppercase text-slate-700 font-semibold mb-1">
+                  Review Quote / Feedback *
+                </label>
+                <textarea
+                  rows={3}
+                  required
+                  placeholder="Write the customer testimonial here..."
+                  value={newReviewText}
+                  onChange={(e) => setNewReviewText(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
+
+              {/* Submit Buttons */}
+              <div className="pt-2 flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsAddModalOpen(false)}
+                  className="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmittingNew}
+                  className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase tracking-wider transition-colors disabled:opacity-50 shadow-sm"
+                >
+                  {isSubmittingNew ? 'Publishing...' : 'Publish Testimonial'}
+                </button>
+              </div>
+            </form>
+
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

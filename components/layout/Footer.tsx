@@ -179,8 +179,97 @@ export async function Footer() {
                 </a>
               </li>
             </ul>
+
+            {/* Attractive Mini Map Card in Column */}
+            <div className="pt-2">
+              <a
+                href={SOCIAL_LINKS.googleMaps}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group block relative rounded-2xl overflow-hidden border border-farm-700 hover:border-emerald-400/80 bg-farm-950/60 shadow-md transition-all hover:shadow-emerald-900/30"
+              >
+                <div className="relative h-28 w-full overflow-hidden bg-earth-900">
+                  <iframe
+                    title="Farm Location Mini Map"
+                    src={SOCIAL_LINKS.openStreetMapEmbed}
+                    className="w-full h-full pointer-events-none opacity-80 group-hover:opacity-100 transition-opacity"
+                    style={{ border: 0 }}
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-farm-950 via-transparent to-transparent pointer-events-none" />
+                  <div className="absolute top-2 left-2 bg-farm-950/90 backdrop-blur-xs text-[10px] font-mono text-emerald-300 font-bold px-2 py-0.5 rounded-full border border-emerald-500/40 flex items-center gap-1.5 shadow-xs">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                    <span>Farm Hub</span>
+                  </div>
+                </div>
+                <div className="p-2.5 flex items-center justify-between text-xs">
+                  <div className="text-[11px] text-sky-100 font-medium truncate">
+                    Chak Shahzad, Islamabad
+                  </div>
+                  <span className="text-[10px] font-mono font-bold text-emerald-400 group-hover:text-emerald-300 flex items-center gap-1 shrink-0">
+                    Open Map ↗
+                  </span>
+                </div>
+              </a>
+            </div>
           </div>
 
+        </div>
+
+        {/* Attractive Full Farm Location & Delivery Dispatch Banner */}
+        <div className="my-10 p-6 sm:p-8 rounded-3xl bg-farm-800/70 border border-farm-700/80 shadow-float backdrop-blur-sm">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+            
+            <div className="lg:col-span-5 space-y-3">
+              <div className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-emerald-300 font-bold bg-emerald-500/15 px-3 py-1 rounded-full border border-emerald-400/30">
+                <MapPin className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Farm Dispatch &amp; Cold Hub</span>
+              </div>
+              <h3 className="font-serif text-2xl font-bold text-white leading-snug">
+                Farm Fresh Dairy Hub, Islamabad
+              </h3>
+              <p className="text-xs sm:text-sm text-sky-200/90 leading-relaxed">
+                Located in <strong>Chak Shahzad / Shahzad Town, Islamabad</strong> (Plus Code: <strong className="font-mono text-emerald-300">M49P+M78</strong>). We dispatch pure chilled milk twice daily across Islamabad with 100% FREE delivery in Shahzad Town, I-8, and I-9 Sectors.
+              </p>
+
+              <div className="flex flex-wrap items-center gap-2.5 pt-1">
+                <a
+                  href={SOCIAL_LINKS.googleMaps}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold uppercase tracking-wider transition-all shadow-sm group"
+                >
+                  <MapPin className="w-3.5 h-3.5" />
+                  <span>Open in Google Maps</span>
+                </a>
+                <a
+                  href={SOCIAL_LINKS.openStreetMap}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-farm-700 hover:bg-farm-600 text-sky-100 hover:text-white text-xs font-bold uppercase tracking-wider transition-all border border-farm-600"
+                >
+                  <span>OpenStreetMap</span>
+                </a>
+              </div>
+            </div>
+
+            {/* Interactive OpenStreetMap Frame */}
+            <div className="lg:col-span-7 relative h-56 sm:h-64 rounded-2xl overflow-hidden border-2 border-emerald-500/30 shadow-lg bg-farm-950">
+              <iframe
+                title="Footer OpenStreetMap Interactive Location"
+                src={SOCIAL_LINKS.openStreetMapEmbed}
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                loading="lazy"
+              />
+              <div className="absolute top-3 right-3 bg-farm-950/85 backdrop-blur-sm text-[10px] font-mono text-sky-200 px-2.5 py-1 rounded-lg border border-farm-700 flex items-center gap-1.5 shadow-sm pointer-events-none">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span>Chak Shahzad, Islamabad</span>
+              </div>
+            </div>
+
+          </div>
         </div>
 
         {/* Bottom Bar */}
