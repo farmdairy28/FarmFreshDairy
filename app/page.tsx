@@ -8,6 +8,7 @@ import { ProcessJourney } from '@/components/home/ProcessJourney';
 import { MilkReportSection } from '@/components/home/MilkReportSection';
 import { DeliverySection } from '@/components/home/DeliverySection';
 import { ProductCollection } from '@/components/home/ProductCollection';
+import { ReviewsMarquee } from '@/components/home/ReviewsMarquee';
 import { AboutStory } from '@/components/home/AboutStory';
 import { TestimonialSection } from '@/components/home/TestimonialSection';
 import { FinalCTA } from '@/components/home/FinalCTA';
@@ -72,13 +73,16 @@ export default async function HomePage() {
       {/* 9. Product Collection */}
       <ProductCollection products={products} categories={categories} />
 
-      {/* 9. About / Story Section */}
+      {/* 10. Animated Smooth Infinite Reviews Marquee */}
+      <ReviewsMarquee reviews={testimonials} />
+
+      {/* 11. About / Story Section */}
       <AboutStory />
 
-      {/* 10. Testimonials */}
+      {/* 12. Detailed Interactive Testimonials Modal & Slider */}
       <TestimonialSection testimonials={testimonials} />
 
-      {/* 11. Final CTA */}
+      {/* 13. Final CTA */}
       <FinalCTA />
     </div>
   );

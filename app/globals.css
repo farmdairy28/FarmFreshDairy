@@ -30,3 +30,26 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #0284C7;
 }
+
+/* Smooth Infinite Marquee Animations */
+@keyframes marquee-scroll {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.animate-marquee-smooth {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+  animation: marquee-scroll 45s linear infinite;
+}
+
+.pause-on-hover:hover,
+.animate-marquee-smooth:hover {
+  animation-play-state: paused !important;
+}
+
