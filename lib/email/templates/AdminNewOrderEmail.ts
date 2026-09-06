@@ -18,7 +18,7 @@ export function generateAdminNewOrderHtml(order: Order, items?: OrderItem[]): st
     timeStyle: 'short',
   });
 
-  const appUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://farm-fresh-dairy-phi.vercel.app').replace(/\/$/, '');
+  const appUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://www.farmfreshdairyproducts.com').replace(/\/$/, '');
   const adminDashboardUrl = `${appUrl}/admin/orders`;
 
   const orderItemsList = (items && items.length > 0 ? items : order.items) || [];

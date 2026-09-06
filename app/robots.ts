@@ -1,12 +1,13 @@
 import { MetadataRoute } from 'next';
 
 export default function robots(): MetadataRoute.Robots {
+  const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://www.farmfreshdairyproducts.com').replace(/\/$/, '');
   return {
     rules: {
       userAgent: '*',
       allow: '/',
       disallow: ['/admin/', '/api/'],
     },
-    sitemap: 'https://purepasturesfarm.com/sitemap.xml',
+    sitemap: `${baseUrl}/sitemap.xml`,
   };
 }

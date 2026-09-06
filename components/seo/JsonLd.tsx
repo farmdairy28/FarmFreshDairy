@@ -1,12 +1,14 @@
 import React from 'react';
 
 export function JsonLd() {
+  const siteUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://www.farmfreshdairyproducts.com').replace(/\/$/, '');
+
   const organizationData = {
     '@context': 'https://schema.org',
     '@type': 'FoodEstablishment',
     name: 'Farm Fresh Dairy Products',
-    url: 'https://farmfreshdairy.pk',
-    logo: 'https://farmfreshdairy.pk/logo.png',
+    url: siteUrl,
+    logo: `${siteUrl}/images/logo.png`,
     description: '100% pure cow milk delivered direct from happy cows to your home. Lab certified adulterant-free.',
     address: {
       '@type': 'PostalAddress',

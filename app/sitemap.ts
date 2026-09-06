@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next';
 import { getProducts } from '@/lib/supabase/api';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://purepasturesfarm.com';
+  const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://www.farmfreshdairyproducts.com').replace(/\/$/, '');
   const products = await getProducts();
 
   const productUrls = products.map((p) => ({
