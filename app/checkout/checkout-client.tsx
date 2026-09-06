@@ -31,17 +31,9 @@ export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
     return lower.includes('shahzad town') && !lower.includes('chak shahzad');
   };
 
-  const getAreaDeliveryFee = (areaName: string) => {
-    if (isFreeDeliveryArea(areaName)) return 0;
-    const foundArea = regions.flatMap((r) => r.areas).find((a) => a.name === areaName);
-    if (foundArea && typeof foundArea.delivery_fee === 'number' && foundArea.delivery_fee > 0) {
-      return foundArea.delivery_fee;
-    }
-    return 150; // standard delivery fee for paid areas
-  };
-
-  const currentDeliveryFee = getAreaDeliveryFee(formData.area_name);
-  const totalPayable = cartSubtotal + currentDeliveryFee;
+  const isFreeDelivery = isFreeDeliveryArea(formData.area_name);
+  const currentDeliveryFee = isFreeDelivery ? 0 : 0; // Rider charges are collected by rider on delivery for other areas
+  const totalPayable = cartSubtotal;
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -215,10 +207,9 @@ export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
                   <optgroup key={reg.id} label={reg.name}>
                     {reg.areas.map((area) => {
                       const isFree = isFreeDeliveryArea(area.name);
-                      const fee = isFree ? 0 : (area.delivery_fee > 0 ? area.delivery_fee : 150);
                       return (
                         <option key={area.id} value={area.name}>
-                          {area.name} — {isFree ? 'FREE Delivery' : `Paid Delivery (Rs. ${fee})`}
+                          {area.name} — {isFree ? 'FREE Doorstep Delivery' : 'Delivered via Rider (Rider charges apply)'}
                         </option>
                       );
                     })}
@@ -366,20 +357,20 @@ export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
             <span className="font-mono font-semibold">Rs. {cartSubtotal}</span>
           </div>
           <div className="flex justify-between text-earth-600 items-center">
-            <span>Delivery Fee</span>
-            {currentDeliveryFee === 0 ? (
-              <span className="font-mono font-bold text-emerald-600 uppercase text-xs bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+            <span>Delivery</span>
+            {isFreeDelivery ? (
+              <span className="font-mono font-bold text-emerald-600 uppercase text-xs bg-emerald-50 px-2.5 py-1 rounded border border-emerald-200">
                 FREE (Shahzad Town)
               </span>
             ) : (
-              <span className="font-mono font-bold text-earth-900 text-sm">
-                Rs. {currentDeliveryFee}
+              <span className="font-mono font-bold text-amber-900 text-xs bg-amber-50 px-2.5 py-1 rounded border border-amber-200">
+                Based on Rider (Payable on delivery)
               </span>
             )}
           </div>
           <div className="flex justify-between font-serif font-bold text-2xl text-earth-900 pt-3 border-t border-earth-300">
             <span>Total Payable</span>
-            <span className="text-farm-700">Rs. {totalPayable}</span>
+            <span className="text-farm-700">Rs. {cartSubtotal} {isFreeDelivery ? '' : '+ Rider Fee'}</span>
           </div>
         </div>
 
@@ -407,9 +398,9 @@ export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
         <div className="text-center text-xs font-mono text-earth-500 space-y-1">
           <div className="flex items-center justify-center gap-1.5 text-emerald-700 font-semibold">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-            {currentDeliveryFee === 0
+            {isFreeDelivery
               ? 'Direct Doorstep Chilled Delivery (FREE in Shahzad Town)'
-              : `Direct Doorstep Chilled Delivery (Rs. ${currentDeliveryFee} delivery fee)`}
+              : 'Delivered via Rider (Rider charges payable to rider on delivery)'}
           </div>
           <div>Morning &amp; Evening Delivery Routes • Cash on Delivery</div>
         </div>

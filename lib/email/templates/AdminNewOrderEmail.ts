@@ -132,9 +132,9 @@ export function generateAdminNewOrderHtml(order: Order, items?: OrderItem[]): st
                       </td>
                     </tr>
                     <tr>
-                      <td style="color: #61736A;">Delivery Fee:</td>
+                      <td style="color: #61736A;">Delivery:</td>
                       <td style="text-align: right; font-family: monospace; color: #2C3E35;">
-                        ${order.delivery_fee && order.delivery_fee > 0 ? formatCurrency(order.delivery_fee) : 'Rs. 0 (Free)'}
+                        ${(order.area_name || '').toLowerCase().includes('shahzad town') && !(order.area_name || '').toLowerCase().includes('chak shahzad') ? 'Rs. 0 (Free in Shahzad Town)' : 'Via Rider (Rider charges apply)'}
                       </td>
                     </tr>
                     <tr style="border-top: 2px solid #1B4D3E;">

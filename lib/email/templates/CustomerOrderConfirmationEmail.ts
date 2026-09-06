@@ -125,7 +125,7 @@ export function generateCustomerOrderConfirmationHtml(order: Order, items?: Orde
                     <tr>
                       <td style="color: #61736A;">Chilled Delivery:</td>
                       <td style="text-align: right; font-family: monospace; color: #1B4D3E; font-weight: bold;">
-                        ${order.delivery_fee && order.delivery_fee > 0 ? formatCurrency(order.delivery_fee) : 'FREE'}
+                        ${(order.area_name || '').toLowerCase().includes('shahzad town') && !(order.area_name || '').toLowerCase().includes('chak shahzad') ? 'FREE (Shahzad Town)' : (order.delivery_fee && order.delivery_fee > 0 ? formatCurrency(order.delivery_fee) : 'Via Rider (Pay on delivery)')}
                       </td>
                     </tr>
                     <tr style="border-top: 2px solid #1B4D3E;">

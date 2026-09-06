@@ -117,37 +117,19 @@ export async function submitOrderAction(input: CreateOrderInput): Promise<OrderA
       });
     }
 
-    // Authoritative server-side delivery fee calculation:
-    // Shahzad Town is FREE (0.00); all other areas have a paid delivery fee (Rs. 150 or configured fee)
+    // Authoritative server-side delivery calculation:
+    // Shahzad Town is FREE (0.00); all other areas are handled via rider (rider delivery charges collected upon delivery)
     const areaLower = input.area_name.toLowerCase();
     const isShahzadTown = areaLower.includes('shahzad town') && !areaLower.includes('chak shahzad');
 
-    let deliveryFee = 0.00;
-    if (!isShahzadTown) {
-      deliveryFee = 150.00; // standard paid delivery fee for non-Shahzad Town areas
-      if (adminClient) {
-        try {
-          const cleanArea = input.area_name.split('(')[0].split('—')[0].trim();
-          const { data: areaRecord } = await adminClient
-            .from('delivery_areas')
-            .select('delivery_fee')
-            .ilike('name', `%${cleanArea}%`)
-            .maybeSingle();
-
-          if (areaRecord && typeof areaRecord.delivery_fee === 'number' && areaRecord.delivery_fee > 0) {
-            deliveryFee = Number(areaRecord.delivery_fee);
-          }
-        } catch (e) {
-          // ignore and keep standard paid delivery fee
-        }
-      }
-    }
-
-    const totalAmount = calculatedSubtotal + deliveryFee;
+    const deliveryFee = 0.00;
+    const totalAmount = calculatedSubtotal;
     const orderNumber = `FFD-${Math.floor(1000 + Math.random() * 9000)}`;
     let orderId = `ord-${Date.now()}`;
 
     const deliverySlot = input.delivery_slot === 'Evening' ? 'Evening' : 'Morning';
+    const riderNote = isShahzadTown ? '' : '[Delivery via Rider - Rider charges apply on delivery]';
+    const combinedNotes = [input.delivery_notes?.trim(), riderNote].filter(Boolean).join(' | ');
 
     // 3. Insert order record into Supabase PostgreSQL
     if (adminClient) {
@@ -160,7 +142,7 @@ export async function submitOrderAction(input: CreateOrderInput): Promise<OrderA
         city: input.city?.trim() || 'Islamabad',
         area_name: input.area_name.trim(),
         delivery_slot: deliverySlot,
-        delivery_notes: (input.delivery_notes || '').trim(),
+        delivery_notes: combinedNotes,
         delivery_fee: deliveryFee,
         subtotal: calculatedSubtotal,
         total_amount: totalAmount,

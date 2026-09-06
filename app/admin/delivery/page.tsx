@@ -30,18 +30,17 @@ export default function AdminDeliveryPage() {
               <span className={`text-[10px] font-mono uppercase px-2.5 py-0.5 rounded font-bold ${
                 reg.areas.some(a => a.name.toLowerCase().includes('shahzad town') && !a.name.toLowerCase().includes('chak shahzad'))
                   ? 'bg-emerald-100 text-emerald-800'
-                  : 'bg-slate-100 text-slate-700'
+                  : 'bg-amber-100 text-amber-900'
               }`}>
                 {reg.areas.some(a => a.name.toLowerCase().includes('shahzad town') && !a.name.toLowerCase().includes('chak shahzad'))
-                  ? 'Includes Free Route'
-                  : 'Paid Delivery Route'}
+                  ? 'Free Route (Shahzad Town)'
+                  : 'Via Rider Route'}
               </span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {reg.areas.map((area) => {
                 const isShahzad = area.name.toLowerCase().includes('shahzad town') && !area.name.toLowerCase().includes('chak shahzad');
-                const fee = isShahzad ? 0 : (area.delivery_fee > 0 ? area.delivery_fee : 150);
 
                 return (
                   <div key={area.id} className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-800 flex flex-col justify-between">
@@ -52,8 +51,8 @@ export default function AdminDeliveryPage() {
                           FREE
                         </span>
                       ) : (
-                        <span className="text-[9px] font-mono uppercase bg-slate-200/80 text-slate-700 px-1.5 py-0.5 rounded font-bold shrink-0">
-                          Rs. {fee}
+                        <span className="text-[9px] font-mono uppercase bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded font-bold shrink-0">
+                          Via Rider
                         </span>
                       )}
                     </div>

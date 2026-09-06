@@ -18,7 +18,7 @@ export function DeliverySection({ regions }: { regions: DeliveryRegion[] }) {
         <div className="text-center max-w-3xl mx-auto space-y-4 mb-16">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-farm-100 text-farm-800 text-xs font-mono font-semibold uppercase border border-farm-200">
             <MapPin className="w-3.5 h-3.5" />
-            FREE IN SHAHZAD TOWN · DOORSTEP ROUTES ACROSS ISLAMABAD
+            FREE IN SHAHZAD TOWN · OTHER AREAS DELIVERED VIA RIDER
           </div>
 
           <h2 className="font-serif text-4xl sm:text-5xl font-bold tracking-tight text-earth-900">
@@ -26,7 +26,7 @@ export function DeliverySection({ regions }: { regions: DeliveryRegion[] }) {
           </h2>
 
           <p className="text-earth-600 text-base sm:text-lg">
-            We deliver temperature-controlled, chilled milk across Islamabad daily. Doorstep delivery is 100% FREE in Shahzad Town; standard paid delivery applies to other sectors.
+            We deliver temperature-controlled, chilled milk across Islamabad daily. Doorstep delivery is 100% FREE in Shahzad Town; all other sectors and areas across Islamabad are delivered via rider (charges as per rider).
           </p>
         </div>
 
@@ -72,7 +72,6 @@ export function DeliverySection({ regions }: { regions: DeliveryRegion[] }) {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
               {activeRegion.areas?.map((area) => {
                 const isShahzad = area.name.toLowerCase().includes('shahzad town') && !area.name.toLowerCase().includes('chak shahzad');
-                const fee = isShahzad ? 0 : (area.delivery_fee > 0 ? area.delivery_fee : 150);
 
                 return (
                   <div
@@ -87,11 +86,11 @@ export function DeliverySection({ regions }: { regions: DeliveryRegion[] }) {
                     </div>
                     {isShahzad ? (
                       <span className="text-[10px] font-mono uppercase bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold shrink-0">
-                        Free
+                        Free Delivery
                       </span>
                     ) : (
-                      <span className="text-[10px] font-mono uppercase bg-earth-200/80 text-earth-800 px-2 py-0.5 rounded font-bold shrink-0">
-                        Rs. {fee}
+                      <span className="text-[10px] font-mono uppercase bg-amber-100/90 text-amber-900 px-2 py-0.5 rounded font-bold shrink-0">
+                        Via Rider
                       </span>
                     )}
                   </div>
