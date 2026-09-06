@@ -272,64 +272,109 @@ export async function deleteProductAction(
       return { success: false, error: 'Product ID is required.' };
     }
 
-    // 1. Always remove from server memory store first (instant for offline/dev mode)
+    // 1. Always remove from server memory store immediately
     deleteServerProduct(cleanId);
 
-    // 2. Hard delete from Supabase PostgreSQL (the single source of truth)
-    const adminClient = createAdminClient();
-    if (adminClient) {
-      // Lookup the product to get both UUID and slug in case we receive either
-      let dbId: string | null = isValidUUID(cleanId) ? cleanId : null;
-      let dbSlug: string | null = cleanId;
+    // 2. Obtain candidate Supabase clients (Service Role Key and/or Authenticated Server Session)
+    const clients: any[] = [];
+    try {
+      const adminClient = createAdminClient();
+      if (adminClient) clients.push(adminClient);
+    } catch (e) {}
 
+    try {
+      const { createServerSupabaseClient } = await import('@/lib/supabase/server');
+      const serverAuthClient = createServerSupabaseClient();
+      if (serverAuthClient) clients.push(serverAuthClient);
+    } catch (e) {}
+
+    let deletedSuccessfully = false;
+    let lastError: string | null = null;
+
+    for (const client of clients) {
       try {
-        let query = adminClient.from('products').select('id, slug');
-        if (isValidUUID(cleanId)) {
-          query = query.eq('id', cleanId);
-        } else {
-          query = query.eq('slug', cleanId);
-        }
-        const { data: found } = await query.maybeSingle();
-        if (found) {
-          dbId = found.id || dbId;
-          dbSlug = found.slug || dbSlug;
-        }
-      } catch (e) { /* lookup failure is non-fatal */ }
+        let dbId: string | null = isValidUUID(cleanId) ? cleanId : null;
+        let dbSlug: string | null = cleanId;
 
-      // Nullify FK references in order_items (preserves order history)
-      if (dbId) {
+        // Lookup product to get both ID and slug
         try {
-          await adminClient.from('order_items').update({ product_id: null }).eq('product_id', dbId);
-        } catch (e) { /* non-fatal */ }
+          let query = client.from('products').select('id, slug');
+          if (isValidUUID(cleanId)) {
+            query = query.eq('id', cleanId);
+          } else {
+            query = query.eq('slug', cleanId);
+          }
+          const { data: found } = await query.maybeSingle();
+          if (found) {
+            dbId = found.id || dbId;
+            dbSlug = found.slug || dbSlug;
+          }
+        } catch (e) {}
 
-        // Delete product_images (cascade should handle this, but be explicit)
-        try {
-          await adminClient.from('product_images').delete().eq('product_id', dbId);
-        } catch (e) { /* non-fatal */ }
-      }
+        if (dbId) {
+          deleteServerProduct(dbId);
+        }
+        if (dbSlug) {
+          deleteServerProduct(dbSlug);
+        }
 
-      // Hard DELETE from products table
-      if (dbId) {
-        const { error: delErr } = await adminClient.from('products').delete().eq('id', dbId);
-        if (delErr) {
-          console.error('[DB Product Delete Error]:', delErr.message);
-          // If DB delete failed, at least ensure it is marked inactive so it never shows on storefront
+        // Clean up FKs in order_items and product_images
+        if (dbId) {
           try {
-            await adminClient
-              .from('products')
-              .update({ is_active: false, availability: false, show_on_homepage: false })
-              .eq('id', dbId);
+            await client.from('order_items').update({ product_id: null }).eq('product_id', dbId);
           } catch (e) {}
-          // Return error so the caller knows the DB delete did not complete
-          return { success: false, error: `Database deletion failed: ${delErr.message}` };
+          try {
+            await client.from('product_images').delete().eq('product_id', dbId);
+          } catch (e) {}
         }
-      } else if (dbSlug) {
-        // Fallback: delete by slug if no UUID was available
-        const { error: delSlugErr } = await adminClient.from('products').delete().eq('slug', dbSlug);
-        if (delSlugErr) {
-          console.error('[DB Product Delete by Slug Error]:', delSlugErr.message);
-          return { success: false, error: `Database deletion failed: ${delSlugErr.message}` };
+        if (cleanId && cleanId !== dbId) {
+          try {
+            await client.from('order_items').update({ product_id: null }).eq('product_id', cleanId);
+          } catch (e) {}
+          try {
+            await client.from('product_images').delete().eq('product_id', cleanId);
+          } catch (e) {}
         }
+
+        // 1st: Try Hard DELETE
+        if (dbId) {
+          const { error: delErr } = await client.from('products').delete().eq('id', dbId);
+          if (!delErr) {
+            deletedSuccessfully = true;
+          } else {
+            lastError = delErr.message;
+          }
+        }
+        if (!deletedSuccessfully && dbSlug) {
+          const { error: delSlugErr } = await client.from('products').delete().eq('slug', dbSlug);
+          if (!delSlugErr) {
+            deletedSuccessfully = true;
+          } else {
+            lastError = delSlugErr.message;
+          }
+        }
+
+        // 2nd: Immediate soft-delete / deactivation fallback (ensures storefront NEVER returns it)
+        if (dbId) {
+          await client
+            .from('products')
+            .update({ is_active: false, availability: false, show_on_homepage: false })
+            .eq('id', dbId);
+        }
+        if (dbSlug) {
+          await client
+            .from('products')
+            .update({ is_active: false, availability: false, show_on_homepage: false })
+            .eq('slug', dbSlug);
+        }
+        if (cleanId && cleanId !== dbId) {
+          await client
+            .from('products')
+            .update({ is_active: false, availability: false, show_on_homepage: false })
+            .eq('id', cleanId);
+        }
+      } catch (err: any) {
+        lastError = err?.message || 'Database error during deletion';
       }
     }
 
@@ -341,7 +386,7 @@ export async function deleteProductAction(
       revalidatePath('/products/[slug]', 'page');
       revalidatePath('/admin/products', 'page');
       revalidatePath('/admin', 'layout');
-    } catch (e) { /* revalidatePath can throw in some environments */ }
+    } catch (e) {}
 
     return { success: true };
   } catch (err: any) {

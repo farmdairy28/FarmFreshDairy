@@ -34,13 +34,24 @@ export default function AdminProductsPage() {
       // 1. Instantly remove from local UI state
       setProducts((prev) => prev.filter((p) => p.id !== id && p.slug !== id));
 
-      // 2. Clean up client-side localStorage
-      await deleteProduct(id);
+      try {
+        // 2. Delete from server database & server store via Server Action
+        const res = await deleteProductAction(id);
+        if (!res.success) {
+          console.warn('[Admin Products] deleteProductAction error:', res.error);
+        }
+      } catch (err) {
+        console.error('[Admin Products] Error calling deleteProductAction:', err);
+      }
 
-      // 3. Delete from server database & server store
-      await deleteProductAction(id);
+      try {
+        // 3. Delete directly via client DB / runtime store
+        await deleteProduct(id);
+      } catch (err) {
+        console.error('[Admin Products] Error calling deleteProduct:', err);
+      }
 
-      // 4. Refetch fresh products
+      // 4. Refetch fresh products from database
       await fetchProducts();
     }
   };

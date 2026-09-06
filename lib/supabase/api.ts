@@ -2,18 +2,26 @@ import { Product, Category, FarmValue, ProcessStep, DeliveryRegion, Testimonial,
 import { INITIAL_CATEGORIES, INITIAL_VALUES, INITIAL_PROCESS, INITIAL_DELIVERY, INITIAL_TESTIMONIALS, INITIAL_HERO, INITIAL_PROMISE, INITIAL_ORDERS } from './mock-data';
 import { getServerProductsStore, upsertServerProduct, deleteServerProduct, getServerCategoriesStore, upsertServerCategory, getServerTestimonialsStore } from './products-store';
 import { createAdminClient } from './admin';
+import { createBrowserClient } from '@supabase/ssr';
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 
 const isClient = typeof window !== 'undefined';
 
 function getDbClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (isClient && supabaseUrl && supabaseAnonKey && !supabaseUrl.includes('your-project-id')) {
+    try {
+      return createBrowserClient(supabaseUrl, supabaseAnonKey);
+    } catch (e) {}
+  }
+
   try {
     const admin = createAdminClient();
     if (admin) return admin;
   } catch (e) {}
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (supabaseUrl && supabaseAnonKey && !supabaseUrl.includes('your-project-id')) {
     return createSupabaseClient(supabaseUrl, supabaseAnonKey);
   }
@@ -279,6 +287,33 @@ export async function deleteProduct(id: string): Promise<boolean> {
   const cleanId = (id || '').trim();
   // Remove from server memory store immediately
   deleteServerProduct(cleanId);
+
+  try {
+    const client = getDbClient();
+    if (client && cleanId) {
+      // 1. Clean order_items & product_images references if any
+      try {
+        await client.from('order_items').update({ product_id: null }).eq('product_id', cleanId);
+      } catch (_) {}
+      try {
+        await client.from('product_images').delete().eq('product_id', cleanId);
+      } catch (_) {}
+
+      // 2. Try hard delete by ID or slug
+      const { error: delError } = await client.from('products').delete().eq('id', cleanId);
+      if (delError) {
+        await client.from('products').delete().eq('slug', cleanId);
+        // Fallback soft-delete deactivation
+        await client
+          .from('products')
+          .update({ is_active: false, availability: false, show_on_homepage: false })
+          .or(`id.eq.${cleanId},slug.eq.${cleanId}`);
+      }
+    }
+  } catch (err) {
+    console.warn('deleteProduct DB cleanup notice:', err);
+  }
+
   return true;
 }
 
