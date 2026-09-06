@@ -97,12 +97,12 @@ export default async function ProductDetailPage({ params }: { params: { slug: st
               </h1>
 
               <div className="flex items-baseline gap-4 pt-2">
-                <span className="font-serif text-3xl sm:text-4xl font-bold text-farm-900">
-                  {product.currency} {product.price}
+                <span className="font-serif text-3xl sm:text-4xl font-bold text-farm-950">
+                  Rs. {product.price}
                 </span>
-                {product.compare_at_price && (
+                {product.compare_at_price && product.compare_at_price > product.price && (
                   <span className="text-base text-earth-400 line-through font-mono">
-                    {product.currency} {product.compare_at_price}
+                    Rs. {product.compare_at_price}
                   </span>
                 )}
                 <span className="text-xs text-earth-500 font-mono">
