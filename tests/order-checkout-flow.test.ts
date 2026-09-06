@@ -19,7 +19,7 @@ async function testCheckoutOrderFlow() {
       },
     ],
     customer_name: 'Test Customer (Hassan)',
-    customer_email: 'testcustomer@farmfreshdairy.pk',
+    customer_email: 'testcustomer@farmfreshdairyproducts.com',
     customer_phone: '03109361932',
     delivery_address: 'House 45, Street 10, Sector G-10/4',
     city: 'Islamabad',

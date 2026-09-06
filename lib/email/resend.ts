@@ -25,14 +25,18 @@ export function getResendClient(): Resend | null {
 
 /**
  * Retrieves the verified from email header.
- * Defaults to a safe sender identity.
+ * Cleans any extraneous quotes and defaults to production domain sender identity.
  */
 export function getFromEmail(): string {
-  const customFrom = process.env.EMAIL_FROM;
+  let customFrom = process.env.RESEND_FROM_EMAIL || process.env.EMAIL_FROM;
   if (customFrom && customFrom.trim().length > 0) {
-    return customFrom.trim();
+    // Strip leading/trailing double or single quotes (e.g. "\"Farm Fresh...\"")
+    customFrom = customFrom.trim().replace(/^["']+|["']+$/g, '').trim();
+    if (customFrom.length > 0) {
+      return customFrom;
+    }
   }
-  return 'Farm Fresh Dairy <orders@farmfreshdairy.pk>';
+  return 'Farm Fresh Dairy <orders@farmfreshdairyproducts.com>';
 }
 
 /**
