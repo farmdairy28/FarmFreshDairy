@@ -3,8 +3,12 @@ import Link from 'next/link';
 import { Phone, Mail, MapPin, MessageCircle, ShieldCheck, Facebook, Instagram } from 'lucide-react';
 import { FarmFreshLogo } from './FarmFreshLogo';
 import { SOCIAL_LINKS } from '@/lib/constants';
+import { getProducts } from '@/lib/supabase/api';
 
-export function Footer() {
+export async function Footer() {
+  const products = await getProducts();
+  const displayProducts = products.filter(p => p.is_active !== false).slice(0, 6);
+
   return (
     <footer className="bg-farm-900 text-cream-200 pt-20 pb-12 border-t border-farm-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -100,18 +104,27 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Product Categories */}
+          {/* Dynamic Fresh Products */}
           <div className="space-y-4">
             <h4 className="text-xs font-mono uppercase tracking-widest text-sky-400 font-semibold">
               Fresh Products
             </h4>
             <ul className="space-y-2.5 text-sm text-sky-200/90">
-              <li>100% Pure Cow Milk (Rs. 250/L)</li>
-              <li>Organic Low-Fat Milk</li>
-              <li>Clay-Pot Farm Dahi</li>
-              <li>Bilona Desi Ghee</li>
-              <li>Hand-Churned Butter</li>
-              <li>Farmhouse Paneer</li>
+              {displayProducts.length > 0 ? (
+                displayProducts.map((p) => (
+                  <li key={p.id}>
+                    <Link href={`/products/${p.slug}`} className="hover:text-white transition-colors block truncate">
+                      {p.name}
+                    </Link>
+                  </li>
+                ))
+              ) : (
+                <li>
+                  <Link href="/products" className="hover:text-white transition-colors">
+                    Explore All Products
+                  </Link>
+                </li>
+              )}
             </ul>
           </div>
 
