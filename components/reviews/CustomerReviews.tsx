@@ -131,7 +131,7 @@ export function CustomerReviews({
     : '5.0';
 
   return (
-    <section className="py-24 bg-cream-100 border-t border-earth-200 overflow-hidden">
+    <section id="reviews" className="py-24 bg-cream-100 border-t border-earth-200 overflow-hidden scroll-mt-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header with Title and Action */}

@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { Phone, Mail, MapPin, MessageCircle, ShieldCheck, Facebook, Instagram } from 'lucide-react';
+import { Phone, Mail, MapPin, MessageCircle, ShieldCheck, Facebook, Instagram, Star } from 'lucide-react';
 import { FarmFreshLogo } from './FarmFreshLogo';
 import { SOCIAL_LINKS } from '@/lib/constants';
 import { getProducts } from '@/lib/supabase/api';
@@ -84,6 +84,12 @@ export async function Footer() {
                 <Link href="/#milk-report" className="hover:text-white transition-colors flex items-center gap-1.5 text-sky-300 font-medium">
                   <ShieldCheck className="w-3.5 h-3.5" />
                   Milk Lab Report
+                </Link>
+              </li>
+              <li>
+                <Link href="/#reviews" className="hover:text-white transition-colors flex items-center gap-1.5 text-brand-yellow font-medium">
+                  <Star className="w-3.5 h-3.5 fill-current" />
+                  Customer Reviews
                 </Link>
               </li>
               <li>
