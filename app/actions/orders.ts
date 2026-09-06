@@ -16,6 +16,7 @@ export interface CreateOrderInput {
   area_name: string;
   delivery_slot?: string;
   delivery_notes?: string;
+  payment_method?: string;
 }
 
 export interface OrderActionResult {
@@ -128,8 +129,16 @@ export async function submitOrderAction(input: CreateOrderInput): Promise<OrderA
     let orderId = `ord-${Date.now()}`;
 
     const deliverySlot = input.delivery_slot === 'Evening' ? 'Evening' : 'Morning';
+    const paymentMethod = input.payment_method?.trim() || 'Cash on Delivery';
+    const isMonthly = paymentMethod.toLowerCase().includes('monthly');
+    const isWeekly = paymentMethod.toLowerCase().includes('weekly');
+    const planNote = isMonthly
+      ? '[Permanent Customer - Monthly Billing]'
+      : isWeekly
+      ? '[Permanent Customer - Weekly Billing]'
+      : '';
     const riderNote = isShahzadTown ? '' : '[Delivery via Rider - Rider charges apply on delivery]';
-    const combinedNotes = [input.delivery_notes?.trim(), riderNote].filter(Boolean).join(' | ');
+    const combinedNotes = [planNote, input.delivery_notes?.trim(), riderNote].filter(Boolean).join(' | ');
 
     // 3. Insert order record into Supabase PostgreSQL
     if (adminClient) {
@@ -147,7 +156,7 @@ export async function submitOrderAction(input: CreateOrderInput): Promise<OrderA
         subtotal: calculatedSubtotal,
         total_amount: totalAmount,
         status: 'Pending',
-        payment_method: 'Cash on Delivery',
+        payment_method: paymentMethod,
         payment_status: 'Pending',
       };
 
@@ -261,12 +270,12 @@ export async function submitOrderAction(input: CreateOrderInput): Promise<OrderA
       city: input.city?.trim() || 'Islamabad',
       area_name: input.area_name.trim(),
       delivery_slot: deliverySlot,
-      delivery_notes: input.delivery_notes?.trim(),
+      delivery_notes: combinedNotes,
       delivery_fee: deliveryFee,
       subtotal: calculatedSubtotal,
       total_amount: totalAmount,
       status: 'Pending',
-      payment_method: 'Cash on Delivery',
+      payment_method: paymentMethod,
       payment_status: 'Pending',
       items: orderItemsSnapshot,
       created_at: new Date().toISOString(),

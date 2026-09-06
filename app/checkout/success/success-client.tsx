@@ -51,6 +51,11 @@ export function OrderSuccessClient() {
     }
   }, [orderNumberParam]);
 
+  const paymentMethodDisplay = order?.payment_method || 'Cash on Delivery (Daily)';
+  const isPermanentMonthly = paymentMethodDisplay.toLowerCase().includes('monthly');
+  const isPermanentWeekly = paymentMethodDisplay.toLowerCase().includes('weekly');
+  const isPermanentCustomer = isPermanentMonthly || isPermanentWeekly;
+
   const handleCopyReceipt = () => {
     if (!order) return;
     const itemsSummary = (order.items || [])
@@ -67,7 +72,8 @@ Phone: ${order.customer_phone}
 Address: ${order.delivery_address}, ${order.area_name || order.city || 'Islamabad'}
 ${itemsSummary ? `Items:\n${itemsSummary}\n` : ''}
 Delivery: ${feeText}
-Total Payable: Rs. ${order.total_amount} (Cash on Delivery)
+Payment Plan: ${paymentMethodDisplay}
+Total Payable: Rs. ${order.total_amount}
 Delivery Slot: ${slot}`;
 
     navigator.clipboard.writeText(text);
@@ -78,9 +84,10 @@ Delivery Slot: ${slot}`;
   const slot = (order as any)?.delivery_slot || 'Morning';
   const isFree = isFreeDeliveryArea(order?.area_name);
   const feeLabel = isFree ? 'FREE Doorstep Delivery' : 'Via Rider';
+  const planTag = isPermanentMonthly ? '[Monthly Billing Plan]' : isPermanentWeekly ? '[Weekly Billing Plan]' : '[Daily COD]';
   const whatsappMessage = order
     ? encodeURIComponent(
-        `🥛 Hello Farm Fresh Dairy! I just placed order #${order.order_number} for ${slot.toLowerCase()} delivery to ${order.delivery_address}, ${order.area_name || ''}. Total: Rs. ${order.total_amount} (Delivery: ${feeLabel}). Please confirm delivery!`
+        `🥛 Hello Farm Fresh Dairy! I just placed order #${order.order_number} ${planTag} for ${slot.toLowerCase()} delivery to ${order.delivery_address}, ${order.area_name || ''}. Total: Rs. ${order.total_amount} (Delivery: ${feeLabel}, Payment: ${paymentMethodDisplay}). Please confirm delivery!`
       )
     : encodeURIComponent(`🥛 Hello Farm Fresh Dairy! Please confirm my milk delivery order #${orderNumberParam}.`);
 
@@ -146,17 +153,23 @@ Delivery Slot: ${slot}`;
             {slot === 'Evening' ? 'Evening Delivery Route' : 'Morning Delivery Route'}
           </div>
           <div className="text-emerald-800 text-[11px] leading-relaxed">
-            Your milk is scheduled for your selected {slot.toLowerCase()} delivery route. Our rider will bring fresh, cold milk directly to your doorstep and collect cash upon delivery.
+            Your milk is scheduled for your selected {slot.toLowerCase()} delivery route. Our rider will bring fresh, cold milk directly to your doorstep {isPermanentMonthly ? 'under your Permanent Monthly Billing Plan.' : isPermanentWeekly ? 'under your Permanent Weekly Billing Plan.' : 'and collect cash upon delivery.'}
           </div>
         </div>
       </div>
 
       {/* Order Details Receipt Box */}
       <div className="p-6 rounded-2xl bg-farm-50/70 border border-farm-200/80 text-left space-y-3 font-mono text-xs text-earth-800">
-        <div className="flex items-center justify-between pb-2 border-b border-farm-200 font-bold text-farm-900">
+        <div className="flex items-center justify-between pb-2 border-b border-farm-200 font-bold text-farm-900 flex-wrap gap-2">
           <span>RECEIPT #{displayOrderNumber}</span>
-          <span className="text-emerald-700 bg-emerald-100/70 px-2 py-0.5 rounded text-[11px]">
-            Cash on Delivery (COD)
+          <span className={`px-2.5 py-0.5 rounded text-[11px] ${
+            isPermanentMonthly
+              ? 'text-amber-900 bg-amber-100 border border-amber-300 font-bold'
+              : isPermanentWeekly
+              ? 'text-emerald-900 bg-emerald-100 border border-emerald-300 font-bold'
+              : 'text-emerald-700 bg-emerald-100/70'
+          }`}>
+            {paymentMethodDisplay}
           </span>
         </div>
 
@@ -168,6 +181,7 @@ Delivery Slot: ${slot}`;
             <div><strong>Delivery Area:</strong> {areaName}</div>
           )}
           <div><strong>Delivery Slot:</strong> {slot} Delivery</div>
+          <div><strong>Payment / Billing:</strong> {paymentMethodDisplay}</div>
           {deliveryAddress && (
             <div><strong>Street Address:</strong> {deliveryAddress}</div>
           )}

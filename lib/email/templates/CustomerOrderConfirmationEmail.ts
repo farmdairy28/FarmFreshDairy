@@ -97,8 +97,8 @@ export function generateCustomerOrderConfirmationHtml(order: Order, items?: Orde
                       <td style="font-weight: 600; color: #2C3E35; text-align: right;">${orderDate}</td>
                     </tr>
                     <tr>
-                      <td style="color: #61736A;">Payment Method:</td>
-                      <td style="font-weight: 600; color: #2C3E35; text-align: right;">Cash on Delivery (COD)</td>
+                      <td style="color: #61736A;">Payment / Plan:</td>
+                      <td style="font-weight: 600; color: #2C3E35; text-align: right;">${escapeHtml(order.payment_method || 'Cash on Delivery (COD)')}</td>
                     </tr>
                     <tr>
                       <td style="color: #61736A;">Delivery Slot:</td>

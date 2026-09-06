@@ -14,6 +14,8 @@ export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
   const router = useRouter();
   const { items, cartSubtotal, clearCart } = useCart();
 
+  const [billingPlan, setBillingPlan] = useState<'daily' | 'weekly' | 'monthly'>('daily');
+
   const [formData, setFormData] = useState({
     customer_name: '',
     customer_email: '',
@@ -31,6 +33,13 @@ export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
+  const paymentMethodLabel =
+    billingPlan === 'monthly'
+      ? 'Permanent Customer (Monthly Billing)'
+      : billingPlan === 'weekly'
+      ? 'Permanent Customer (Weekly Billing)'
+      : 'Cash on Delivery (Daily)';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,6 +62,7 @@ export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
         area_name: formData.area_name,
         delivery_slot: formData.delivery_slot,
         delivery_notes: formData.delivery_notes,
+        payment_method: paymentMethodLabel,
       };
 
       const result = await submitOrderAction(orderPayload);
@@ -296,19 +306,124 @@ export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
         </div>
 
         <div className="p-6 sm:p-8 rounded-3xl bg-cream-200/50 border border-earth-200 shadow-soft space-y-4">
-          <h2 className="font-serif text-2xl font-bold text-earth-900">
-            3. Payment Method
-          </h2>
-          <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-300 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <ShieldCheck className="w-6 h-6 text-emerald-600 shrink-0" />
-              <div>
-                <div className="font-serif font-bold text-sm text-earth-900">Cash on Delivery (COD)</div>
-                <div className="text-xs text-earth-600">Pay cash upon receiving chilled milk</div>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+            <h2 className="font-serif text-2xl font-bold text-earth-900">
+              3. Payment &amp; Customer Plan
+            </h2>
+            <span className="text-[11px] font-mono text-emerald-700 font-bold bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 self-start sm:self-auto">
+              Choose Billing Cycle
+            </span>
+          </div>
+
+          <p className="text-xs text-earth-600">
+            Select your preferred billing cycle. Permanent customers enjoy uninterrupted daily morning/evening milk supply with consolidated weekly or monthly settlements.
+          </p>
+
+          <div className="space-y-3 pt-1">
+            {/* 1. Daily COD */}
+            <button
+              type="button"
+              onClick={() => setBillingPlan('daily')}
+              className={`w-full p-4 rounded-2xl border text-left transition-all flex items-start justify-between gap-3 ${
+                billingPlan === 'daily'
+                  ? 'bg-emerald-50/90 border-emerald-600 ring-2 ring-emerald-500/20 shadow-sm'
+                  : 'bg-white border-earth-200 hover:bg-earth-50/70'
+              }`}
+            >
+              <div className="flex items-start gap-3">
+                <span className="text-2xl mt-0.5">🚚</span>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-serif font-bold text-sm text-earth-900">
+                      Daily Order (Cash on Delivery)
+                    </span>
+                    <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded bg-earth-100 text-earth-700">
+                      Pay Per Delivery
+                    </span>
+                  </div>
+                  <div className="text-xs text-earth-600 mt-0.5">
+                    Pay cash to the rider on each chilled milk delivery at your doorstep.
+                  </div>
+                </div>
               </div>
-            </div>
-            <span className="text-xs font-mono uppercase font-bold text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-full">
-              Active
+              <span className={`w-5 h-5 rounded-full border-2 shrink-0 flex items-center justify-center mt-0.5 ${
+                billingPlan === 'daily' ? 'border-emerald-600 bg-emerald-600' : 'border-earth-300'
+              }`}>
+                {billingPlan === 'daily' && <span className="w-2 h-2 rounded-full bg-white"></span>}
+              </span>
+            </button>
+
+            {/* 2. Permanent Customer - Weekly */}
+            <button
+              type="button"
+              onClick={() => setBillingPlan('weekly')}
+              className={`w-full p-4 rounded-2xl border text-left transition-all flex items-start justify-between gap-3 ${
+                billingPlan === 'weekly'
+                  ? 'bg-emerald-50/90 border-emerald-600 ring-2 ring-emerald-500/20 shadow-sm'
+                  : 'bg-white border-earth-200 hover:bg-earth-50/70'
+              }`}
+            >
+              <div className="flex items-start gap-3">
+                <span className="text-2xl mt-0.5">📅</span>
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-serif font-bold text-sm text-earth-900">
+                      Permanent Customer (Pay Weekly)
+                    </span>
+                    <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-300">
+                      Weekly Billing
+                    </span>
+                  </div>
+                  <div className="text-xs text-earth-600 mt-0.5">
+                    Guaranteed daily doorstep milk delivery. Hassle-free bill settled once every 7 days.
+                  </div>
+                </div>
+              </div>
+              <span className={`w-5 h-5 rounded-full border-2 shrink-0 flex items-center justify-center mt-0.5 ${
+                billingPlan === 'weekly' ? 'border-emerald-600 bg-emerald-600' : 'border-earth-300'
+              }`}>
+                {billingPlan === 'weekly' && <span className="w-2 h-2 rounded-full bg-white"></span>}
+              </span>
+            </button>
+
+            {/* 3. Permanent Customer - Monthly */}
+            <button
+              type="button"
+              onClick={() => setBillingPlan('monthly')}
+              className={`w-full p-4 rounded-2xl border text-left transition-all flex items-start justify-between gap-3 ${
+                billingPlan === 'monthly'
+                  ? 'bg-emerald-50/90 border-emerald-600 ring-2 ring-emerald-500/20 shadow-sm'
+                  : 'bg-white border-earth-200 hover:bg-earth-50/70'
+              }`}
+            >
+              <div className="flex items-start gap-3">
+                <span className="text-2xl mt-0.5">👑</span>
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-serif font-bold text-sm text-earth-900">
+                      Permanent Customer (Pay Monthly)
+                    </span>
+                    <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded bg-amber-100 text-amber-900 border border-amber-300">
+                      Most Popular • Monthly Billing
+                    </span>
+                  </div>
+                  <div className="text-xs text-earth-600 mt-0.5">
+                    Dedicated daily doorstep milk supply for regular households. Consolidated monthly payment.
+                  </div>
+                </div>
+              </div>
+              <span className={`w-5 h-5 rounded-full border-2 shrink-0 flex items-center justify-center mt-0.5 ${
+                billingPlan === 'monthly' ? 'border-emerald-600 bg-emerald-600' : 'border-earth-300'
+              }`}>
+                {billingPlan === 'monthly' && <span className="w-2 h-2 rounded-full bg-white"></span>}
+              </span>
+            </button>
+          </div>
+
+          <div className="p-3.5 rounded-2xl bg-farm-50/90 border border-farm-200 text-xs text-farm-900 flex items-center gap-2.5">
+            <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span>
+              <strong>Selected Plan:</strong> {paymentMethodLabel}
             </span>
           </div>
         </div>
