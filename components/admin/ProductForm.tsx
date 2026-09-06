@@ -49,6 +49,7 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
   const [newCatError, setNewCatError] = useState('');
 
   const [formData, setFormData] = useState<Partial<Product>>({
+    id: initialProduct?.id || undefined,
     name: initialProduct?.name || '',
     slug: initialProduct?.slug || '',
     short_description: initialProduct?.short_description || '',
@@ -146,9 +147,10 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
     setFormError('');
 
     try {
+      // Use the id already stored in formData (covers both new + edit flows)
       const payload = {
         ...formData,
-        id: initialProduct?.id,
+        id: formData.id || initialProduct?.id,
         category_id: formData.category_id?.trim() ? formData.category_id.trim() : null,
         is_active: formData.is_active !== undefined ? Boolean(formData.is_active) : true,
         stock: formData.stock !== undefined ? Number(formData.stock) : 100,
@@ -164,7 +166,13 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
         return;
       }
 
-      // 2. Also sync local storage for client-side offline resilience
+      // 2. Persist the DB-generated UUID back into formData so that any
+      //    subsequent save on this form does an UPDATE, not a new INSERT.
+      if (actionResult.product?.id) {
+        setFormData((prev) => ({ ...prev, id: actionResult.product!.id }));
+      }
+
+      // 3. Also sync local storage for client-side offline resilience
       if (actionResult.product) {
         await saveProduct(actionResult.product);
       }
