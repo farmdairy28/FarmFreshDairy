@@ -61,8 +61,8 @@ export function AboutStory() {
           <div className="lg:col-span-5 relative">
             <div className="relative aspect-[4/5] rounded-3xl overflow-hidden border-4 border-cream-50 shadow-float bg-earth-200">
               <Image
-                src="https://images.unsplash.com/photo-1546445317-29f4545e9d53?auto=format&fit=crop&w=1000&q=80"
-                alt="Pasture cows and daily care"
+                src="/images/farm-cow.jpg"
+                alt="Pure Cow and compassionate animal care"
                 fill
                 className="object-cover"
                 sizes="(max-width: 1024px) 100vw, 40vw"

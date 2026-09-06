@@ -45,8 +45,8 @@ export default async function AboutPage() {
           </div>
           <div className="relative aspect-[4/3] rounded-3xl overflow-hidden shadow-soft border border-earth-200">
             <Image
-              src="https://images.unsplash.com/photo-1546445317-29f4545e9d53?auto=format&fit=crop&w=800&q=80"
-              alt="Veterinarian animal care"
+              src="/images/farm-cow.jpg"
+              alt="Farm Fresh Pure Cow and compassionate animal care"
               fill
               className="object-cover"
             />
