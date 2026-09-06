@@ -5,9 +5,26 @@ import { ShieldCheck, Heart, Sun, Award, ArrowRight } from 'lucide-react';
 import { getFarmValues } from '@/lib/supabase/api';
 import { FarmValues } from '@/components/home/FarmValues';
 
-export const metadata = {
-  title: 'Our Story — Farm Fresh Dairy Islamabad',
-  description: 'Learn about our commitment to 100% pure cow milk, humane cattle care, and certified adulterant-free dairy production.',
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'About Our Pasture Dairy Farm in Islamabad | Farm Fresh Dairy',
+  description: 'Learn how Farm Fresh Dairy provides 100% pure, unadulterated cow milk in Islamabad. Ethical cattle care, natural green forage, and certified zero chemicals.',
+  keywords: [
+    'pure dairy farm islamabad',
+    'organic cow milk farm islamabad',
+    'pasture raised cows islamabad',
+    'farm fresh dairy story',
+    'unadulterated milk producer islamabad',
+  ],
+  alternates: {
+    canonical: 'https://www.farmfreshdairyproducts.com/about',
+  },
+  openGraph: {
+    title: 'About Our Pasture Dairy Farm in Islamabad | Farm Fresh Dairy',
+    description: '100% pure cow milk from happy pasture-raised cows in Islamabad. Certified chemical-free dairy.',
+    url: 'https://www.farmfreshdairyproducts.com/about',
+  },
 };
 
 export default async function AboutPage() {
@@ -38,7 +55,7 @@ export default async function AboutPage() {
           <div className="relative aspect-[4/3] rounded-3xl overflow-hidden shadow-soft border border-earth-200">
             <Image
               src="https://images.unsplash.com/photo-1500595046743-cd271d694d30?auto=format&fit=crop&w=800&q=80"
-              alt="Pasture cows grazing"
+              alt="Pasture cows grazing freely in open sunshine - Farm Fresh Dairy Islamabad"
               fill
               className="object-cover"
             />
@@ -46,7 +63,7 @@ export default async function AboutPage() {
           <div className="relative aspect-[4/3] rounded-3xl overflow-hidden shadow-soft border border-earth-200">
             <Image
               src="/images/farm-cow.jpg"
-              alt="Farm Fresh Pure Cow and compassionate animal care"
+              alt="Farm Fresh pure healthy cow providing unadulterated milk in Islamabad"
               fill
               className="object-cover"
             />
@@ -54,7 +71,7 @@ export default async function AboutPage() {
           <div className="relative aspect-[4/3] rounded-3xl overflow-hidden shadow-soft border border-earth-200">
             <Image
               src="https://images.unsplash.com/photo-1527153857715-3908f2bae5e8?auto=format&fit=crop&w=800&q=80"
-              alt="Fresh glass bottle of milk"
+              alt="Pure raw cow milk glass bottle delivered fresh in Islamabad"
               fill
               className="object-cover"
             />

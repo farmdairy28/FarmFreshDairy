@@ -2,13 +2,33 @@ import React, { Suspense } from 'react';
 import { getProducts, getCategories } from '@/lib/supabase/api';
 import { ProductCard } from '@/components/products/ProductCard';
 import { ProductFilterControls } from '@/components/products/ProductFilterControls';
+import { BreadcrumbsJsonLd } from '@/components/seo/BreadcrumbsJsonLd';
+
+import { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-export const metadata = {
-  title: 'Fresh Products — Farm Fresh Dairy Islamabad',
-  description: 'Order 100% pure cow milk (Rs. 250/L), thick dahi, bilona desi ghee, paneer, and malai with free delivery in Shahzad Town.',
+export const metadata: Metadata = {
+  title: 'Pure Dairy Products & Fresh Cow Milk in Islamabad | Farm Fresh Dairy',
+  description: 'Order 100% pure raw cow milk (Rs. 250/Litre), pure Bilona Desi Ghee, probiotic fresh Dahi, and artisan dairy products in Islamabad & Rawalpindi. Free home delivery in Shahzad Town, I-8 & I-9.',
+  keywords: [
+    'cow milk in islamabad',
+    'pure dairy products islamabad',
+    'desi ghee rawalpindi islamabad',
+    'fresh cow milk islamabad price',
+    'bilona desi ghee islamabad',
+    'organic milk shop islamabad',
+    'unadulterated milk delivery islamabad',
+  ],
+  alternates: {
+    canonical: 'https://www.farmfreshdairyproducts.com/products',
+  },
+  openGraph: {
+    title: 'Pure Dairy Products & Fresh Cow Milk in Islamabad | Farm Fresh Dairy',
+    description: 'Order 100% pure cow milk (Rs. 250/L), authentic bilona desi ghee & fresh dahi in Islamabad. Free delivery in Shahzad Town, I-8, I-9.',
+    url: 'https://www.farmfreshdairyproducts.com/products',
+  },
 };
 
 export default async function ProductsPage({
@@ -32,8 +52,15 @@ export default async function ProductsPage({
     products = [...products].sort((a, b) => b.price - a.price);
   }
 
+  const siteUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://www.farmfreshdairyproducts.com').replace(/\/$/, '');
+  const breadcrumbs = [
+    { name: 'Home', item: siteUrl },
+    { name: 'Products', item: `${siteUrl}/products` },
+  ];
+
   return (
     <div className="pt-36 pb-24 bg-cream-100 min-h-screen">
+      <BreadcrumbsJsonLd items={breadcrumbs} />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}

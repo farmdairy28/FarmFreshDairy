@@ -34,12 +34,13 @@ export function HeroSection({ data }: { data: HomepageHero }) {
             {/* Main Brand Artwork Headline & Splash Badges */}
             <div className="space-y-3">
               <div className="flex flex-wrap items-center gap-3">
-                <span className="font-serif text-3xl sm:text-4xl lg:text-5xl font-extrabold text-earth-900 tracking-tight">
-                  Fresh
-                </span>
-                <span className="inline-block px-4 py-1 rounded-2xl bg-brand-blue text-white font-serif font-black text-3xl sm:text-4xl lg:text-5xl tracking-tight shadow-md transform -rotate-1">
-                  Cow Milk
-                </span>
+                <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-extrabold text-earth-900 tracking-tight">
+                  <span>Fresh </span>
+                  <span className="inline-block px-4 py-1 rounded-2xl bg-brand-blue text-white font-serif font-black text-3xl sm:text-4xl lg:text-5xl tracking-tight shadow-md transform -rotate-1">
+                    Cow Milk
+                  </span>
+                  <span> Delivery in Islamabad</span>
+                </h1>
               </div>
 
               {/* Price Highlight Splash Badge */}
@@ -154,7 +155,7 @@ export function HeroSection({ data }: { data: HomepageHero }) {
             <div className="relative aspect-[4/5] rounded-3xl overflow-hidden shadow-float border-4 border-white bg-farm-100">
               <Image
                 src="https://images.unsplash.com/photo-1527153857715-3908f2bae5e8?auto=format&fit=crop&w=1200&q=80"
-                alt="Pasture-raised cows on lush green farm"
+                alt="Fresh pure cow milk delivery straight from pasture cows in Islamabad and Rawalpindi"
                 fill
                 priority
                 className="object-cover transition-transform duration-700 hover:scale-105"

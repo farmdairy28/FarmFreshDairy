@@ -4,9 +4,26 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { getProcessSteps } from '@/lib/supabase/api';
 
-export const metadata = {
-  title: 'Farm Process — From Pasture to Pour | Farm Fresh Dairy',
-  description: 'Discover our 6-step hygienic journey from open pasture grazing to chilled morning doorstep delivery across Islamabad.',
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Hygienic Cow Milk Process — Pasture to Doorstep | Farm Fresh Dairy Islamabad',
+  description: 'Explore our 6-step cold-chain process: open pasture grazing, touchless milking, 4°C rapid chilling, and morning delivery across Islamabad & Rawalpindi.',
+  keywords: [
+    'pure milk milking process',
+    'cold chain milk delivery islamabad',
+    'hygienic dairy process',
+    'unpasteurized fresh milk islamabad',
+    'touchless automated milking pakistan',
+  ],
+  alternates: {
+    canonical: 'https://www.farmfreshdairyproducts.com/process',
+  },
+  openGraph: {
+    title: 'Hygienic Cow Milk Process — Pasture to Doorstep | Farm Fresh Dairy Islamabad',
+    description: 'Our untouched 6-step journey preserving natural milk cream and nutrients. Morning delivery in Islamabad.',
+    url: 'https://www.farmfreshdairyproducts.com/process',
+  },
 };
 
 export default async function ProcessPage() {

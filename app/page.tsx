@@ -1,3 +1,4 @@
+import { Metadata } from 'next';
 import { getProducts, getCategories, getFarmValues, getProcessSteps, getDeliveryRegions, getTestimonials, getHomepageHero, getHomepagePromise } from '@/lib/supabase/api';
 import { HeroSection } from '@/components/home/HeroSection';
 import { OurPromise } from '@/components/home/OurPromise';
@@ -11,10 +12,24 @@ import { ProductCollection } from '@/components/home/ProductCollection';
 import { ReviewsMarquee } from '@/components/home/ReviewsMarquee';
 import { AboutStory } from '@/components/home/AboutStory';
 import { TestimonialSection } from '@/components/home/TestimonialSection';
+import { FaqSection } from '@/components/home/FaqSection';
 import { FinalCTA } from '@/components/home/FinalCTA';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0; // Real-time dynamic fetch on request
+
+export const metadata: Metadata = {
+  title: 'Farm Fresh Dairy Products Islamabad | 100% Pure Cow Milk Delivery',
+  description: '100% pure, lab-certified fresh cow milk delivered chilled to your doorstep in Islamabad & Rawalpindi. Free delivery in Shahzad Town, I-8 & I-9. Rs. 250/L.',
+  alternates: {
+    canonical: 'https://www.farmfreshdairyproducts.com',
+  },
+  openGraph: {
+    title: 'Farm Fresh Dairy Products Islamabad | 100% Pure Cow Milk Delivery',
+    description: 'Fresh & pure raw cow milk straight from happy pasture cows to your doorstep in Islamabad. Free delivery in Shahzad Town, I-8 & I-9.',
+    url: 'https://www.farmfreshdairyproducts.com',
+  },
+};
 
 export default async function HomePage() {
   const [
@@ -79,10 +94,13 @@ export default async function HomePage() {
       {/* 11. About / Story Section */}
       <AboutStory />
 
-      {/* 12. Detailed Interactive Testimonials Modal & Slider */}
+      {/* 12. Local SEO FAQ Section with Schema.org FAQPage structured data */}
+      <FaqSection />
+
+      {/* 13. Detailed Interactive Testimonials Modal & Slider */}
       <TestimonialSection testimonials={testimonials} />
 
-      {/* 13. Final CTA */}
+      {/* 14. Final CTA */}
       <FinalCTA />
     </div>
   );

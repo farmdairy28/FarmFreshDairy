@@ -12,7 +12,7 @@ export function FinalCTA() {
       <div className="absolute inset-0 z-0">
         <Image
           src="https://images.unsplash.com/photo-1500595046743-cd271d694d30?auto=format&fit=crop&w=1800&q=80"
-          alt="Farm Fresh Dairy Pastures"
+          alt="Open green dairy farm pastures producing fresh cow milk in Islamabad"
           fill
           className="object-cover object-center opacity-25 scale-105 transition-transform duration-1000"
           priority={false}

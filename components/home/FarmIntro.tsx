@@ -17,7 +17,7 @@ export function FarmIntro({ data }: { data: HomepageFarmIntro }) {
             <div className="relative aspect-[4/3] sm:aspect-[16/10] rounded-3xl overflow-hidden shadow-float border-2 border-earth-200">
               <Image
                 src={data.imageUrl || "https://images.unsplash.com/photo-1500595046743-cd271d694d30?auto=format&fit=crop&w=1200&q=80"}
-                alt="Our open pasture farm"
+                alt="Pasture-grazed healthy dairy cows on green farmland in Islamabad"
                 fill
                 className="object-cover"
                 sizes="(max-width: 1024px) 100vw, 50vw"

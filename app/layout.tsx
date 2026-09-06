@@ -23,20 +23,74 @@ const playfair = Playfair_Display({
 const siteUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://www.farmfreshdairyproducts.com').replace(/\/$/, '');
 
 export const metadata: Metadata = {
-  title: 'Farm Fresh Dairy Products — 100% Pure & Original Cow Milk | Islamabad',
-  description: 'Farm Fresh Dairy Products: 100% pure cow milk delivered straight from happy cows to your home. Lab tested, adulterant free, Rs. 250/Litre with Free Delivery in Shahzad Town.',
+  title: {
+    template: '%s | Farm Fresh Dairy Products Islamabad',
+    default: 'Farm Fresh Dairy Products Islamabad | 100% Pure Cow Milk Delivery',
+  },
+  description: 'Get 100% pure, unadulterated fresh cow milk delivered daily in Islamabad & Rawalpindi. Free delivery in Shahzad Town, I-8 & I-9. Certified chemical-free, Rs. 250/Litre.',
+  keywords: [
+    'cow milk in islamabad',
+    'fresh milk delivery islamabad',
+    'pure cow milk rawalpindi',
+    'organic dairy products islamabad',
+    'best milk shop islamabad',
+    'desi ghee rawalpindi islamabad',
+    'raw milk home delivery islamabad',
+    'pure milk shahzad town',
+    'fresh cow milk chak shahzad',
+    'unpasteurized pure milk islamabad',
+    'farm fresh dairy products',
+    'milk delivery bahria town islamabad',
+    'milk delivery dha islamabad',
+  ],
   metadataBase: new URL(siteUrl),
+  alternates: {
+    canonical: siteUrl,
+  },
   icons: {
-    icon: '/icon',
-    apple: '/apple-icon',
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/favicon.png', type: 'image/png' },
+      { url: '/icon.png', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/apple-touch-icon.png' },
+      { url: '/apple-icon.png' },
+    ],
+    shortcut: '/favicon.ico',
   },
   openGraph: {
-    title: 'Farm Fresh Dairy Products — 100% Pure Cow Milk | Islamabad',
-    description: 'Fresh & pure cow milk straight from happy cows. Free home delivery in Shahzad Town & across Islamabad.',
+    title: 'Farm Fresh Dairy Products Islamabad | 100% Pure Cow Milk Delivery',
+    description: 'Fresh & pure cow milk straight from pasture cows to your doorstep in Islamabad & Rawalpindi. Free delivery in Shahzad Town, I-8 & I-9.',
     url: siteUrl,
-    siteName: 'Farm Fresh Dairy Products',
-    locale: 'en_US',
+    siteName: 'Farm Fresh Dairy Products Islamabad',
+    locale: 'en_PK',
     type: 'website',
+    images: [
+      {
+        url: `${siteUrl}/images/logo.png`,
+        width: 1200,
+        height: 630,
+        alt: 'Farm Fresh Dairy Products Islamabad - 100% Pure Cow Milk Delivery',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Farm Fresh Dairy Products Islamabad | 100% Pure Cow Milk Delivery',
+    description: '100% pure cow milk delivered to your door in Islamabad. Free delivery in Shahzad Town, I-8 & I-9. Rs. 250/L.',
+    images: [`${siteUrl}/images/logo.png`],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
   },
 };
 

@@ -62,7 +62,7 @@ export function AboutStory() {
             <div className="relative aspect-[4/5] rounded-3xl overflow-hidden border-4 border-cream-50 shadow-float bg-earth-200">
               <Image
                 src="/images/farm-cow.jpg"
-                alt="Pure Cow and compassionate animal care"
+                alt="100% Pure pasture cow producing unadulterated fresh milk in Islamabad"
                 fill
                 className="object-cover"
                 sizes="(max-width: 1024px) 100vw, 40vw"

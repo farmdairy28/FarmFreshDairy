@@ -28,7 +28,7 @@ export function ProductCard({ product }: { product: Product }) {
         >
           <Image
             src={product.primary_image || 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=800&q=80'}
-            alt={product.name}
+            alt={`${product.name} - 100% Pure Dairy Products Islamabad`}
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-500"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"

@@ -7,20 +7,54 @@ import { getProductBySlug, getProducts, getTestimonials } from '@/lib/supabase/a
 import { ProductCard } from '@/components/products/ProductCard';
 import { ProductDetailClient } from './product-detail-client';
 import { CustomerReviews } from '@/components/reviews/CustomerReviews';
+import { ProductJsonLd } from '@/components/seo/ProductJsonLd';
+import { BreadcrumbsJsonLd } from '@/components/seo/BreadcrumbsJsonLd';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
   const product = await getProductBySlug(params.slug);
-  if (!product) return { title: 'Product Not Found' };
+  if (!product) return { title: 'Product Not Found | Farm Fresh Dairy Islamabad' };
+
+  const siteUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://www.farmfreshdairyproducts.com').replace(/\/$/, '');
+  const productUrl = `${siteUrl}/products/${product.slug}`;
+  const title = `${product.name} (Rs. ${product.price}/${product.unit}) — Pure Dairy Islamabad`;
+  const description = product.short_description || `Order 100% pure ${product.name} online in Islamabad & Rawalpindi. Rs. ${product.price}/${product.unit}. Free delivery in Shahzad Town, I-8 & I-9.`;
+  const primaryImg = product.primary_image || `${siteUrl}/images/logo.png`;
+
   return {
-    title: `${product.name} — Farm Fresh Dairy`,
-    description: product.short_description,
+    title,
+    description,
+    keywords: [
+      product.name.toLowerCase(),
+      `${product.name.toLowerCase()} islamabad`,
+      `${product.name.toLowerCase()} rawalpindi`,
+      'pure cow milk islamabad',
+      'fresh dairy products islamabad',
+    ],
+    alternates: {
+      canonical: productUrl,
+    },
     openGraph: {
-      title: product.name,
-      description: product.short_description,
-      images: [product.primary_image || ''],
+      title,
+      description,
+      url: productUrl,
+      type: 'article',
+      images: [
+        {
+          url: primaryImg,
+          width: 800,
+          height: 600,
+          alt: `${product.name} - Farm Fresh Dairy Products Islamabad`,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [primaryImg],
     },
   };
 }
@@ -34,9 +68,19 @@ export default async function ProductDetailPage({ params }: { params: { slug: st
     getTestimonials(),
   ]);
   const relatedProducts = allProducts.filter((p) => p.id !== product.id).slice(0, 3);
+  const siteUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://www.farmfreshdairyproducts.com').replace(/\/$/, '');
+  const breadcrumbs = [
+    { name: 'Home', item: siteUrl },
+    { name: 'Products', item: `${siteUrl}/products` },
+    { name: product.name, item: `${siteUrl}/products/${product.slug}` },
+  ];
 
   return (
     <div className="pt-32 pb-24 bg-cream-100 min-h-screen">
+      {/* Schema.org Product & Breadcrumb Structured Data */}
+      <ProductJsonLd product={product} />
+      <BreadcrumbsJsonLd items={breadcrumbs} />
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Back Link */}
@@ -58,7 +102,7 @@ export default async function ProductDetailPage({ params }: { params: { slug: st
             <div className="relative aspect-[4/3] rounded-3xl overflow-hidden border-2 border-earth-200 shadow-float bg-earth-200">
               <Image
                 src={product.primary_image || 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=1200&q=80'}
-                alt={product.name}
+                alt={`${product.name} - 100% Pure Fresh Dairy Islamabad`}
                 fill
                 priority
                 className="object-cover"
@@ -73,9 +117,9 @@ export default async function ProductDetailPage({ params }: { params: { slug: st
 
             {product.images && product.images.length > 1 && (
               <div className="grid grid-cols-4 gap-4">
-                {product.images.map((img) => (
+                {product.images.map((img, i) => (
                   <div key={img.id} className="relative aspect-square rounded-2xl overflow-hidden border border-earth-300">
-                    <Image src={img.image_url} alt="Product view" fill className="object-cover" />
+                    <Image src={img.image_url} alt={`${product.name} packaging view ${i + 1} - Farm Fresh Dairy`} fill className="object-cover" />
                   </div>
                 ))}
               </div>

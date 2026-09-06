@@ -3,9 +3,25 @@ import { MapPin, Phone, Mail, Clock, MessageCircle, ShieldCheck, Facebook, Insta
 import { ContactForm } from '@/components/contact/ContactForm';
 import { SOCIAL_LINKS } from '@/lib/constants';
 
-export const metadata = {
-  title: 'Contact Us & Order — Farm Fresh Dairy Islamabad',
-  description: 'Order pure cow milk directly via WhatsApp or phone (0310-9361932). Free home delivery in Shahzad Town and across Islamabad.',
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Contact & Milk Order Helpline (0310-9361932) | Farm Fresh Dairy Islamabad',
+  description: 'Order pure cow milk and dairy products directly in Islamabad. WhatsApp & phone helpline: 0310-9361932. Farm hub located at Park Road, Shahzad Town, Islamabad.',
+  keywords: [
+    'cow milk contact number islamabad',
+    'milk home delivery helpline islamabad',
+    'farm fresh dairy islamabad address',
+    'pure milk supplier phone number islamabad',
+  ],
+  alternates: {
+    canonical: 'https://www.farmfreshdairyproducts.com/contact',
+  },
+  openGraph: {
+    title: 'Contact & Milk Order Helpline (0310-9361932) | Farm Fresh Dairy Islamabad',
+    description: 'Direct WhatsApp and phone ordering desk. Daily morning milk delivery in Islamabad & Rawalpindi.',
+    url: 'https://www.farmfreshdairyproducts.com/contact',
+  },
 };
 
 export default function ContactPage() {
