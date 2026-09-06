@@ -13,21 +13,20 @@ export default function AppleIcon() {
     (
       <div
         style={{
-          fontSize: 108,
-          background: '#2D3A26',
+          fontSize: 96,
+          background: '#0B532C',
           width: '100%',
           height: '100%',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          color: '#FDFBF7',
-          borderRadius: '36px',
-          fontWeight: 700,
-          fontFamily: 'serif',
-          border: '8px solid #D97706',
+          color: '#FFFFFF',
+          borderRadius: '50%',
+          fontWeight: 800,
+          border: '8px solid #22C55E',
         }}
       >
-        P
+        🐮
       </div>
     ),
     {

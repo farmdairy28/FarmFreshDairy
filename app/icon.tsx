@@ -13,21 +13,20 @@ export default function Icon() {
     (
       <div
         style={{
-          fontSize: 20,
-          background: '#2D3A26',
+          fontSize: 18,
+          background: '#0B532C',
           width: '100%',
           height: '100%',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          color: '#FDFBF7',
-          borderRadius: '8px',
-          fontWeight: 700,
-          fontFamily: 'serif',
-          border: '1.5px solid #D97706',
+          color: '#FFFFFF',
+          borderRadius: '50%',
+          fontWeight: 800,
+          border: '1.5px solid #22C55E',
         }}
       >
-        P
+        🐮
       </div>
     ),
     {
