@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Save, ArrowLeft, Upload, CheckCircle2, AlertCircle, Trash2, Plus, FolderPlus, X } from 'lucide-react';
 import { Product, Category } from '@/lib/types';
@@ -577,11 +578,17 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
 
         {formData.primary_image && (
           <div className="relative w-32 h-32 rounded-xl overflow-hidden border border-slate-300 group">
-            <img src={formData.primary_image} alt="Preview" className="w-full h-full object-cover" />
+            <Image
+              src={formData.primary_image}
+              alt="Product Preview"
+              fill
+              sizes="128px"
+              className="object-cover"
+            />
             <button
               type="button"
               onClick={() => setFormData((prev) => ({ ...prev, primary_image: '' }))}
-              className="absolute top-1.5 right-1.5 p-1 bg-red-600 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+              className="absolute top-1.5 right-1.5 p-1 bg-red-600 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity z-10"
               title="Remove image"
             >
               <Trash2 className="w-3.5 h-3.5" />
