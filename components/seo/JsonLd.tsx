@@ -4,7 +4,7 @@ export function JsonLd() {
   const organizationData = {
     '@context': 'https://schema.org',
     '@type': 'FoodEstablishment',
-    name: 'Farm Fresh Dairy',
+    name: 'Farm Fresh Dairy Products',
     url: 'https://farmfreshdairy.pk',
     logo: 'https://farmfreshdairy.pk/logo.png',
     description: '100% pure cow milk delivered direct from happy cows to your home. Lab certified adulterant-free.',

@@ -40,10 +40,10 @@ export function FarmFreshLogo({
           }`}>
             Farm Fresh
           </span>
-          <span className={`font-serif font-medium tracking-wide text-xs sm:text-sm ${
-            isLight ? 'text-farm-300' : 'text-farm-600 font-bold'
+          <span className={`font-serif font-bold tracking-wide text-xs sm:text-sm ${
+            isLight ? 'text-farm-300' : 'text-farm-700'
           }`}>
-            Dairy
+            Dairy Products
           </span>
         </div>
 

@@ -167,9 +167,9 @@ export async function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-sky-300/60 font-mono gap-4">
+        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-farm-300/80 font-mono gap-4">
           <div>
-            © {new Date().getFullYear()} Farm Fresh Dairy. 100% Original Milk. All rights reserved.
+            © {new Date().getFullYear()} Farm Fresh Dairy Products. Pure · Natural · Healthy. All rights reserved.
           </div>
           <div className="flex items-center gap-4">
             <span className="text-sky-200 hidden md:inline">Freshness You Can Trust, Quality You Deserve</span>

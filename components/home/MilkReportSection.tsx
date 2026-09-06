@@ -125,7 +125,7 @@ export function MilkReportSection() {
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-sky-200 font-semibold">
                   <Sparkles className="w-4 h-4 text-sky-200" />
-                  Farm Fresh Dairy · Certified Batch Testing
+                  Farm Fresh Dairy Products · Certified Batch Testing
                 </div>
                 <h3 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight">
                   MILK REPORT & PURITY AUDIT

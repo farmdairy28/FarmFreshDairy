@@ -21,18 +21,18 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: 'Farm Fresh Dairy — 100% Pure & Original Cow Milk | Islamabad',
-  description: 'Farm Fresh Dairy: 100% pure cow milk delivered straight from happy cows to your home. Lab tested, adulterant free, Rs. 250/Litre with Free Delivery in Shahzad Town.',
+  title: 'Farm Fresh Dairy Products — 100% Pure & Original Cow Milk | Islamabad',
+  description: 'Farm Fresh Dairy Products: 100% pure cow milk delivered straight from happy cows to your home. Lab tested, adulterant free, Rs. 250/Litre with Free Delivery in Shahzad Town.',
   metadataBase: new URL('https://farmfreshdairy.pk'),
   icons: {
     icon: '/icon',
     apple: '/apple-icon',
   },
   openGraph: {
-    title: 'Farm Fresh Dairy — 100% Pure Cow Milk | Islamabad',
+    title: 'Farm Fresh Dairy Products — 100% Pure Cow Milk | Islamabad',
     description: 'Fresh & pure cow milk straight from happy cows. Free home delivery in Shahzad Town & across Islamabad.',
     url: 'https://farmfreshdairy.pk',
-    siteName: 'Farm Fresh Dairy',
+    siteName: 'Farm Fresh Dairy Products',
     locale: 'en_US',
     type: 'website',
   },
