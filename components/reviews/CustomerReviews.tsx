@@ -95,7 +95,7 @@ export function CustomerReviews({
   return (
     <section id="reviews" className="py-24 bg-cream-100 border-t border-earth-200 overflow-hidden scroll-mt-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
+
         {/* Header with Title and Action */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
           <div className="space-y-3 max-w-2xl">
@@ -223,11 +223,10 @@ export function CustomerReviews({
                   <div
                     key={rev.id || idx}
                     onClick={() => setCurrentIndex(idx)}
-                    className={`p-6 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between space-y-4 ${
-                      isSelected
+                    className={`p-6 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between space-y-4 ${isSelected
                         ? 'bg-white border-farm-600 shadow-md ring-2 ring-farm-600/20'
                         : 'bg-white/80 border-earth-200 hover:border-earth-400 hover:bg-white shadow-sm'
-                    }`}
+                      }`}
                   >
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
@@ -272,7 +271,7 @@ export function CustomerReviews({
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-earth-900/60 backdrop-blur-sm animate-fade-in">
           <div className="relative w-full max-w-lg bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-earth-200 space-y-6 max-h-[90vh] overflow-y-auto">
-            
+
             {/* Close Button */}
             <button
               onClick={() => setIsModalOpen(false)}
@@ -313,7 +312,7 @@ export function CustomerReviews({
 
             {/* Form */}
             <form onSubmit={handleSubmitReview} className="space-y-4 text-left">
-              
+
               {/* Star Rating Picker */}
               <div>
                 <label className="block text-xs font-mono uppercase text-earth-700 font-semibold mb-1.5">
@@ -334,11 +333,10 @@ export function CustomerReviews({
                           aria-label={`${star} Star rating`}
                         >
                           <Star
-                            className={`w-7 h-7 ${
-                              filled
+                            className={`w-7 h-7 ${filled
                                 ? 'fill-amber-400 text-amber-400'
                                 : 'text-earth-300'
-                            }`}
+                              }`}
                           />
                         </button>
                       );

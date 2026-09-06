@@ -16,8 +16,8 @@ export async function Footer() {
           
           {/* Brand Info */}
           <div className="lg:col-span-2 space-y-6">
-            <Link href="/" className="inline-block">
-              <FarmFreshLogo variant="light" />
+            <Link href="/" className="inline-block group">
+              <FarmFreshLogo variant="light" size="lg" />
             </Link>
 
             <p className="text-sky-200/80 text-sm leading-relaxed max-w-sm">
@@ -142,7 +142,18 @@ export async function Footer() {
             <ul className="space-y-3 text-sm text-sky-200/90">
               <li className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-sky-400 shrink-0 mt-0.5" />
-                <span>Shahzad Town / Park Road, Islamabad</span>
+                <a
+                  href={SOCIAL_LINKS.googleMaps}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-white transition-colors group flex items-center gap-1.5"
+                  title="View Farm Location on Google Maps"
+                >
+                  <span>Shahzad Town / Chak Shahzad, Islamabad</span>
+                  <span className="text-[10px] font-mono font-bold text-emerald-400 bg-emerald-500/20 px-1.5 py-0.5 rounded group-hover:bg-emerald-500/30">
+                    Map ↗
+                  </span>
+                </a>
               </li>
               <li className="flex items-center gap-2.5">
                 <Phone className="w-4 h-4 text-sky-400 shrink-0" />

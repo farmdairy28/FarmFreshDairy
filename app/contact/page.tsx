@@ -124,7 +124,7 @@ export default function ContactPage() {
                       className="flex-1 min-w-[140px] py-2.5 px-3 rounded-xl bg-farm-800 hover:bg-gradient-to-r hover:from-[#833AB4] hover:via-[#FD1D1D] hover:to-[#F77737] text-sky-100 hover:text-white border border-farm-700 hover:border-transparent transition-all text-xs font-semibold flex items-center justify-center gap-2 group shadow-xs"
                     >
                       <Instagram className="w-4 h-4 text-sky-300 group-hover:text-white transition-colors" />
-                      <span>Instagram (@farmfresh,.dairy)</span>
+                      <span>Instagram (@farmfresh.dairy)</span>
                     </a>
                   </div>
                 </div>
@@ -137,6 +137,71 @@ export default function ContactPage() {
             </div>
           </div>
 
+        </div>
+
+        {/* Free OpenStreetMap & Location Section */}
+        <div className="mt-16 bg-white rounded-3xl p-6 sm:p-10 border border-earth-200 shadow-soft space-y-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-earth-200">
+            <div>
+              <span className="text-xs font-mono uppercase tracking-widest text-farm-600 font-bold">
+                FARM LOCATION &amp; DISPATCH CENTER
+              </span>
+              <h2 className="font-serif text-2xl sm:text-3xl font-bold text-earth-900 mt-1">
+                Find Us on Map
+              </h2>
+              <p className="text-xs sm:text-sm text-earth-600 mt-0.5">
+                Chak Shahzad / Shahzad Town, Islamabad • Plus Code: <strong className="font-mono text-farm-900">M49P+M78</strong>
+              </p>
+            </div>
+
+            {/* Quick Map Action Links */}
+            <div className="flex flex-wrap items-center gap-2.5">
+              <a
+                href={SOCIAL_LINKS.googleMaps}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider transition-all shadow-sm"
+              >
+                <MapPin className="w-4 h-4" />
+                <span>Open in Google Maps</span>
+              </a>
+              <a
+                href={SOCIAL_LINKS.openStreetMap}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-earth-100 hover:bg-earth-200 text-earth-800 text-xs font-bold uppercase tracking-wider transition-all border border-earth-300"
+              >
+                <span>View Full OpenStreetMap</span>
+              </a>
+            </div>
+          </div>
+
+          {/* OpenStreetMap Free Interactive Embed Frame */}
+          <div className="relative w-full h-80 sm:h-96 rounded-2xl overflow-hidden border border-earth-200 shadow-inner bg-earth-100">
+            <iframe
+              title="Farm Fresh Dairy OpenStreetMap Location"
+              width="100%"
+              height="100%"
+              style={{ border: 0 }}
+              loading="lazy"
+              src={SOCIAL_LINKS.openStreetMapEmbed}
+            />
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center justify-between text-xs text-earth-500 font-mono gap-2 pt-2">
+            <div className="flex items-center gap-2 text-earth-700">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>Daily chilled milk delivery routes dispatched from Chak Shahzad &amp; Shahzad Town hub</span>
+            </div>
+            <a
+              href="https://www.openstreetmap.org/copyright"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-earth-400 hover:text-earth-600 underline"
+            >
+              © OpenStreetMap contributors
+            </a>
+          </div>
         </div>
 
       </div>

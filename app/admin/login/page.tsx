@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, Suspense } from 'react';
+import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Lock, Mail, ArrowRight, ShieldCheck, AlertCircle } from 'lucide-react';
 import { loginAdminAction } from '@/app/actions/auth';
@@ -46,8 +47,8 @@ function LoginForm() {
     <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-8 border border-slate-200 space-y-6">
       {/* Header Logo */}
       <div className="text-center space-y-2">
-        <div className="w-12 h-12 rounded-xl bg-emerald-600 text-white font-serif font-bold text-2xl mx-auto flex items-center justify-center shadow-md">
-          F
+        <div className="relative w-16 h-16 rounded-full bg-white mx-auto overflow-hidden border-2 border-emerald-500 shadow-md">
+          <Image src="/images/logo.png" alt="Farm Fresh Dairy" fill className="object-cover" priority />
         </div>
         <h1 className="font-bold text-2xl text-slate-900">Admin Portal Login</h1>
         <p className="text-xs text-slate-500 font-mono">Farm Fresh Dairy CMS Management</p>

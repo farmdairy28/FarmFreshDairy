@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import Image from 'next/image';
 import {
   LayoutDashboard,
   Package,
@@ -50,9 +51,9 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex w-64 flex-col bg-slate-900 text-slate-300 border-r border-slate-800 shrink-0">
-        <div className="p-6 border-b border-slate-800 flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-emerald-500 text-slate-950 font-bold flex items-center justify-center font-serif text-base">
-            F
+        <div className="p-5 border-b border-slate-800 flex items-center gap-3">
+          <div className="relative w-10 h-10 rounded-full bg-white overflow-hidden border border-emerald-400 shadow-sm shrink-0">
+            <Image src="/images/logo.png" alt="Farm Fresh Dairy" fill className="object-cover" />
           </div>
           <div>
             <div className="font-semibold text-white text-sm">Farm Fresh Dairy</div>
