@@ -10,19 +10,20 @@ const config: Config = {
     extend: {
       colors: {
         brand: {
-          blue: '#00AEEF',
-          sky: '#0284C7',
-          navy: '#0B2545',
-          deep: '#071B33',
-          green: '#22C55E',
+          blue: '#0D52A0', // Signature Royal Blue from poster
+          royal: '#084282',
+          navy: '#06284F',
+          yellow: '#FFD200', // Sunshine Yellow price badge
+          green: '#0B532C', // Deep Forest Brand Green
+          leaf: '#22C55E', // Fresh Leaf Green
           whatsapp: '#25D366',
         },
         cream: {
           50: '#FFFFFF',
-          100: '#F8FAFC',
-          200: '#F0F7FF',
-          300: '#E0F2FE',
-          400: '#BAE6FD',
+          100: '#F8FAF8',
+          200: '#F0FDF4',
+          300: '#DCFCE7',
+          400: '#BBF7D0',
         },
         earth: {
           900: '#0F172A',
@@ -36,20 +37,22 @@ const config: Config = {
           100: '#F1F5F9',
         },
         farm: {
-          900: '#0B2545', // Deep Navy Blue
-          800: '#0E3A6C', // Royal Dark Blue
-          700: '#0284C7', // Signature Blue
-          600: '#00AEEF', // Vibrant Sky Blue (from images)
-          500: '#38BDF8', // Bright Cyan/Sky
-          400: '#7DD3FC', // Light Sky
-          300: '#BAE6FD', // Soft Sky
-          200: '#E0F2FE', // Pale Ice Blue
-          100: '#F0F9FF', // Ultra Light Blue Tint
+          950: '#032612',
+          900: '#084824', // Deep Lush Farm Green (banner & base)
+          800: '#0B532C', // Rich Forest Green (Logo text & core badges)
+          700: '#0D6338',
+          600: '#15803D', // Primary Action & Accent Green
+          500: '#22C55E', // Vibrant Spring/Leaf Green
+          400: '#4ADE80',
+          300: '#86EFAC',
+          200: '#BBF7D0',
+          100: '#ECFDF5', // Light Mint / Meadow Tint
+          50: '#F0FDF4',
         },
         gold: {
-          600: '#B45309',
-          500: '#D97706',
-          400: '#F59E0B',
+          600: '#D97706',
+          500: '#F59E0B',
+          400: '#FFD200', // Vibrant Yellow Accent
           100: '#FEF3C7',
         }
       },
