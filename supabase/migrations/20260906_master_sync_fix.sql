@@ -4,6 +4,9 @@
 -- ================================================================
 
 -- ---- 1. ADD ALL MISSING COLUMNS (idempotent) ----
+ALTER TABLE IF EXISTS products ADD COLUMN IF NOT EXISTS short_description TEXT;
+ALTER TABLE IF EXISTS products ADD COLUMN IF NOT EXISTS full_description TEXT;
+ALTER TABLE IF EXISTS products ADD COLUMN IF NOT EXISTS description TEXT;
 ALTER TABLE IF EXISTS products ADD COLUMN IF NOT EXISTS seo_title VARCHAR(200);
 ALTER TABLE IF EXISTS products ADD COLUMN IF NOT EXISTS seo_description TEXT;
 ALTER TABLE IF EXISTS products ADD COLUMN IF NOT EXISTS availability BOOLEAN DEFAULT TRUE;
@@ -22,6 +25,9 @@ ALTER TABLE IF EXISTS categories ADD COLUMN IF NOT EXISTS image_url TEXT;
 ALTER TABLE IF EXISTS categories ADD COLUMN IF NOT EXISTS description TEXT;
 
 -- ---- 2. SET SAFE DEFAULTS FOR EXISTING ROWS ----
+UPDATE products SET short_description = COALESCE(NULLIF(short_description, ''), NULLIF(description, ''), name, '') WHERE short_description IS NULL OR short_description = '';
+UPDATE products SET full_description = COALESCE(NULLIF(full_description, ''), NULLIF(description, ''), NULLIF(short_description, ''), '') WHERE full_description IS NULL OR full_description = '';
+UPDATE products SET description = COALESCE(NULLIF(description, ''), NULLIF(short_description, ''), NULLIF(full_description, ''), '') WHERE description IS NULL OR description = '';
 UPDATE products SET is_active = TRUE WHERE is_active IS NULL;
 UPDATE products SET availability = TRUE WHERE availability IS NULL;
 UPDATE products SET is_featured = FALSE WHERE is_featured IS NULL;

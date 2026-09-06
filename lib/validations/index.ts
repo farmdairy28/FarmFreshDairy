@@ -3,8 +3,9 @@ import { z } from 'zod';
 export const ProductSchema = z.object({
   name: z.string().min(2, 'Product name must be at least 2 characters'),
   slug: z.string().min(2, 'Slug is required'),
-  short_description: z.string().min(1, 'Short description is required'),
+  short_description: z.string().optional().nullable().or(z.literal('')),
   full_description: z.string().optional().nullable().or(z.literal('')),
+  description: z.string().optional().nullable().or(z.literal('')),
   price: z.coerce.number().positive('Price must be greater than 0'),
   compare_at_price: z.coerce.number().optional().nullable(),
   unit: z.string().min(1, 'Unit is required (e.g. litre, kg)'),

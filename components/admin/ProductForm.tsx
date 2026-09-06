@@ -52,10 +52,11 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
     id: initialProduct?.id || undefined,
     name: initialProduct?.name || '',
     slug: initialProduct?.slug || '',
-    short_description: initialProduct?.short_description || '',
-    full_description: initialProduct?.full_description || '',
-    price: initialProduct?.price || 260,
-    compare_at_price: initialProduct?.compare_at_price || 280,
+    short_description: initialProduct?.short_description || (initialProduct as any)?.description || '',
+    full_description: initialProduct?.full_description || (initialProduct as any)?.description || '',
+    description: (initialProduct as any)?.description || initialProduct?.short_description || initialProduct?.full_description || '',
+    price: initialProduct?.price !== undefined ? initialProduct.price : 260,
+    compare_at_price: initialProduct?.compare_at_price !== undefined ? initialProduct.compare_at_price : 280,
     currency: initialProduct?.currency || 'Rs.',
     category_id: initialProduct?.category_id || '',
     sku: initialProduct?.sku || `SKU-${Date.now().toString().slice(-4)}`,
@@ -78,6 +79,34 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
   useEffect(() => {
     loadCategories();
   }, []);
+
+  useEffect(() => {
+    if (initialProduct) {
+      setFormData((prev) => ({
+        ...prev,
+        id: initialProduct.id || prev.id,
+        name: initialProduct.name ?? prev.name ?? '',
+        slug: initialProduct.slug ?? prev.slug ?? '',
+        short_description: initialProduct.short_description || (initialProduct as any).description || prev.short_description || '',
+        full_description: initialProduct.full_description || (initialProduct as any).description || prev.full_description || '',
+        description: (initialProduct as any).description || initialProduct.short_description || initialProduct.full_description || prev.description || '',
+        price: initialProduct.price ?? prev.price ?? 260,
+        compare_at_price: initialProduct.compare_at_price ?? prev.compare_at_price,
+        currency: initialProduct.currency ?? prev.currency ?? 'Rs.',
+        category_id: initialProduct.category_id ?? prev.category_id ?? '',
+        sku: initialProduct.sku ?? prev.sku ?? '',
+        unit: initialProduct.unit ?? prev.unit ?? 'litre',
+        weight_volume: initialProduct.weight_volume ?? prev.weight_volume ?? '',
+        stock: initialProduct.stock !== undefined ? initialProduct.stock : prev.stock,
+        is_active: initialProduct.is_active !== undefined ? initialProduct.is_active : prev.is_active,
+        is_featured: initialProduct.is_featured !== undefined ? initialProduct.is_featured : prev.is_featured,
+        show_on_homepage: initialProduct.show_on_homepage !== undefined ? initialProduct.show_on_homepage : prev.show_on_homepage,
+        primary_image: initialProduct.primary_image || prev.primary_image,
+        seo_title: initialProduct.seo_title ?? prev.seo_title ?? '',
+        seo_description: initialProduct.seo_description ?? prev.seo_description ?? '',
+      }));
+    }
+  }, [initialProduct]);
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
@@ -147,10 +176,15 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
     setFormError('');
 
     try {
-      // Use the id already stored in formData (covers both new + edit flows)
+      const shortDesc = (formData.short_description || initialProduct?.short_description || (initialProduct as any)?.description || '').trim();
+      const fullDesc = (formData.full_description || initialProduct?.full_description || (initialProduct as any)?.description || '').trim();
+
       const payload = {
         ...formData,
         id: formData.id || initialProduct?.id,
+        short_description: shortDesc,
+        full_description: fullDesc,
+        description: shortDesc || fullDesc,
         category_id: formData.category_id?.trim() ? formData.category_id.trim() : null,
         is_active: formData.is_active !== undefined ? Boolean(formData.is_active) : true,
         stock: formData.stock !== undefined ? Number(formData.stock) : 100,
@@ -169,7 +203,12 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
       // 2. Persist the DB-generated UUID back into formData so that any
       //    subsequent save on this form does an UPDATE, not a new INSERT.
       if (actionResult.product?.id) {
-        setFormData((prev) => ({ ...prev, id: actionResult.product!.id }));
+        setFormData((prev) => ({
+          ...prev,
+          id: actionResult.product!.id,
+          short_description: actionResult.product!.short_description || prev.short_description,
+          full_description: actionResult.product!.full_description || prev.full_description,
+        }));
       }
 
       // 3. Also sync local storage for client-side offline resilience
@@ -261,8 +300,8 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
           <input
             type="text"
             required
-            value={formData.short_description}
-            onChange={(e) => setFormData({ ...formData, short_description: e.target.value })}
+            value={formData.short_description ?? initialProduct?.short_description ?? (initialProduct as any)?.description ?? ''}
+            onChange={(e) => setFormData((prev) => ({ ...prev, short_description: e.target.value, description: e.target.value }))}
             placeholder="Pure, creamy and fresh milk delivered daily from our farm."
             className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500"
           />
@@ -274,8 +313,8 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
           </label>
           <textarea
             rows={4}
-            value={formData.full_description}
-            onChange={(e) => setFormData({ ...formData, full_description: e.target.value })}
+            value={formData.full_description ?? initialProduct?.full_description ?? (initialProduct as any)?.description ?? ''}
+            onChange={(e) => setFormData((prev) => ({ ...prev, full_description: e.target.value }))}
             placeholder="Detailed pasture feeding story, nutrition benefits, and storage instructions..."
             className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500"
           ></textarea>

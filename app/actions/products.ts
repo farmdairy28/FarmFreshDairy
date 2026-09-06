@@ -52,11 +52,22 @@ export async function saveProductAction(
         ? Math.max(0, Math.floor(Number(productData.stock)))
         : 100;
 
+    const shortDesc = (productData.short_description || (productData as any).description || '').trim();
+    const fullDesc = (productData.full_description || (productData as any).description || productData.short_description || '').trim();
+
+    if (!shortDesc) {
+      return {
+        success: false,
+        error: 'Short description is required',
+      };
+    }
+
     const basePayload: Record<string, any> = {
       name: productData.name!.trim(),
       slug: cleanSlug,
-      short_description: productData.short_description!.trim(),
-      full_description: (productData.full_description || productData.short_description || '').trim(),
+      short_description: shortDesc,
+      full_description: fullDesc,
+      description: shortDesc || fullDesc,
       price: Number(productData.price),
       compare_at_price: productData.compare_at_price ? Number(productData.compare_at_price) : null,
       currency: productData.currency || 'Rs.',
@@ -97,6 +108,9 @@ export async function saveProductAction(
           if (!res.error && res.data) {
             savedProductRecord = {
               ...res.data,
+              short_description: res.data.short_description || res.data.description || shortDesc,
+              full_description: res.data.full_description || res.data.description || fullDesc || shortDesc,
+              description: res.data.description || res.data.short_description || res.data.full_description || shortDesc,
               primary_image: primaryImage,
             };
             updateError = null;
@@ -158,6 +172,9 @@ export async function saveProductAction(
           if (!res.error && res.data) {
             savedProductRecord = {
               ...res.data,
+              short_description: res.data.short_description || res.data.description || shortDesc,
+              full_description: res.data.full_description || res.data.description || fullDesc || shortDesc,
+              description: res.data.description || res.data.short_description || res.data.full_description || shortDesc,
               primary_image: primaryImage,
             };
             insertError = null;

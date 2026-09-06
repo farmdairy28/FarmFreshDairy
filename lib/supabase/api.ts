@@ -31,6 +31,22 @@ function getLocalFallback<T>(key: string, initial: T): T {
   }
 }
 
+function normalizeProductRecord(p: any): Product {
+  const shortDesc = p.short_description || p.description || '';
+  const fullDesc = p.full_description || p.description || p.short_description || '';
+  return {
+    ...p,
+    short_description: shortDesc,
+    full_description: fullDesc,
+    description: p.description || shortDesc || fullDesc,
+    primary_image:
+      p.images?.find((img: any) => img.is_primary)?.image_url ||
+      p.images?.[0]?.image_url ||
+      p.primary_image ||
+      'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=1000&q=80',
+  };
+}
+
 // ---------------- PRODUCTS ----------------
 export async function getProducts(options?: { categorySlug?: string; featuredOnly?: boolean; search?: string }): Promise<Product[]> {
   const normalizeSlug = (s?: string) => (s || '').toLowerCase().replace(/^\/+|\/+$/g, '').trim();
@@ -55,14 +71,7 @@ export async function getProducts(options?: { categorySlug?: string; featuredOnl
         .order('created_at', { ascending: false });
 
       if (!error && Array.isArray(data) && data.length > 0) {
-        rawList = (data as Product[]).map(p => ({
-          ...p,
-          primary_image:
-            p.images?.find((img: any) => img.is_primary)?.image_url ||
-            p.images?.[0]?.image_url ||
-            p.primary_image ||
-            'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=1000&q=80',
-        }));
+        rawList = (data as any[]).map(normalizeProductRecord);
       }
     }
   } catch (err) {
@@ -71,15 +80,11 @@ export async function getProducts(options?: { categorySlug?: string; featuredOnl
 
   // DB not connected: use server store (admin-added products only, no mocks)
   if (rawList.length === 0) {
-    rawList = [...serverStore];
-    // Merge server store products with any newly admin-created items in the session
-    // (no localStorage merging — server store is the only runtime source)
+    rawList = serverStore.map(normalizeProductRecord);
   } else {
-    // DB returned results; also include any products newly added via admin that
-    // may not yet be in the DB (e.g. if DB insert is pending)
     serverStore.forEach(sp => {
       if (!rawList.some(p => p.id === sp.id || (sp.slug && p.slug === sp.slug))) {
-        rawList.push(sp);
+        rawList.push(normalizeProductRecord(sp));
       }
     });
   }
@@ -110,7 +115,8 @@ export async function getProducts(options?: { categorySlug?: string; featuredOnl
     const q = options.search.toLowerCase().trim();
     filtered = filtered.filter(p =>
       p.name.toLowerCase().includes(q) ||
-      (p.short_description || '').toLowerCase().includes(q)
+      (p.short_description || '').toLowerCase().includes(q) ||
+      (p.full_description || '').toLowerCase().includes(q)
     );
   }
 
@@ -133,10 +139,7 @@ export async function getAllProductsAdmin(): Promise<Product[]> {
         .order('created_at', { ascending: false });
 
       if (!error && Array.isArray(data) && data.length > 0) {
-        adminProducts = (data as Product[]).map(p => ({
-          ...p,
-          primary_image: p.images?.find((img: any) => img.is_primary)?.image_url || p.images?.[0]?.image_url || p.primary_image || 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=1000&q=80',
-        }));
+        adminProducts = (data as any[]).map(normalizeProductRecord);
       }
     }
   } catch (err) {
@@ -145,11 +148,11 @@ export async function getAllProductsAdmin(): Promise<Product[]> {
 
   // Merge server store (admin-created this session) with DB results
   if (adminProducts.length === 0) {
-    adminProducts = [...serverStore];
+    adminProducts = serverStore.map(normalizeProductRecord);
   } else {
     serverStore.forEach(sp => {
       if (!adminProducts.some(p => p.id === sp.id || (sp.slug && p.slug === sp.slug))) {
-        adminProducts.push(sp);
+        adminProducts.push(normalizeProductRecord(sp));
       }
     });
   }
@@ -176,11 +179,7 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
         .maybeSingle();
 
       if (!error && data) {
-        const prod = data as Product;
-        const mapped: Product = {
-          ...prod,
-          primary_image: prod.images?.find((img: any) => img.is_primary)?.image_url || prod.images?.[0]?.image_url || prod.primary_image || 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=1000&q=80',
-        };
+        const mapped = normalizeProductRecord(data);
         upsertServerProduct(mapped);
         return mapped;
       }
@@ -193,7 +192,8 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
 
   // Only fall back to server store if DB is not configured
   const serverStore = getServerProductsStore();
-  return serverStore.find(p => p.slug === slug && p.is_active !== false) || null;
+  const found = serverStore.find(p => p.slug === slug && p.is_active !== false);
+  return found ? normalizeProductRecord(found) : null;
 }
 
 export async function getProductById(id: string): Promise<Product | null> {
@@ -207,11 +207,7 @@ export async function getProductById(id: string): Promise<Product | null> {
         .maybeSingle();
 
       if (!error && data) {
-        const prod = data as Product;
-        const mapped: Product = {
-          ...prod,
-          primary_image: prod.images?.find((img: any) => img.is_primary)?.image_url || prod.images?.[0]?.image_url || prod.primary_image || 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=1000&q=80',
-        };
+        const mapped = normalizeProductRecord(data);
         upsertServerProduct(mapped);
         return mapped;
       }
@@ -222,7 +218,8 @@ export async function getProductById(id: string): Promise<Product | null> {
   }
 
   const serverStore = getServerProductsStore();
-  return serverStore.find(p => p.id === id) || null;
+  const found = serverStore.find(p => p.id === id);
+  return found ? normalizeProductRecord(found) : null;
 }
 
 export async function saveProduct(productData: Partial<Product>): Promise<Product> {
@@ -230,26 +227,32 @@ export async function saveProduct(productData: Partial<Product>): Promise<Produc
   const allCategories = getServerCategoriesStore();
   const categoryObj = allCategories.find(c => c.id === productData.category_id);
 
+  const shortDesc = productData.short_description || (productData as any).description || '';
+  const fullDesc = productData.full_description || (productData as any).description || shortDesc || '';
+
   if (productData.id) {
     const existing = serverStore.find(p => p.id === productData.id);
     if (existing) {
-      const updated: Product = {
+      const updated: Product = normalizeProductRecord({
         ...existing,
         ...productData,
+        short_description: shortDesc || existing.short_description,
+        full_description: fullDesc || existing.full_description,
         category: categoryObj || existing.category,
         updated_at: new Date().toISOString(),
-      };
+      });
       upsertServerProduct(updated);
       return updated;
     }
   }
 
-  const newProduct: Product = {
+  const newProduct: Product = normalizeProductRecord({
     id: productData.id || `p-${Date.now()}`,
     name: productData.name || 'New Product',
     slug: productData.slug || (productData.name ? productData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-') : `product-${Date.now()}`),
-    short_description: productData.short_description || '',
-    full_description: productData.full_description || '',
+    short_description: shortDesc,
+    full_description: fullDesc,
+    description: (productData as any).description || shortDesc || fullDesc,
     price: Number(productData.price) || 0,
     compare_at_price: productData.compare_at_price ? Number(productData.compare_at_price) : undefined,
     currency: productData.currency || 'Rs.',
@@ -266,7 +269,7 @@ export async function saveProduct(productData: Partial<Product>): Promise<Produc
     primary_image: productData.primary_image || 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=1000&q=80',
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
-  };
+  });
 
   upsertServerProduct(newProduct);
   return newProduct;
