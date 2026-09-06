@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import Image from 'next/image';
 import { Star, CheckCircle2, Quote, Sparkles, MapPin } from 'lucide-react';
 import { Testimonial } from '@/lib/types';
 
@@ -90,21 +89,9 @@ export function ReviewsMarquee({ reviews = [] }: ReviewsMarqueeProps) {
 
               {/* Customer Info Footer */}
               <div className="flex items-center gap-3 pt-3 border-t border-earth-100">
-                {review.avatar_url ? (
-                  <div className="relative w-10 h-10 rounded-full overflow-hidden shrink-0 border border-farm-200 shadow-xs">
-                    <Image
-                      src={review.avatar_url}
-                      alt={review.customer_name}
-                      fill
-                      className="object-cover"
-                      sizes="40px"
-                    />
-                  </div>
-                ) : (
-                  <div className="w-10 h-10 rounded-full bg-farm-800 text-white font-serif font-bold text-sm flex items-center justify-center shrink-0 shadow-xs">
-                    {review.customer_name?.charAt(0) || 'C'}
-                  </div>
-                )}
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-farm-800 to-farm-950 text-white font-serif font-bold text-sm flex items-center justify-center shrink-0 shadow-xs border border-farm-700/60">
+                  {review.customer_name?.trim().charAt(0).toUpperCase() || 'C'}
+                </div>
 
                 <div className="min-w-0 flex-1">
                   <div className="font-bold text-farm-950 text-xs sm:text-sm truncate">

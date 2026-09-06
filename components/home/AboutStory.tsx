@@ -10,7 +10,7 @@ export function AboutStory() {
     <section className="py-24 bg-cream-200/60 border-t border-earth-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          
+
           {/* Story Text */}
           <div className="lg:col-span-7 space-y-6">
             <span className="text-xs font-mono uppercase tracking-widest text-farm-700 font-semibold">
