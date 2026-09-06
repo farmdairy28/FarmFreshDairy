@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter, Playfair_Display } from 'next/font/google';
+import { GoogleAnalytics } from '@next/third-parties/google';
 import './globals.css';
 import { CartProvider } from '@/lib/context/cart-context';
 import { Header } from '@/components/layout/Header';
@@ -21,6 +22,7 @@ const playfair = Playfair_Display({
 });
 
 const siteUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://www.farmfreshdairyproducts.com').replace(/\/$/, '');
+const gaId = process.env.NEXT_PUBLIC_GA_ID || 'G-V4E4TE403Y';
 
 export const metadata: Metadata = {
   title: {
@@ -110,6 +112,7 @@ export default function RootLayout({
           <CartDrawer />
           <FloatingContactWidget />
         </CartProvider>
+        <GoogleAnalytics gaId={gaId} />
       </body>
     </html>
   );
