@@ -35,7 +35,7 @@ export function FarmFreshLogo({
           alt="Farm Fresh Dairy Products Logo"
           width={curr.img * 2}
           height={curr.img * 2}
-          className="w-full h-full object-cover object-center scale-[1.03]"
+          className="w-full h-full object-contain p-0.5"
           priority
         />
       </div>
