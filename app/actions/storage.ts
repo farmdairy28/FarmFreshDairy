@@ -1,6 +1,5 @@
 'use server';
 
-import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 
 export interface UploadResult {
@@ -10,9 +9,32 @@ export interface UploadResult {
   error?: string;
 }
 
-const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg', 'image/gif'];
-const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
+const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'avif', 'jfif'];
+const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
 const BUCKET_NAME = 'product-images';
+
+function resolveMimeType(fileName: string, mimeType?: string): string | null {
+  const normalizedMime = (mimeType || '').toLowerCase().trim();
+  const ext = (fileName.split('.').pop() || '').toLowerCase().trim();
+
+  if (normalizedMime.startsWith('image/')) {
+    if (normalizedMime.includes('png') || normalizedMime.includes('x-png')) return 'image/png';
+    if (normalizedMime.includes('webp')) return 'image/webp';
+    if (normalizedMime.includes('gif')) return 'image/gif';
+    if (normalizedMime.includes('avif')) return 'image/avif';
+    return 'image/jpeg';
+  }
+
+  if (ALLOWED_EXTENSIONS.includes(ext)) {
+    if (ext === 'png') return 'image/png';
+    if (ext === 'webp') return 'image/webp';
+    if (ext === 'gif') return 'image/gif';
+    if (ext === 'avif') return 'image/avif';
+    return 'image/jpeg';
+  }
+
+  return null;
+}
 
 /**
  * Ensures the 'product-images' bucket exists and is public in Supabase Storage.
@@ -27,10 +49,10 @@ async function ensureBucketExists(adminClient: any): Promise<boolean> {
 
     // Try creating the bucket
     console.log(`[Storage]: Bucket '${BUCKET_NAME}' not found. Attempting automatic creation...`);
-    const { data: createData, error: createError } = await adminClient.storage.createBucket(BUCKET_NAME, {
+    const { error: createError } = await adminClient.storage.createBucket(BUCKET_NAME, {
       public: true,
       fileSizeLimit: MAX_FILE_SIZE_BYTES,
-      allowedMimeTypes: ALLOWED_MIME_TYPES,
+      allowedMimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/jpg', 'image/gif', 'image/avif'],
     });
 
     if (createError) {
@@ -56,14 +78,14 @@ export async function uploadProductImageAction(formData: FormData): Promise<Uplo
     return { success: false, error: 'No file provided.' };
   }
 
-  // Validate MIME type
-  if (!ALLOWED_MIME_TYPES.includes(file.type)) {
-    return { success: false, error: `Invalid file type "${file.type}". Allowed: JPG, PNG, WEBP, GIF.` };
+  const finalMimeType = resolveMimeType(file.name, file.type);
+  if (!finalMimeType) {
+    return { success: false, error: `Invalid image file format. Allowed: JPG, PNG, WEBP, GIF, AVIF.` };
   }
 
   // Validate File Size
   if (file.size > MAX_FILE_SIZE_BYTES) {
-    return { success: false, error: 'File size exceeds 5MB limit.' };
+    return { success: false, error: 'File size exceeds 10MB limit.' };
   }
 
   try {
@@ -78,7 +100,7 @@ export async function uploadProductImageAction(formData: FormData): Promise<Uplo
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+    const ext = (file.name.split('.').pop() || '').toLowerCase().trim() || 'jpg';
     const cleanFileName = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${ext}`;
     const storagePath = `products/${cleanFileName}`;
 
@@ -86,8 +108,8 @@ export async function uploadProductImageAction(formData: FormData): Promise<Uplo
     let { data, error } = await adminClient.storage
       .from(BUCKET_NAME)
       .upload(storagePath, buffer, {
-        contentType: file.type,
-        upsert: false,
+        contentType: finalMimeType,
+        upsert: true,
       });
 
     // 2. If bucket not found, attempt auto-creation and retry
@@ -99,8 +121,8 @@ export async function uploadProductImageAction(formData: FormData): Promise<Uplo
           const retryRes = await adminClient.storage
             .from(BUCKET_NAME)
             .upload(storagePath, buffer, {
-              contentType: file.type,
-              upsert: false,
+              contentType: finalMimeType,
+              upsert: true,
             });
           data = retryRes.data;
           error = retryRes.error;
@@ -114,7 +136,7 @@ export async function uploadProductImageAction(formData: FormData): Promise<Uplo
       return { 
         success: false, 
         error: isBucketError
-          ? `Storage bucket '${BUCKET_NAME}' does not exist in your Supabase project. Please run 'supabase/migrations/20260905_create_storage_bucket.sql' in the Supabase SQL Editor to create it, or paste an image URL directly into the field below.`
+          ? `Storage bucket '${BUCKET_NAME}' does not exist in your Supabase project. Please ensure bucket '${BUCKET_NAME}' is created as public in Supabase Storage.`
           : error.message 
       };
     }
@@ -133,3 +155,4 @@ export async function uploadProductImageAction(formData: FormData): Promise<Uplo
     return { success: false, error: err?.message || 'Failed to upload image.' };
   }
 }
+

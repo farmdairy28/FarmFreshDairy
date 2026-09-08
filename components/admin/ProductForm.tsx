@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { Save, ArrowLeft, Upload, CheckCircle2, AlertCircle, Trash2, Plus, FolderPlus, X } from 'lucide-react';
+import { Save, ArrowLeft, Upload, CheckCircle2, AlertCircle, Trash2, Plus, FolderPlus, X, Loader2 } from 'lucide-react';
 import { Product, Category } from '@/lib/types';
 import { getCategories, saveProduct } from '@/lib/supabase/api';
 import { uploadProductImageAction } from '@/app/actions/storage';
@@ -41,6 +41,7 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
   const [loading, setLoading] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadError, setUploadError] = useState('');
+  const [localPreview, setLocalPreview] = useState<string | null>(null);
   const [formError, setFormError] = useState('');
 
   // Quick category modal state
@@ -122,6 +123,9 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Instant local preview for immediate visual feedback
+    const previewUrl = URL.createObjectURL(file);
+    setLocalPreview(previewUrl);
     setUploadingImage(true);
     setUploadError('');
 
@@ -133,6 +137,7 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
 
       if (result.success && result.url) {
         setFormData((prev) => ({ ...prev, primary_image: result.url }));
+        setLocalPreview(null);
       } else {
         setUploadError(result.error || 'Failed to upload image to Supabase Storage.');
       }
@@ -140,6 +145,9 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
       setUploadError(err.message || 'Image upload error.');
     } finally {
       setUploadingImage(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   };
 
@@ -544,7 +552,7 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
             type="file"
             ref={fileInputRef}
             onChange={handleFileUpload}
-            accept="image/jpeg,image/png,image/webp,image/jpg"
+            accept="image/*"
             className="hidden"
           />
 
@@ -553,13 +561,29 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
               type="button"
               disabled={uploadingImage}
               onClick={() => fileInputRef.current?.click()}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold transition-colors border border-slate-300"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold transition-colors border border-slate-300 disabled:opacity-75 disabled:cursor-not-allowed"
             >
-              <Upload className="w-4 h-4 text-emerald-600" />
-              {uploadingImage ? 'Uploading to Supabase Storage...' : 'Upload Image File'}
+              {uploadingImage ? (
+                <>
+                  <Loader2 className="w-4 h-4 text-emerald-600 animate-spin" />
+                  <span>Uploading to Supabase Storage...</span>
+                </>
+              ) : (
+                <>
+                  <Upload className="w-4 h-4 text-emerald-600" />
+                  <span>Upload Image File</span>
+                </>
+              )}
             </button>
-            <span className="text-[11px] text-slate-500">Max 5MB (JPG, PNG, WEBP)</span>
+            <span className="text-[11px] text-slate-500">Max 10MB (JPG, PNG, WEBP, AVIF, HEIC)</span>
           </div>
+
+          {uploadError && (
+            <div className="flex items-center gap-2 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-medium">
+              <AlertCircle className="w-4 h-4 shrink-0 text-red-500" />
+              <span>{uploadError}</span>
+            </div>
+          )}
 
           <div>
             <label className="block text-xs font-semibold text-slate-700 uppercase mb-1 mt-3">
@@ -569,30 +593,45 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
               type="text"
               required
               value={formData.primary_image}
-              onChange={(e) => setFormData({ ...formData, primary_image: e.target.value })}
+              onChange={(e) => {
+                setFormData({ ...formData, primary_image: e.target.value });
+                setLocalPreview(null);
+              }}
               placeholder="https://..."
               className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500"
             />
           </div>
         </div>
 
-        {formData.primary_image && (
-          <div className="relative w-32 h-32 rounded-xl overflow-hidden border border-slate-300 group">
+        {(localPreview || formData.primary_image) && (
+          <div className="relative w-32 h-32 rounded-xl overflow-hidden border border-slate-300 group shadow-sm bg-slate-50">
             <Image
-              src={formData.primary_image}
+              src={localPreview || formData.primary_image!}
               alt="Product Preview"
               fill
+              unoptimized
               sizes="128px"
-              className="object-cover"
+              className={`object-cover transition-opacity duration-200 ${uploadingImage ? 'opacity-60' : 'opacity-100'}`}
             />
-            <button
-              type="button"
-              onClick={() => setFormData((prev) => ({ ...prev, primary_image: '' }))}
-              className="absolute top-1.5 right-1.5 p-1 bg-red-600 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity z-10"
-              title="Remove image"
-            >
-              <Trash2 className="w-3.5 h-3.5" />
-            </button>
+            {uploadingImage && (
+              <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-white text-[10px] font-medium p-2 text-center backdrop-blur-[1px] z-10">
+                <Loader2 className="w-5 h-5 animate-spin mb-1 text-emerald-400" />
+                <span>Uploading...</span>
+              </div>
+            )}
+            {!uploadingImage && (
+              <button
+                type="button"
+                onClick={() => {
+                  setFormData((prev) => ({ ...prev, primary_image: '' }));
+                  setLocalPreview(null);
+                }}
+                className="absolute top-1.5 right-1.5 p-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity z-10 shadow"
+                title="Remove image"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
         )}
       </div>
