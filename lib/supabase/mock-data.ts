@@ -239,7 +239,7 @@ export const INITIAL_VALUES: FarmValue[] = [
     number_prefix: '02',
     title: 'Care Daily & Gentle Hands',
     description: 'Healthy cows and compassionate daily care come first. We prioritize antibiotic-free nutrition, clean deep-well water, and zero stress.',
-    image_url: 'https://images.unsplash.com/photo-1546445317-29f4545e9d53?auto=format&fit=crop&w=800&q=80',
+    image_url: '/images/dairy-cow-care.jpg',
     sort_order: 2,
     is_active: true,
   },
