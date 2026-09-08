@@ -42,16 +42,39 @@ function getLocalFallback<T>(key: string, initial: T): T {
 function normalizeProductRecord(p: any): Product {
   const shortDesc = p.short_description || p.description || '';
   const fullDesc = p.full_description || p.description || p.short_description || '';
+
+  const rawImages: any[] = Array.isArray(p.images) ? p.images : [];
+  const normalizedImages: ProductImage[] = rawImages.map((img) => {
+    const link = img.url || img.image_url || '';
+    return {
+      id: img.id || `img-${Date.now()}`,
+      product_id: img.product_id,
+      image_url: link,
+      url: link,
+      is_primary: Boolean(img.is_primary),
+      sort_order: img.sort_order || 1,
+      alt_text: img.alt_text || p.name,
+    };
+  });
+
+  const primaryFromList =
+    normalizedImages.find((img) => img.is_primary)?.image_url ||
+    normalizedImages[0]?.image_url;
+
+  const resolvedImage =
+    primaryFromList ||
+    p.primary_image ||
+    p.image_url ||
+    p.url ||
+    'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=1000&q=80';
+
   return {
     ...p,
     short_description: shortDesc,
     full_description: fullDesc,
     description: p.description || shortDesc || fullDesc,
-    primary_image:
-      p.images?.find((img: any) => img.is_primary)?.image_url ||
-      p.images?.[0]?.image_url ||
-      p.primary_image ||
-      'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=1000&q=80',
+    images: normalizedImages,
+    primary_image: resolvedImage,
   };
 }
 

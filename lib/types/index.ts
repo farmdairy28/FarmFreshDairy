@@ -13,10 +13,11 @@ export interface Category {
 export interface ProductImage {
   id: string;
   product_id?: string;
-  image_url: string;
+  image_url?: string;
+  url?: string;
   alt_text?: string;
-  sort_order: number;
-  is_primary: boolean;
+  sort_order?: number;
+  is_primary?: boolean;
 }
 
 export interface Product {

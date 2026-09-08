@@ -20,6 +20,35 @@ function extractMissingColumn(errorMessage?: string | null): string | null {
   return null;
 }
 
+async function syncProductImage(adminClient: any, productId: string, primaryImage?: string | null) {
+  if (!adminClient || !productId || !primaryImage || !isValidUUID(productId)) return;
+  const cleanUrl = primaryImage.trim();
+  if (!cleanUrl) return;
+
+  try {
+    await adminClient.from('product_images').delete().eq('product_id', productId);
+  } catch (_) {}
+
+  try {
+    // 1. Try DB standard 'url' column
+    const res1 = await adminClient.from('product_images').insert({
+      product_id: productId,
+      url: cleanUrl,
+      is_primary: true,
+    });
+    if (res1.error) {
+      // 2. Fallback to 'image_url' column if table uses image_url
+      await adminClient.from('product_images').insert({
+        product_id: productId,
+        image_url: cleanUrl,
+        is_primary: true,
+      });
+    }
+  } catch (err) {
+    console.error('[syncProductImage Notice]:', err);
+  }
+}
+
 export async function saveProductAction(
   productData: Partial<Product>
 ): Promise<{ success: boolean; product?: Product; error?: string }> {
@@ -141,17 +170,9 @@ export async function saveProductAction(
           return { success: false, error: `Database update failed: ${errMsg}` };
         }
 
-        // Update product images (best-effort)
+        // Update product images
         if (primaryImage && isValidUUID(productData.id)) {
-          try { await adminClient.from('product_images').delete().eq('product_id', productData.id); } catch (_) { }
-          try {
-            await adminClient.from('product_images').insert({
-              product_id: productData.id,
-              image_url: primaryImage,
-              is_primary: true,
-              sort_order: 1,
-            });
-          } catch (_) { }
+          await syncProductImage(adminClient, productData.id, primaryImage);
         }
       } else {
         // INSERT NEW DB RECORD — strip unknown columns on every attempt
@@ -216,16 +237,9 @@ export async function saveProductAction(
           return { success: false, error: `Database insert failed: ${errMsg}` };
         }
 
-        // Insert primary image into product_images (only if DB insert succeeded)
-        if (savedProductRecord?.id && savedProductRecord.id.length > 10) {
-          try {
-            await adminClient.from('product_images').insert({
-              product_id: savedProductRecord.id,
-              image_url: primaryImage,
-              is_primary: true,
-              sort_order: 1,
-            });
-          } catch (_) { } // ignore image insert errors
+        // Insert primary image into product_images
+        if (savedProductRecord?.id && isValidUUID(savedProductRecord.id)) {
+          await syncProductImage(adminClient, savedProductRecord.id, primaryImage);
         }
       }
 
