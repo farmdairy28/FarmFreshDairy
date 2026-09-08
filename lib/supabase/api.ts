@@ -532,7 +532,8 @@ export async function getTestimonials(): Promise<Testimonial[]> {
         .from('testimonials')
         .select('*')
         .eq('is_active', true)
-        .order('sort_order', { ascending: true });
+        .order('sort_order', { ascending: true })
+        .order('created_at', { ascending: false });
 
       if (!error && data && data.length > 0) {
         return data as Testimonial[];

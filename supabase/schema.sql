@@ -289,6 +289,9 @@ CREATE POLICY "Public read active process steps" ON process_steps
 CREATE POLICY "Public read active testimonials" ON testimonials
   FOR SELECT USING (is_active = true OR public.is_admin());
 
+CREATE POLICY "Public can insert testimonials" ON testimonials
+  FOR INSERT WITH CHECK (true);
+
 CREATE POLICY "Public read active homepage sections" ON homepage_sections
   FOR SELECT USING (is_active = true OR public.is_admin());
 

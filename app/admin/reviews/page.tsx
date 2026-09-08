@@ -19,8 +19,12 @@ import {
   X,
 } from 'lucide-react';
 import { Testimonial } from '@/lib/types';
-import { getAllReviewsAdmin } from '@/lib/supabase/api';
-import { deleteReviewAction, toggleReviewStatusAction, submitReviewAction } from '@/app/actions/reviews';
+import {
+  deleteReviewAction,
+  toggleReviewStatusAction,
+  submitReviewAction,
+  getAdminReviewsAction,
+} from '@/app/actions/reviews';
 
 export default function AdminReviewsPage() {
   const [reviews, setReviews] = useState<Testimonial[]>([]);
@@ -43,10 +47,15 @@ export default function AdminReviewsPage() {
   const fetchReviews = async () => {
     setLoading(true);
     try {
-      const data = await getAllReviewsAdmin();
-      setReviews(data);
-    } catch (err) {
+      const res = await getAdminReviewsAction();
+      if (res.success) {
+        setReviews(res.data);
+      } else {
+        setMessage({ text: res.error || 'Failed to load reviews.', type: 'error' });
+      }
+    } catch (err: any) {
       console.error('Failed to load reviews:', err);
+      setMessage({ text: err?.message || 'Failed to load reviews.', type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -117,17 +126,19 @@ export default function AdminReviewsPage() {
     setActionLoading(id);
     try {
       const res = await toggleReviewStatusAction(id, !currentStatus);
-      if (res.success) {
+      if (res.success && res.testimonial) {
         setReviews((prev) =>
-          prev.map((r) => (r.id === id ? { ...r, is_active: !currentStatus } : r))
+          prev.map((r) => (r.id === id ? res.testimonial! : r))
         );
         setMessage({
           text: `Review is now ${!currentStatus ? 'Visible' : 'Hidden'} on storefront.`,
           type: 'success',
         });
+      } else {
+        setMessage({ text: res.error || 'Failed to update review status.', type: 'error' });
       }
-    } catch (err) {
-      setMessage({ text: 'Failed to update review status.', type: 'error' });
+    } catch (err: any) {
+      setMessage({ text: err?.message || 'Failed to update review status.', type: 'error' });
     } finally {
       setActionLoading(null);
       setTimeout(() => setMessage(null), 3000);
