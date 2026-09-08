@@ -11,24 +11,28 @@ interface FAQItem {
 
 const faqs: FAQItem[] = [
   {
-    question: 'Where do you deliver fresh cow milk in Islamabad and Rawalpindi?',
-    answer: 'We deliver fresh cow milk across Islamabad and Rawalpindi. Doorstep delivery is 100% FREE in Shahzad Town, Sector I-8, and Sector I-9. For other sectors including F-6, F-7, F-8, F-10, F-11, G-6 through G-13, E-7, E-11, DHA Islamabad, and Bahria Town, delivery is efficiently dispatched via dedicated riders (nominal rider charges apply upon delivery).',
+    question: 'Where does Farm Fresh Dairy deliver in Islamabad and Rawalpindi?',
+    answer: 'Farm Fresh Dairy delivers 100% pure, unadulterated fresh cow milk across Islamabad and Rawalpindi. Doorstep delivery is completely FREE in Shahzad Town, Sector I-8, and Sector I-9. For all other sectors across Islamabad (including F-6, F-7, F-8, F-10, F-11, G-6 through G-13, E-7, E-11, DHA Islamabad, and Bahria Town), daily deliveries are dispatched promptly by our dedicated cold-chain riders.',
   },
   {
-    question: 'What is the price of 100% pure cow milk and when is it delivered?',
-    answer: 'Our pure pasture cow milk is priced at Rs. 250 per litre. Deliveries are dispatched daily in two convenient slots: Morning delivery (6:00 AM – 9:00 AM) and Evening delivery (4:30 PM – 7:30 PM) so you always receive fresh milk chilled from the farm.',
+    question: 'What is the price of Farm Fresh Dairy cow milk and what are the delivery timings?',
+    answer: 'Our 100% pure fresh cow milk is priced at Rs. 250 per litre. Deliveries are dispatched daily in two convenient time slots: Morning delivery (6:00 AM – 9:00 AM) and Evening delivery (4:30 PM – 7:30 PM), ensuring you receive chilled, farm-fresh milk directly at your doorstep.',
   },
   {
-    question: 'How do you guarantee the milk is 100% pure and adulterant-free?',
-    answer: 'Our milk comes exclusively from pasture-raised, healthy cows fed on green oats and natural non-GMO forage. We use hygienic, touchless milking machines and immediately chill the milk to 4°C within 15 minutes. Our milk is certified 100% free from added water, urea, formalin, preservatives, or hormones. You can view our official Lab Quality Test Report on our website.',
+    question: 'How does Farm Fresh Dairy guarantee the milk is 100% pure and unadulterated?',
+    answer: 'Our milk comes exclusively from healthy, well-nourished dairy cows fed on natural green fodder and clean deep-well water. We use hygienic, touchless milking parlors and immediately chill the milk to 4°C within 15 minutes. Our milk is certified 100% free from added water, urea, formalin, chemical thickeners, preservatives, or synthetic hormones. You can inspect our official Lab Quality Test Report on our website.',
   },
   {
-    question: 'How can I place an order or set up a daily milk delivery in Islamabad?',
-    answer: 'You can order directly online through our website cart & checkout, or simply WhatsApp / call our farm dispatch desk at 0310-9361932. Just share your address, preferred litre quantity, and delivery time slot (morning or evening).',
+    question: 'Is Farm Fresh Dairy milk raw (fresh) and does it produce thick malai?',
+    answer: 'Yes! Our milk is 100% pure, raw, whole cow milk delivered directly from the farm without water dilution or cream extraction. Boiling our fresh whole milk yields a thick, golden layer of natural malai and an authentic rich dairy aroma.',
   },
   {
-    question: 'Do you also provide Pure Desi Ghee and Fresh Dahi?',
-    answer: 'Yes! In addition to pure cow milk, we produce small-batch traditional Bilona Desi Ghee, rich probiotic Dahi (curd), natural Makhan (butter), and fresh Paneer, all made from 100% pure farm milk without artificial additives.',
+    question: 'How can I place an order or set up a daily milk delivery schedule?',
+    answer: 'You can order directly online through our website cart & checkout, or message / call our Farm Fresh Dairy dispatch team on WhatsApp at 0310-9361932. Simply provide your delivery address, daily litre quantity, and preferred time slot (Morning or Evening).',
+  },
+  {
+    question: 'What other fresh dairy products does Farm Fresh Dairy offer?',
+    answer: 'In addition to fresh whole cow milk, we handcraft traditional Bilona Desi Ghee, probiotic rich Farm Dahi (yogurt), pure Makhan (butter), and fresh Paneer—all made from 100% pure farm milk with zero artificial preservatives or additives.',
   },
 ];
 
