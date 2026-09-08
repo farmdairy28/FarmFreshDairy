@@ -271,7 +271,7 @@ export const INITIAL_PROCESS: ProcessStep[] = [
     title: 'Nutritional Care',
     short_desc: 'Clean deep-well drinking water, mineral salts, and veterinarian oversight.',
     detailed_desc: 'Each cow is monitored by veterinary specialists to maintain balanced nutrition, natural immunity, and zero stress.',
-    image_url: 'https://images.unsplash.com/photo-1546445317-29f4545e9d53?auto=format&fit=crop&w=800&q=80',
+    image_url: '/images/dairy-cow-care.jpg',
     sort_order: 2,
     is_active: true,
   },

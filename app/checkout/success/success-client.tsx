@@ -100,8 +100,8 @@ Delivery Slot: ${slot}`;
   const planTag = isPermanentMonthly ? '[Monthly Billing Plan]' : isPermanentWeekly ? '[Weekly Billing Plan]' : '[Daily COD]';
   const whatsappMessage = order
     ? encodeURIComponent(
-        `🥛 Hello Farm Fresh Dairy! I just placed order #${order.order_number} ${planTag} for ${slot.toLowerCase()} delivery to ${order.delivery_address}, ${order.area_name || ''}. Total: Rs. ${order.total_amount} (Delivery: ${feeLabel}, Payment: ${paymentMethodDisplay}). Please confirm delivery!`
-      )
+      `🥛 Hello Farm Fresh Dairy! I just placed order #${order.order_number} ${planTag} for ${slot.toLowerCase()} delivery to ${order.delivery_address}, ${order.area_name || ''}. Total: Rs. ${order.total_amount} (Delivery: ${feeLabel}, Payment: ${paymentMethodDisplay}). Please confirm delivery!`
+    )
     : encodeURIComponent(`🥛 Hello Farm Fresh Dairy! Please confirm my milk delivery order #${orderNumberParam}.`);
 
   const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappMessage}`;
@@ -159,7 +159,7 @@ Delivery Slot: ${slot}`;
 
   return (
     <div className="max-w-2xl mx-auto py-10 px-6 sm:px-10 rounded-3xl bg-white border border-farm-200 shadow-float space-y-6 animate-fade-in text-center">
-      
+
       {/* Animated Success Badge */}
       <div className="w-20 h-20 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-sm">
         <CheckCircle2 className="w-10 h-10" />
@@ -209,13 +209,12 @@ Delivery Slot: ${slot}`;
       <div className="p-6 rounded-2xl bg-farm-50/70 border border-farm-200/80 text-left space-y-3 font-mono text-xs text-earth-800">
         <div className="flex items-center justify-between pb-2 border-b border-farm-200 font-bold text-farm-900 flex-wrap gap-2">
           <span>RECEIPT #{displayOrderNumber}</span>
-          <span className={`px-2.5 py-0.5 rounded text-[11px] ${
-            isPermanentMonthly
-              ? 'text-amber-900 bg-amber-100 border border-amber-300 font-bold'
-              : isPermanentWeekly
+          <span className={`px-2.5 py-0.5 rounded text-[11px] ${isPermanentMonthly
+            ? 'text-amber-900 bg-amber-100 border border-amber-300 font-bold'
+            : isPermanentWeekly
               ? 'text-emerald-900 bg-emerald-100 border border-emerald-300 font-bold'
               : 'text-emerald-700 bg-emerald-100/70'
-          }`}>
+            }`}>
             {paymentMethodDisplay}
           </span>
         </div>
@@ -344,11 +343,10 @@ Delivery Slot: ${slot}`;
                       aria-label={`${star} star`}
                     >
                       <Star
-                        className={`w-7 h-7 transition-colors ${
-                          isFilled
-                            ? 'fill-amber-400 text-amber-400 drop-shadow-xs'
-                            : 'text-earth-300'
-                        }`}
+                        className={`w-7 h-7 transition-colors ${isFilled
+                          ? 'fill-amber-400 text-amber-400 drop-shadow-xs'
+                          : 'text-earth-300'
+                          }`}
                       />
                     </button>
                   );
@@ -357,10 +355,10 @@ Delivery Slot: ${slot}`;
                   {reviewRating === 5
                     ? '5.0 — Excellent!'
                     : reviewRating === 4
-                    ? '4.0 — Very Good'
-                    : reviewRating === 3
-                    ? '3.0 — Good'
-                    : `${reviewRating}.0`}
+                      ? '4.0 — Very Good'
+                      : reviewRating === 3
+                        ? '3.0 — Good'
+                        : `${reviewRating}.0`}
                 </span>
               </div>
             </div>
