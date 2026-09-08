@@ -87,20 +87,6 @@ export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
     }
   };
 
-  if (isSubmitting) {
-    return (
-      <div className="text-center py-20 bg-white rounded-3xl border border-farm-200 shadow-soft space-y-4 max-w-lg mx-auto">
-        <div className="w-12 h-12 rounded-full border-4 border-farm-200 border-t-farm-700 animate-spin mx-auto"></div>
-        <h2 className="font-serif text-2xl font-bold text-earth-900">
-          Confirming Your Order...
-        </h2>
-        <p className="text-earth-600 text-sm">
-          Dispatching order details to our farm desk and preparing your receipt.
-        </p>
-      </div>
-    );
-  }
-
   if (items.length === 0) {
     return (
       <div className="text-center py-20 bg-cream-200/50 rounded-3xl border border-earth-200 space-y-4 max-w-lg mx-auto">
@@ -121,7 +107,22 @@ export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+    <>
+      {isSubmitting && (
+        <div className="fixed inset-0 z-50 bg-earth-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white text-earth-900 rounded-3xl p-8 max-w-sm w-full mx-auto shadow-2xl border border-farm-200 text-center space-y-4">
+            <div className="w-12 h-12 rounded-full border-4 border-farm-200 border-t-farm-700 animate-spin mx-auto"></div>
+            <h2 className="font-serif text-2xl font-bold text-earth-900">
+              Confirming Your Order...
+            </h2>
+            <p className="text-earth-600 text-xs leading-relaxed">
+              Dispatching order details to our farm desk and preparing your receipt.
+            </p>
+          </div>
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
 
       {/* Form Fields */}
       <div className="lg:col-span-7 space-y-6">
@@ -514,7 +515,7 @@ export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
           <div>Morning &amp; Evening Delivery Routes • Cash on Delivery</div>
         </div>
       </div>
-
     </form>
+    </>
   );
 }

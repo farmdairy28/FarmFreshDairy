@@ -28,6 +28,11 @@ export function OrderSuccessClient() {
   const [reviewError, setReviewError] = useState('');
 
   useEffect(() => {
+    // Scroll window instantly to the top so receipt starts at top of viewport
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    }
+
     let foundOrder: Order | null = null;
 
     // 1. Try retrieving from sessionStorage for immediate instant render
