@@ -90,6 +90,7 @@ export async function getProducts(options?: { categorySlug?: string; featuredOnl
   const allCategories = getServerCategoriesStore();
   const categoryMap = new Map(allCategories.map(c => [c.id, c]));
 
+  let dbSuccess = false;
   let rawList: Product[] = [];
 
   try {
@@ -101,23 +102,19 @@ export async function getProducts(options?: { categorySlug?: string; featuredOnl
         .eq('is_active', true)
         .order('created_at', { ascending: false });
 
-      if (!error && Array.isArray(data) && data.length > 0) {
+      if (!error && Array.isArray(data)) {
         rawList = (data as any[]).map(normalizeProductRecord);
+        dbSuccess = true;
       }
     }
   } catch (err) {
     console.warn('Database getProducts fetch notice:', err);
   }
 
-  // DB not connected: use server store (admin-added products only, no mocks)
-  if (rawList.length === 0) {
+  // Only fall back to server memory store if database query failed / unreachable
+  if (!dbSuccess) {
+    const serverStore = getServerProductsStore();
     rawList = serverStore.map(normalizeProductRecord);
-  } else {
-    serverStore.forEach(sp => {
-      if (!rawList.some(p => p.id === sp.id || (sp.slug && p.slug === sp.slug))) {
-        rawList.push(normalizeProductRecord(sp));
-      }
-    });
   }
 
   // Attach category if missing
@@ -159,6 +156,7 @@ export async function getAllProductsAdmin(): Promise<Product[]> {
   const allCategories = getServerCategoriesStore();
   const categoryMap = new Map(allCategories.map(c => [c.id, c]));
 
+  let dbSuccess = false;
   let adminProducts: Product[] = [];
 
   try {
@@ -169,23 +167,19 @@ export async function getAllProductsAdmin(): Promise<Product[]> {
         .select('*, category:categories(*), images:product_images(*)')
         .order('created_at', { ascending: false });
 
-      if (!error && Array.isArray(data) && data.length > 0) {
+      if (!error && Array.isArray(data)) {
         adminProducts = (data as any[]).map(normalizeProductRecord);
+        dbSuccess = true;
       }
     }
   } catch (err) {
     console.warn('Admin products DB fetch fallback:', err);
   }
 
-  // Merge server store (admin-created this session) with DB results
-  if (adminProducts.length === 0) {
+  // Only fall back to server store if DB query failed / unreachable
+  if (!dbSuccess) {
+    const serverStore = getServerProductsStore();
     adminProducts = serverStore.map(normalizeProductRecord);
-  } else {
-    serverStore.forEach(sp => {
-      if (!adminProducts.some(p => p.id === sp.id || (sp.slug && p.slug === sp.slug))) {
-        adminProducts.push(normalizeProductRecord(sp));
-      }
-    });
   }
 
   // Attach category if missing
@@ -209,19 +203,18 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
         .eq('is_active', true)
         .maybeSingle();
 
-      if (!error && data) {
+      if (!error) {
+        if (!data) return null; // Authoritative: product does not exist in DB
         const mapped = normalizeProductRecord(data);
         upsertServerProduct(mapped);
         return mapped;
       }
-      // DB connected but no result: product deleted or not found
-      if (!error && !data) return null;
     }
   } catch (err) {
     console.warn('Product by slug DB fetch fallback:', err);
   }
 
-  // Only fall back to server store if DB is not configured
+  // Only fall back to server store if DB is not configured / errored
   const serverStore = getServerProductsStore();
   const found = serverStore.find(p => p.slug === slug && p.is_active !== false);
   return found ? normalizeProductRecord(found) : null;
@@ -237,12 +230,12 @@ export async function getProductById(id: string): Promise<Product | null> {
         .eq('id', id)
         .maybeSingle();
 
-      if (!error && data) {
+      if (!error) {
+        if (!data) return null; // Authoritative: product does not exist in DB
         const mapped = normalizeProductRecord(data);
         upsertServerProduct(mapped);
         return mapped;
       }
-      if (!error && !data) return null;
     }
   } catch (err) {
     console.warn('Product by ID DB fetch fallback:', err);

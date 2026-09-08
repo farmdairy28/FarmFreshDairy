@@ -372,19 +372,19 @@ export async function deleteProductAction(
         if (dbId) {
           await client
             .from('products')
-            .update({ is_active: false, availability: false, show_on_homepage: false })
+            .update({ is_active: false, show_on_homepage: false })
             .eq('id', dbId);
         }
         if (dbSlug) {
           await client
             .from('products')
-            .update({ is_active: false, availability: false, show_on_homepage: false })
+            .update({ is_active: false, show_on_homepage: false })
             .eq('slug', dbSlug);
         }
         if (cleanId && cleanId !== dbId) {
           await client
             .from('products')
-            .update({ is_active: false, availability: false, show_on_homepage: false })
+            .update({ is_active: false, show_on_homepage: false })
             .eq('id', cleanId);
         }
       } catch (err: any) {
@@ -395,6 +395,7 @@ export async function deleteProductAction(
     // 3. Invalidate Next.js cache so all pages reflect the deletion immediately
     try {
       revalidatePath('/', 'layout');
+      revalidatePath('/', 'page');
       revalidatePath('/products', 'layout');
       revalidatePath('/products', 'page');
       revalidatePath('/products/[slug]', 'page');
