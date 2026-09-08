@@ -20,14 +20,14 @@ function extractMissingColumn(errorMessage?: string | null): string | null {
   return null;
 }
 
-async function syncProductImage(adminClient: any, productId: string, primaryImage?: string | null) {
+async function syncProductImage(adminClient: any, productId?: string | null, primaryImage?: string | null) {
   if (!adminClient || !productId || !primaryImage || !isValidUUID(productId)) return;
   const cleanUrl = primaryImage.trim();
   if (!cleanUrl) return;
 
   try {
     await adminClient.from('product_images').delete().eq('product_id', productId);
-  } catch (_) {}
+  } catch (_) { }
 
   try {
     // 1. Try DB standard 'url' column
@@ -294,13 +294,13 @@ export async function deleteProductAction(
     try {
       const adminClient = createAdminClient();
       if (adminClient) clients.push(adminClient);
-    } catch (e) {}
+    } catch (e) { }
 
     try {
       const { createServerSupabaseClient } = await import('@/lib/supabase/server');
       const serverAuthClient = createServerSupabaseClient();
       if (serverAuthClient) clients.push(serverAuthClient);
-    } catch (e) {}
+    } catch (e) { }
 
     let deletedSuccessfully = false;
     let lastError: string | null = null;
@@ -323,7 +323,7 @@ export async function deleteProductAction(
             dbId = found.id || dbId;
             dbSlug = found.slug || dbSlug;
           }
-        } catch (e) {}
+        } catch (e) { }
 
         if (dbId) {
           deleteServerProduct(dbId);
@@ -336,18 +336,18 @@ export async function deleteProductAction(
         if (dbId) {
           try {
             await client.from('order_items').update({ product_id: null }).eq('product_id', dbId);
-          } catch (e) {}
+          } catch (e) { }
           try {
             await client.from('product_images').delete().eq('product_id', dbId);
-          } catch (e) {}
+          } catch (e) { }
         }
         if (cleanId && cleanId !== dbId) {
           try {
             await client.from('order_items').update({ product_id: null }).eq('product_id', cleanId);
-          } catch (e) {}
+          } catch (e) { }
           try {
             await client.from('product_images').delete().eq('product_id', cleanId);
-          } catch (e) {}
+          } catch (e) { }
         }
 
         // 1st: Try Hard DELETE
@@ -400,7 +400,7 @@ export async function deleteProductAction(
       revalidatePath('/products/[slug]', 'page');
       revalidatePath('/admin/products', 'page');
       revalidatePath('/admin', 'layout');
-    } catch (e) {}
+    } catch (e) { }
 
     return { success: true };
   } catch (err: any) {

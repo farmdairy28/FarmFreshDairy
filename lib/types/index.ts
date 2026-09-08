@@ -13,7 +13,7 @@ export interface Category {
 export interface ProductImage {
   id: string;
   product_id?: string;
-  image_url?: string;
+  image_url: string;
   url?: string;
   alt_text?: string;
   sort_order?: number;

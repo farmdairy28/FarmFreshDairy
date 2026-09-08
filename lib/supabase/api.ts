@@ -1,4 +1,4 @@
-import { Product, Category, FarmValue, ProcessStep, DeliveryRegion, Testimonial, Order, HomepageHero, HomepagePromise } from '../types';
+import { Product, ProductImage, Category, FarmValue, ProcessStep, DeliveryRegion, Testimonial, Order, HomepageHero, HomepagePromise } from '../types';
 import { INITIAL_CATEGORIES, INITIAL_VALUES, INITIAL_PROCESS, INITIAL_DELIVERY, INITIAL_TESTIMONIALS, INITIAL_HERO, INITIAL_PROMISE, INITIAL_ORDERS } from './mock-data';
 import { getServerProductsStore, upsertServerProduct, deleteServerProduct, getServerCategoriesStore, upsertServerCategory, getServerTestimonialsStore } from './products-store';
 import { createAdminClient } from './admin';

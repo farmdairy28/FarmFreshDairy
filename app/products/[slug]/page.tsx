@@ -119,7 +119,7 @@ export default async function ProductDetailPage({ params }: { params: { slug: st
               <div className="grid grid-cols-4 gap-4">
                 {product.images.map((img, i) => (
                   <div key={img.id} className="relative aspect-square rounded-2xl overflow-hidden border border-earth-300">
-                    <Image src={img.image_url} alt={`${product.name} packaging view ${i + 1} - Farm Fresh Dairy`} fill className="object-cover" />
+                    <Image src={img.image_url || img.url || ''} alt={`${product.name} packaging view ${i + 1} - Farm Fresh Dairy`} fill className="object-cover" />
                   </div>
                 ))}
               </div>
