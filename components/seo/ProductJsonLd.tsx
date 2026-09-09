@@ -4,16 +4,31 @@ import { Product } from '@/lib/types';
 export function ProductJsonLd({ product }: { product: Product }) {
   const siteUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://www.farmfreshdairyproducts.com').replace(/\/$/, '');
   const productUrl = `${siteUrl}/products/${product.slug}`;
-  const imageUrl = product.primary_image || `${siteUrl}/images/logo.png`;
+  const imageList: string[] = [];
+  if (product.primary_image) {
+    imageList.push(product.primary_image.startsWith('http') ? product.primary_image : `${siteUrl}${product.primary_image}`);
+  }
+  if (product.images && product.images.length > 0) {
+    product.images.forEach((img) => {
+      const url = img.image_url || img.url;
+      if (url) {
+        const fullUrl = url.startsWith('http') ? url : `${siteUrl}${url}`;
+        if (!imageList.includes(fullUrl)) imageList.push(fullUrl);
+      }
+    });
+  }
+  if (imageList.length === 0) {
+    imageList.push(`${siteUrl}/images/farm-cow.jpg`, `${siteUrl}/images/logo.png`);
+  }
 
   const schemaData = {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: product.name,
-    image: [imageUrl],
+    image: imageList,
     description: product.short_description || product.full_description || `${product.name} fresh from farm in Islamabad`,
     sku: product.sku || `FFD-${product.slug.toUpperCase()}`,
-    mpn: product.sku || `FFD-${product.id.slice(0, 8)}`,
+    mpn: product.sku || `FFD-${product.id ? product.id.slice(0, 8) : '00000000'}`,
     brand: {
       '@type': 'Brand',
       name: 'Farm Fresh Dairy Products',
@@ -30,9 +45,13 @@ export function ProductJsonLd({ product }: { product: Product }) {
         '@type': 'Organization',
         name: 'Farm Fresh Dairy Products Islamabad',
       },
-      areaServed: {
-        '@type': 'AdministrativeArea',
-        name: 'Islamabad Capital Territory, Pakistan',
+      hasMerchantReturnPolicy: {
+        '@type': 'MerchantReturnPolicy',
+        applicableCountry: 'PK',
+        returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+        merchantReturnDays: 1,
+        returnMethod: 'https://schema.org/ReturnInStore',
+        returnFees: 'https://schema.org/FreeReturn',
       },
       shippingDetails: {
         '@type': 'OfferShippingDetails',
@@ -44,21 +63,14 @@ export function ProductJsonLd({ product }: { product: Product }) {
         shippingDestination: {
           '@type': 'DefinedRegion',
           addressCountry: 'PK',
-          addressRegion: 'Islamabad Capital Territory',
         },
         deliveryTime: {
           '@type': 'ShippingDeliveryTime',
-          handlingTime: {
-            '@type': 'QuantitativeValue',
-            minValue: 0,
-            maxValue: 1,
-            unitCode: 'DAY',
-          },
           transitTime: {
             '@type': 'QuantitativeValue',
             minValue: 0,
             maxValue: 1,
-            unitCode: 'DAY',
+            unitCode: 'd',
           },
         },
       },

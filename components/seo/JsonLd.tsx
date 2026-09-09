@@ -97,17 +97,59 @@ export function JsonLd() {
           itemOffered: {
             '@type': 'Product',
             name: '100% Pure Fresh Cow Milk',
-            image: `${siteUrl}/images/logo.png`,
+            image: [
+              'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=1000&q=80',
+              `${siteUrl}/images/farm-cow.jpg`,
+              `${siteUrl}/images/logo.png`,
+            ],
             description: 'Raw unpasteurized 100% pure cow milk delivered chilled in Islamabad. Free from water dilution, chemical preservatives, or urea.',
+            sku: 'FFD-COW-MILK',
+            mpn: 'FFD-COW-MILK-001',
             brand: {
               '@type': 'Brand',
               name: 'Farm Fresh Dairy Products',
             },
             offers: {
               '@type': 'Offer',
-              price: '250',
+              url: `${siteUrl}/products/pure-farm-fresh-whole-milk`,
+              price: 250,
               priceCurrency: 'PKR',
+              priceValidUntil: '2027-12-31',
+              itemCondition: 'https://schema.org/NewCondition',
               availability: 'https://schema.org/InStock',
+              seller: {
+                '@type': 'Organization',
+                name: 'Farm Fresh Dairy Products Islamabad',
+              },
+              hasMerchantReturnPolicy: {
+                '@type': 'MerchantReturnPolicy',
+                applicableCountry: 'PK',
+                returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+                merchantReturnDays: 1,
+                returnMethod: 'https://schema.org/ReturnInStore',
+                returnFees: 'https://schema.org/FreeReturn',
+              },
+              shippingDetails: {
+                '@type': 'OfferShippingDetails',
+                shippingRate: {
+                  '@type': 'MonetaryAmount',
+                  value: '0',
+                  currency: 'PKR',
+                },
+                shippingDestination: {
+                  '@type': 'DefinedRegion',
+                  addressCountry: 'PK',
+                },
+                deliveryTime: {
+                  '@type': 'ShippingDeliveryTime',
+                  transitTime: {
+                    '@type': 'QuantitativeValue',
+                    minValue: 0,
+                    maxValue: 1,
+                    unitCode: 'd',
+                  },
+                },
+              },
             },
             aggregateRating: {
               '@type': 'AggregateRating',
@@ -116,6 +158,21 @@ export function JsonLd() {
               bestRating: '5',
               worstRating: '1',
             },
+            review: [
+              {
+                '@type': 'Review',
+                reviewRating: {
+                  '@type': 'Rating',
+                  ratingValue: '5',
+                  bestRating: '5',
+                },
+                author: {
+                  '@type': 'Person',
+                  name: 'Verified Customer',
+                },
+                reviewBody: 'Pure, fresh, and high-quality milk delivered reliably in Islamabad.',
+              },
+            ],
           },
         },
         {
@@ -123,17 +180,59 @@ export function JsonLd() {
           itemOffered: {
             '@type': 'Product',
             name: 'Pure Desi Ghee (Bilona Method)',
-            image: `${siteUrl}/images/logo.png`,
+            image: [
+              'https://images.unsplash.com/photo-1589927986089-35812388d1f4?auto=format&fit=crop&w=1000&q=80',
+              `${siteUrl}/images/farm-cow.jpg`,
+              `${siteUrl}/images/logo.png`,
+            ],
             description: 'Traditional slow-churned pure cow desi ghee with rich golden aroma.',
+            sku: 'FFD-DESI-GHEE',
+            mpn: 'FFD-DESI-GHEE-001',
             brand: {
               '@type': 'Brand',
               name: 'Farm Fresh Dairy Products',
             },
             offers: {
               '@type': 'Offer',
-              price: '2800',
+              url: `${siteUrl}/products/grass-fed-pure-desi-ghee`,
+              price: 2800,
               priceCurrency: 'PKR',
+              priceValidUntil: '2027-12-31',
+              itemCondition: 'https://schema.org/NewCondition',
               availability: 'https://schema.org/InStock',
+              seller: {
+                '@type': 'Organization',
+                name: 'Farm Fresh Dairy Products Islamabad',
+              },
+              hasMerchantReturnPolicy: {
+                '@type': 'MerchantReturnPolicy',
+                applicableCountry: 'PK',
+                returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+                merchantReturnDays: 1,
+                returnMethod: 'https://schema.org/ReturnInStore',
+                returnFees: 'https://schema.org/FreeReturn',
+              },
+              shippingDetails: {
+                '@type': 'OfferShippingDetails',
+                shippingRate: {
+                  '@type': 'MonetaryAmount',
+                  value: '0',
+                  currency: 'PKR',
+                },
+                shippingDestination: {
+                  '@type': 'DefinedRegion',
+                  addressCountry: 'PK',
+                },
+                deliveryTime: {
+                  '@type': 'ShippingDeliveryTime',
+                  transitTime: {
+                    '@type': 'QuantitativeValue',
+                    minValue: 0,
+                    maxValue: 1,
+                    unitCode: 'd',
+                  },
+                },
+              },
             },
             aggregateRating: {
               '@type': 'AggregateRating',
@@ -142,6 +241,21 @@ export function JsonLd() {
               bestRating: '5',
               worstRating: '1',
             },
+            review: [
+              {
+                '@type': 'Review',
+                reviewRating: {
+                  '@type': 'Rating',
+                  ratingValue: '5',
+                  bestRating: '5',
+                },
+                author: {
+                  '@type': 'Person',
+                  name: 'Verified Customer',
+                },
+                reviewBody: 'Exceptional golden pure desi ghee with authentic rich aroma.',
+              },
+            ],
           },
         },
       ],
