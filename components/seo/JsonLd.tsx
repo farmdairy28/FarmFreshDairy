@@ -114,6 +114,7 @@ export function JsonLd() {
             description: 'Traditional slow-churned pure cow desi ghee with rich golden aroma.',
             offers: {
               '@type': 'Offer',
+              price: '2800',
               priceCurrency: 'PKR',
               availability: 'https://schema.org/InStock',
             },
