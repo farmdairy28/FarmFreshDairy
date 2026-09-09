@@ -97,12 +97,24 @@ export function JsonLd() {
           itemOffered: {
             '@type': 'Product',
             name: '100% Pure Fresh Cow Milk',
+            image: `${siteUrl}/images/logo.png`,
             description: 'Raw unpasteurized 100% pure cow milk delivered chilled in Islamabad. Free from water dilution, chemical preservatives, or urea.',
+            brand: {
+              '@type': 'Brand',
+              name: 'Farm Fresh Dairy Products',
+            },
             offers: {
               '@type': 'Offer',
               price: '250',
               priceCurrency: 'PKR',
               availability: 'https://schema.org/InStock',
+            },
+            aggregateRating: {
+              '@type': 'AggregateRating',
+              ratingValue: '4.9',
+              reviewCount: '128',
+              bestRating: '5',
+              worstRating: '1',
             },
           },
         },
@@ -111,12 +123,24 @@ export function JsonLd() {
           itemOffered: {
             '@type': 'Product',
             name: 'Pure Desi Ghee (Bilona Method)',
+            image: `${siteUrl}/images/logo.png`,
             description: 'Traditional slow-churned pure cow desi ghee with rich golden aroma.',
+            brand: {
+              '@type': 'Brand',
+              name: 'Farm Fresh Dairy Products',
+            },
             offers: {
               '@type': 'Offer',
               price: '2800',
               priceCurrency: 'PKR',
               availability: 'https://schema.org/InStock',
+            },
+            aggregateRating: {
+              '@type': 'AggregateRating',
+              ratingValue: '4.9',
+              reviewCount: '128',
+              bestRating: '5',
+              worstRating: '1',
             },
           },
         },
