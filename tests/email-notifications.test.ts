@@ -217,7 +217,7 @@ async function runAllTests() {
   store.recordAttempt(failedOrderId, 'CUSTOMER_ORDER_CONFIRMATION', 'fail@test.com', 'FAILED', undefined, 'Network timeout connecting to Resend');
   const failureRec = store.getRecord(failedOrderId, 'CUSTOMER_ORDER_CONFIRMATION', 'fail@test.com');
   assert(
-    failureRec?.status === 'FAILED' && failureRec.last_error?.includes('Network timeout'),
+    failureRec?.status === 'FAILED' && Boolean(failureRec.last_error?.includes('Network timeout')),
     '8. Email provider failure logs error safely without crashing or rolling back order record'
   );
 

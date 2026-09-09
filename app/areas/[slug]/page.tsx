@@ -21,6 +21,7 @@ import { FaqSection } from '@/components/home/FaqSection';
 import { SOCIAL_LINKS } from '@/lib/constants';
 
 export const dynamic = 'force-static';
+export const revalidate = 86400; // 24 hours ISR cache
 
 export async function generateStaticParams() {
   return DELIVERY_AREAS.map((area) => ({

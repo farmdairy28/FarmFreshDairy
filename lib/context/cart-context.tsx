@@ -25,7 +25,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     setIsMounted(true);
     try {
-      const stored = localStorage.getItem('pure_pastures_cart');
+      const stored = localStorage.getItem('farm_fresh_cart') || localStorage.getItem('pure_pastures_cart');
       if (stored) {
         setItems(JSON.parse(stored));
       }
@@ -37,7 +37,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (isMounted) {
       try {
-        localStorage.setItem('pure_pastures_cart', JSON.stringify(items));
+        localStorage.setItem('farm_fresh_cart', JSON.stringify(items));
       } catch (e) {
         console.error('Failed to save cart to storage', e);
       }
