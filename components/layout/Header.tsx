@@ -43,7 +43,7 @@ export function Header() {
             </span>
           </div>
 
-          <div className="hidden sm:flex items-center gap-4 shrink-0 text-sky-200">
+          <div className="hidden sm:flex items-center gap-4 shrink-0 text-sky-100">
             <a
               href={SOCIAL_LINKS.whatsapp}
               target="_blank"
@@ -53,12 +53,12 @@ export function Header() {
               <MessageCircle className="w-3.5 h-3.5 text-emerald-400 fill-current" />
               <span>WhatsApp: <strong>0310-9361932</strong></span>
             </a>
-            <span className="text-farm-700">|</span>
+            <span className="text-sky-300/40">|</span>
             <a href={`tel:${SOCIAL_LINKS.phoneRaw}`} className="flex items-center gap-1 hover:text-white transition-colors">
               <Phone className="w-3.5 h-3.5 text-sky-300" />
               <span>0310 9361932</span>
             </a>
-            <span className="text-farm-700">|</span>
+            <span className="text-sky-300/40">|</span>
             <div className="flex items-center gap-2">
               <a
                 href={SOCIAL_LINKS.facebook}
@@ -107,8 +107,8 @@ export function Header() {
                   <Link
                     key={link.href}
                     href={link.href}
-                    className={`text-sm font-medium transition-colors hover:text-farm-600 ${
-                      isActive ? 'text-farm-600 font-semibold underline underline-offset-8 decoration-farm-500' : 'text-earth-700'
+                    className={`text-sm font-semibold transition-colors hover:text-farm-800 ${
+                      isActive ? 'text-farm-800 font-bold underline underline-offset-8 decoration-farm-600' : 'text-earth-800'
                     }`}
                   >
                     {link.name}
@@ -124,7 +124,7 @@ export function Header() {
                 href="https://wa.me/923109361932?text=Hello%20Farm%20Fresh%20Dairy%2C%20I%20would%20like%20to%20order%20pure%20cow%20milk."
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hidden xl:inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-300/80 hover:bg-emerald-100 transition-colors"
+                className="hidden xl:inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-full bg-emerald-100 text-emerald-900 border border-emerald-300 hover:bg-emerald-200 transition-colors"
               >
                 <MessageCircle className="w-3.5 h-3.5 fill-current" />
                 <span>0310-9361932</span>
@@ -147,7 +147,7 @@ export function Header() {
               {/* Order Fresh CTA */}
               <Link
                 href="/products"
-                className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white bg-farm-600 hover:bg-farm-700 rounded-full transition-all shadow-sm hover:shadow"
+                className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold uppercase tracking-wider text-white bg-farm-700 hover:bg-farm-800 rounded-full transition-all shadow-sm hover:shadow"
               >
                 Order Milk
                 <ArrowUpRight className="w-3.5 h-3.5" />
