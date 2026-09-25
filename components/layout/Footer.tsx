@@ -248,7 +248,7 @@ export async function Footer() {
                   href={SOCIAL_LINKS.googleMaps}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold uppercase tracking-wider transition-all shadow-sm group"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold uppercase tracking-wider transition-all shadow-sm group"
                 >
                   <MapPin className="w-3.5 h-3.5" />
                   <span>Open in Google Maps</span>
@@ -269,6 +269,7 @@ export async function Footer() {
               <LazyMapEmbed
                 src={SOCIAL_LINKS.openStreetMapEmbed}
                 title="Footer OpenStreetMap Interactive Location"
+                containerClassName="relative w-full h-[380px] min-h-[380px] rounded-2xl overflow-hidden border-2 border-emerald-500/30 shadow-lg bg-farm-950 block"
               />
             </div>
 

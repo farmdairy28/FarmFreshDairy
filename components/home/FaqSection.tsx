@@ -139,7 +139,7 @@ export function FaqSection({ includeSchema = true }: { includeSchema?: boolean }
               href="https://wa.me/923109361932?text=Hello%20Farm%20Fresh%20Dairy%2C%20I%20have%20a%20question%20about%20milk%20delivery."
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
             >
               <MessageCircle className="w-4 h-4 fill-current" />
               WhatsApp Help

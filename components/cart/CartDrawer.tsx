@@ -166,7 +166,7 @@ export function CartDrawer() {
                   href={quickWhatsappUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full flex items-center justify-center gap-2 py-3 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs uppercase tracking-wider transition-colors shadow-sm"
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs uppercase tracking-wider transition-colors shadow-sm"
                 >
                   <MessageCircle className="w-4 h-4 fill-current" />
                   Quick WhatsApp Order (0310-9361932)

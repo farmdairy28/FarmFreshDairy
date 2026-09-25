@@ -176,7 +176,7 @@ export default function AreaDeliveryPage({ params }: { params: { slug: string } 
                 href={`https://wa.me/923109361932?text=${encodeURIComponent(`Hello Farm Fresh Dairy! I want to order pure cow milk delivery in ${area.name}.`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-md transform hover:-translate-y-0.5"
+                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-md transform hover:-translate-y-0.5"
               >
                 <MessageCircle className="w-4 h-4 fill-current" />
                 Order via WhatsApp (0310-9361932)

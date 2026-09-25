@@ -5,22 +5,26 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { Product, Category } from '@/lib/types';
 import { ProductCard } from '@/components/products/ProductCard';
+import { INITIAL_PRODUCTS, INITIAL_CATEGORIES } from '@/lib/supabase/mock-data';
 
 export function ProductCollection({
-  products,
-  categories,
+  products = [],
+  categories = [],
 }: {
   products: Product[];
   categories: Category[];
 }) {
   const [selectedCat, setSelectedCat] = useState('all');
 
-  const filteredProducts = selectedCat === 'all'
-    ? products
-    : products.filter((p) => p.category_id === selectedCat || p.category?.slug === selectedCat);
+  const safeProducts: Product[] = products && products.length > 0 ? products : INITIAL_PRODUCTS;
+  const safeCategories: Category[] = categories && categories.length > 0 ? categories : INITIAL_CATEGORIES;
+
+  const filteredProducts: Product[] = selectedCat === 'all'
+    ? safeProducts
+    : safeProducts.filter((p: Product) => p.category_id === selectedCat || p.category?.slug === selectedCat);
 
   return (
-    <section className="py-24 bg-cream-100 border-t border-earth-200">
+    <section className="py-24 bg-cream-100 border-t border-earth-200 min-h-[600px]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}

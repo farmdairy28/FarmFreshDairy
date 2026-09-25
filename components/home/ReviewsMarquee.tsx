@@ -3,20 +3,21 @@
 import React from 'react';
 import { Star, CheckCircle2, Quote, Sparkles, MapPin } from 'lucide-react';
 import { Testimonial } from '@/lib/types';
+import { INITIAL_TESTIMONIALS } from '@/lib/supabase/mock-data';
 
 interface ReviewsMarqueeProps {
   reviews?: Testimonial[];
 }
 
 export function ReviewsMarquee({ reviews = [] }: ReviewsMarqueeProps) {
-  // Ensure we have reviews to display
-  if (!reviews || reviews.length === 0) return null;
+  // Provide static SSR fallback array so container is never 0px tall or null
+  const displayReviews = reviews && reviews.length > 0 ? reviews : INITIAL_TESTIMONIALS;
 
   // Duplicate the array for a seamless, continuous infinite loop
-  const marqueeItems = [...reviews, ...reviews, ...reviews];
+  const marqueeItems = [...displayReviews, ...displayReviews, ...displayReviews];
 
   return (
-    <section className="py-20 bg-gradient-to-b from-cream-50 via-white to-cream-100 border-t border-earth-200 overflow-hidden relative">
+    <section className="py-20 bg-gradient-to-b from-cream-50 via-white to-cream-100 border-t border-earth-200 overflow-hidden relative min-h-[500px]">
       
       {/* Section Header */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">

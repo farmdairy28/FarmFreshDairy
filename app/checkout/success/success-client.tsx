@@ -428,7 +428,7 @@ Delivery Slot: ${slot}`;
           href={whatsappUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-sm hover:shadow"
+          className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-sm hover:shadow"
         >
           <MessageCircle className="w-4 h-4 fill-current" />
           WhatsApp Dispatch Desk ({WHATSAPP_DISPLAY})

@@ -3,11 +3,14 @@
 import React from 'react';
 import { Testimonial } from '@/lib/types';
 import { CustomerReviews } from '@/components/reviews/CustomerReviews';
+import { INITIAL_TESTIMONIALS } from '@/lib/supabase/mock-data';
 
 export function TestimonialSection({ testimonials }: { testimonials: Testimonial[] }) {
+  const displayReviews = testimonials && testimonials.length > 0 ? testimonials : INITIAL_TESTIMONIALS;
+
   return (
     <CustomerReviews
-      initialReviews={testimonials}
+      initialReviews={displayReviews}
       title="Kind Words From Our Customers"
       subtitle="Read verified reviews from families across Islamabad and share your own experience with Farm Fresh Dairy."
       eyebrow="COMMUNITY VOICE & REVIEWS"

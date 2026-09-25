@@ -13,7 +13,7 @@ interface LazyMapEmbedProps {
 export function LazyMapEmbed({
   src,
   title,
-  containerClassName = 'relative h-56 sm:h-64 rounded-2xl overflow-hidden border-2 border-emerald-500/30 shadow-lg bg-farm-950',
+  containerClassName = 'relative w-full h-[380px] min-h-[380px] rounded-2xl overflow-hidden border-2 border-emerald-500/30 shadow-lg bg-farm-950 block',
   badgeLabel = 'Chak Shahzad, Islamabad',
 }: LazyMapEmbedProps) {
   const containerRef = useRef<HTMLDivElement>(null);

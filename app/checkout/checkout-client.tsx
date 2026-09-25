@@ -488,7 +488,7 @@ export function CheckoutClient({ regions }: { regions: DeliveryRegion[] }) {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full flex items-center justify-center gap-2.5 py-4 rounded-full bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold text-sm uppercase tracking-wider transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+            className="w-full flex items-center justify-center gap-2.5 py-4 rounded-full bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white font-bold text-sm uppercase tracking-wider transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
           >
             {isSubmitting ? (
               <>

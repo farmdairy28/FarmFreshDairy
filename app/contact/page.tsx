@@ -92,7 +92,7 @@ export default function ContactPage() {
                   href="https://wa.me/923109361932?text=Hello%20Farm%20Fresh%20Dairy%2C%20I%20would%20like%20to%20order%20pure%20cow%20milk."
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full py-2.5 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm transition-colors mt-2"
+                  className="w-full py-2.5 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm transition-colors mt-2"
                 >
                   <MessageCircle className="w-4 h-4 fill-current" />
                   Chat on 0310-9361932
@@ -194,7 +194,7 @@ export default function ContactPage() {
                 href={SOCIAL_LINKS.googleMaps}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider transition-all shadow-sm"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold uppercase tracking-wider transition-all shadow-sm"
               >
                 <MapPin className="w-4 h-4" />
                 <span>Open in Google Maps</span>
@@ -214,7 +214,7 @@ export default function ContactPage() {
           <LazyMapEmbed
             src={SOCIAL_LINKS.openStreetMapEmbed}
             title="Farm Fresh Dairy OpenStreetMap Location"
-            containerClassName="relative w-full h-80 sm:h-96 rounded-2xl overflow-hidden border border-earth-200 shadow-inner bg-earth-100"
+            containerClassName="relative w-full h-[380px] min-h-[380px] rounded-2xl overflow-hidden border border-earth-200 shadow-inner bg-earth-100 block"
           />
 
           <div className="flex flex-col sm:flex-row items-center justify-between text-xs text-earth-500 font-mono gap-2 pt-2">
