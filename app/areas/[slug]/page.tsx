@@ -132,15 +132,15 @@ export default function AreaDeliveryPage({ params }: { params: { slug: string } 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Breadcrumb Trail */}
-        <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs font-mono text-earth-500 mb-8 flex-wrap">
+        <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs font-mono text-earth-600 mb-8 flex-wrap">
           <Link href="/" className="hover:text-farm-800 transition-colors">
             Home
           </Link>
-          <ChevronRight className="w-3.5 h-3.5 text-earth-400" />
+          <ChevronRight className="w-3.5 h-3.5 text-earth-500" />
           <Link href="/delivery" className="hover:text-farm-800 transition-colors">
             Delivery Areas
           </Link>
-          <ChevronRight className="w-3.5 h-3.5 text-earth-400" />
+          <ChevronRight className="w-3.5 h-3.5 text-earth-500" />
           <span className="text-farm-900 font-bold">{area.shortName}</span>
         </nav>
 
@@ -348,7 +348,7 @@ export default function AreaDeliveryPage({ params }: { params: { slug: string } 
                     {other.name}
                   </div>
                 </div>
-                <ChevronRight className="w-4 h-4 text-earth-400 group-hover:text-farm-700 transition-transform group-hover:translate-x-0.5" />
+                <ChevronRight className="w-4 h-4 text-earth-500 group-hover:text-farm-700 transition-transform group-hover:translate-x-0.5" />
               </Link>
             ))}
           </div>

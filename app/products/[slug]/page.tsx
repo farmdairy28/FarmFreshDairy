@@ -150,11 +150,11 @@ export default async function ProductDetailPage({ params }: { params: { slug: st
                   Rs. {product.price}
                 </span>
                 {product.compare_at_price && product.compare_at_price > product.price && (
-                  <span className="text-base text-earth-400 line-through font-mono">
+                  <span className="text-base text-earth-600 line-through font-mono">
                     Rs. {product.compare_at_price}
                   </span>
                 )}
-                <span className="text-xs text-earth-500 font-mono">
+                <span className="text-xs text-earth-700 font-mono">
                   / {product.unit}{product.weight_volume ? ` (${product.weight_volume})` : ''}
                 </span>
               </div>

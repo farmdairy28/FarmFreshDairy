@@ -235,7 +235,7 @@ export function CustomerReviews({
                             <Star key={i} className="w-4 h-4 fill-current" />
                           ))}
                         </div>
-                        <span className="text-[10px] font-mono text-earth-400">
+                        <span className="text-[10px] font-mono text-earth-600 font-medium">
                           Verified
                         </span>
                       </div>
@@ -275,7 +275,7 @@ export function CustomerReviews({
             {/* Close Button */}
             <button
               onClick={() => setIsModalOpen(false)}
-              className="absolute top-5 right-5 p-2 rounded-full text-earth-400 hover:text-earth-700 hover:bg-earth-100 transition-colors"
+              className="absolute top-5 right-5 p-2 rounded-full text-earth-600 hover:text-earth-900 hover:bg-earth-100 transition-colors"
               aria-label="Close review modal"
             >
               <X className="w-5 h-5" />

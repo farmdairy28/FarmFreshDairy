@@ -5,6 +5,7 @@ import { FarmFreshLogo } from './FarmFreshLogo';
 import { SOCIAL_LINKS } from '@/lib/constants';
 import { getProducts } from '@/lib/supabase/api';
 import { DELIVERY_AREAS } from '@/lib/seo/deliveryAreas';
+import { LazyMapEmbed } from '@/components/ui/LazyMapEmbed';
 
 export async function Footer() {
   const products = await getProducts();
@@ -67,9 +68,9 @@ export async function Footer() {
 
           {/* Quick Links */}
           <div className="space-y-4">
-            <h4 className="text-xs font-mono uppercase tracking-widest text-sky-400 font-semibold">
+            <h3 className="text-xs font-mono uppercase tracking-widest text-sky-400 font-semibold">
               Explore Farm
-            </h4>
+            </h3>
             <ul className="space-y-2.5 text-sm">
               <li>
                 <Link href="/about" className="hover:text-white transition-colors">
@@ -113,9 +114,9 @@ export async function Footer() {
 
           {/* Dynamic Fresh Products */}
           <div className="space-y-4">
-            <h4 className="text-xs font-mono uppercase tracking-widest text-sky-400 font-semibold">
+            <h3 className="text-xs font-mono uppercase tracking-widest text-sky-400 font-semibold">
               Fresh Products
-            </h4>
+            </h3>
             <ul className="space-y-2.5 text-sm text-sky-200/90">
               {displayProducts.length > 0 ? (
                 displayProducts.map((p) => (
@@ -137,9 +138,9 @@ export async function Footer() {
 
           {/* Contact Details */}
           <div className="space-y-4">
-            <h4 className="text-xs font-mono uppercase tracking-widest text-sky-400 font-semibold">
+            <h3 className="text-xs font-mono uppercase tracking-widest text-sky-400 font-semibold">
               Order & Helpline Desk
-            </h4>
+            </h3>
             <ul className="space-y-3 text-sm text-sky-200/90">
               <li className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-sky-400 shrink-0 mt-0.5" />
@@ -151,7 +152,7 @@ export async function Footer() {
                   title="View Farm Location on Google Maps"
                 >
                   <span>Shahzad Town / Chak Shahzad, Islamabad</span>
-                  <span className="text-[10px] font-mono font-bold text-emerald-400 bg-emerald-500/20 px-1.5 py-0.5 rounded group-hover:bg-emerald-500/30">
+                  <span className="text-[10px] font-mono font-bold text-emerald-300 bg-emerald-950/80 border border-emerald-500/40 px-1.5 py-0.5 rounded group-hover:bg-emerald-900/80">
                     Map ↗
                   </span>
                 </a>
@@ -189,15 +190,24 @@ export async function Footer() {
                 rel="noopener noreferrer"
                 className="group block relative rounded-2xl overflow-hidden border border-farm-700 hover:border-emerald-400/80 bg-farm-950/60 shadow-md transition-all hover:shadow-emerald-900/30"
               >
-                <div className="relative h-28 w-full overflow-hidden bg-earth-900">
-                  <iframe
-                    title="Farm Location Mini Map"
-                    src={SOCIAL_LINKS.openStreetMapEmbed}
-                    className="w-full h-full pointer-events-none opacity-80 group-hover:opacity-100 transition-opacity"
-                    style={{ border: 0 }}
-                    loading="lazy"
-                  />
+                <div className="relative h-28 w-full overflow-hidden bg-earth-900 flex items-center justify-center">
+                  {/* Stylized Vector Map Graphic */}
+                  <svg className="absolute inset-0 w-full h-full opacity-30 pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                      <pattern id="footer-map-grid" width="24" height="24" patternUnits="userSpaceOnUse">
+                        <path d="M 24 0 L 0 0 0 24" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-emerald-500" />
+                      </pattern>
+                    </defs>
+                    <rect width="100%" height="100%" fill="url(#footer-map-grid)" />
+                    <path d="M -10 60 Q 60 40 120 70 T 260 50" fill="none" stroke="#10b981" strokeWidth="2.5" opacity="0.6" />
+                    <path d="M 40 -10 Q 70 50 140 120" fill="none" stroke="#38bdf8" strokeWidth="1.5" opacity="0.4" />
+                  </svg>
                   <div className="absolute inset-0 bg-gradient-to-t from-farm-950 via-transparent to-transparent pointer-events-none" />
+                  <div className="relative z-10 flex flex-col items-center gap-1">
+                    <div className="w-8 h-8 rounded-full bg-emerald-500/20 border border-emerald-400/50 flex items-center justify-center shadow-lg">
+                      <MapPin className="w-4 h-4 text-emerald-400 animate-bounce" />
+                    </div>
+                  </div>
                   <div className="absolute top-2 left-2 bg-farm-950/90 backdrop-blur-xs text-[10px] font-mono text-emerald-300 font-bold px-2 py-0.5 rounded-full border border-emerald-500/40 flex items-center gap-1.5 shadow-xs">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
                     <span>Farm Hub</span>
@@ -207,7 +217,7 @@ export async function Footer() {
                   <div className="text-[11px] text-sky-100 font-medium truncate">
                     Chak Shahzad, Islamabad
                   </div>
-                  <span className="text-[10px] font-mono font-bold text-emerald-400 group-hover:text-emerald-300 flex items-center gap-1 shrink-0">
+                  <span className="text-[10px] font-mono font-bold text-emerald-300 bg-emerald-950/80 border border-emerald-500/40 px-1.5 py-0.5 rounded group-hover:bg-emerald-900/80 flex items-center gap-1 shrink-0">
                     Open Map ↗
                   </span>
                 </div>
@@ -254,20 +264,12 @@ export async function Footer() {
               </div>
             </div>
 
-            {/* Interactive OpenStreetMap Frame */}
-            <div className="lg:col-span-7 relative h-56 sm:h-64 rounded-2xl overflow-hidden border-2 border-emerald-500/30 shadow-lg bg-farm-950">
-              <iframe
-                title="Footer OpenStreetMap Interactive Location"
+            {/* Lazy Interactive OpenStreetMap Frame */}
+            <div className="lg:col-span-7">
+              <LazyMapEmbed
                 src={SOCIAL_LINKS.openStreetMapEmbed}
-                width="100%"
-                height="100%"
-                style={{ border: 0 }}
-                loading="lazy"
+                title="Footer OpenStreetMap Interactive Location"
               />
-              <div className="absolute top-3 right-3 bg-farm-950/85 backdrop-blur-sm text-[10px] font-mono text-sky-200 px-2.5 py-1 rounded-lg border border-farm-700 flex items-center gap-1.5 shadow-sm pointer-events-none">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span>Chak Shahzad, Islamabad</span>
-              </div>
             </div>
 
           </div>
@@ -276,10 +278,10 @@ export async function Footer() {
         {/* Hyper-Local SEO Delivery Area Links */}
         <div className="py-8 border-t border-farm-800">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-            <h4 className="text-xs font-mono uppercase tracking-wider text-sky-400 font-semibold flex items-center gap-1.5">
+            <h3 className="text-xs font-mono uppercase tracking-wider text-sky-400 font-semibold flex items-center gap-1.5">
               <MapPin className="w-3.5 h-3.5 text-emerald-400" />
               <span>Doorstep Milk Delivery Areas in Islamabad &amp; Rawalpindi</span>
-            </h4>
+            </h3>
             <Link
               href="/delivery"
               className="text-xs font-mono text-emerald-400 hover:text-emerald-300 font-semibold transition-colors"
@@ -296,7 +298,7 @@ export async function Footer() {
               >
                 <span>Milk Delivery in {area.shortName}</span>
                 {area.deliveryFee.includes('FREE') && (
-                  <span className="text-[10px] font-mono font-bold text-emerald-400 bg-emerald-500/20 px-1.5 py-0.5 rounded">
+                  <span className="text-[10px] font-mono font-bold text-emerald-300 bg-emerald-950/80 border border-emerald-500/40 px-1.5 py-0.5 rounded">
                     FREE
                   </span>
                 )}

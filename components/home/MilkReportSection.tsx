@@ -162,9 +162,9 @@ export function MilkReportSection() {
                       01
                     </div>
                     <div>
-                      <h4 className="font-serif font-bold text-earth-900 text-lg">
+                      <h3 className="font-serif font-bold text-earth-900 text-lg">
                         Milk Composition & Density
-                      </h4>
+                      </h3>
                       <p className="text-xs text-earth-500 font-mono">
                         Standard Physical & Chemical Parameters
                       </p>
@@ -220,9 +220,9 @@ export function MilkReportSection() {
                       02
                     </div>
                     <div>
-                      <h4 className="font-serif font-bold text-earth-900 text-lg">
+                      <h3 className="font-serif font-bold text-earth-900 text-lg">
                         Detection of Adulterants
-                      </h4>
+                      </h3>
                       <p className="text-xs text-earth-500 font-mono">
                         8-Point Chemical & Contaminant Screen
                       </p>

@@ -2,6 +2,7 @@ import React from 'react';
 import { MapPin, Phone, Mail, Clock, MessageCircle, ShieldCheck, Facebook, Instagram } from 'lucide-react';
 import { ContactForm } from '@/components/contact/ContactForm';
 import { SOCIAL_LINKS } from '@/lib/constants';
+import { LazyMapEmbed } from '@/components/ui/LazyMapEmbed';
 
 import { Metadata } from 'next';
 
@@ -210,16 +211,11 @@ export default function ContactPage() {
           </div>
 
           {/* OpenStreetMap Free Interactive Embed Frame */}
-          <div className="relative w-full h-80 sm:h-96 rounded-2xl overflow-hidden border border-earth-200 shadow-inner bg-earth-100">
-            <iframe
-              title="Farm Fresh Dairy OpenStreetMap Location"
-              width="100%"
-              height="100%"
-              style={{ border: 0 }}
-              loading="lazy"
-              src={SOCIAL_LINKS.openStreetMapEmbed}
-            />
-          </div>
+          <LazyMapEmbed
+            src={SOCIAL_LINKS.openStreetMapEmbed}
+            title="Farm Fresh Dairy OpenStreetMap Location"
+            containerClassName="relative w-full h-80 sm:h-96 rounded-2xl overflow-hidden border border-earth-200 shadow-inner bg-earth-100"
+          />
 
           <div className="flex flex-col sm:flex-row items-center justify-between text-xs text-earth-500 font-mono gap-2 pt-2">
             <div className="flex items-center gap-2 text-earth-700">
@@ -230,7 +226,7 @@ export default function ContactPage() {
               href="https://www.openstreetmap.org/copyright"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-earth-400 hover:text-earth-600 underline"
+              className="text-earth-600 hover:text-earth-800 underline"
             >
               © OpenStreetMap contributors
             </a>

@@ -76,12 +76,12 @@ export function ProductCard({ product }: { product: Product }) {
               {formattedPrice}
             </span>
             {formattedComparePrice && (
-              <span className="text-xs text-earth-400 line-through font-mono">
+              <span className="text-xs text-earth-600 line-through font-mono">
                 {formattedComparePrice}
               </span>
             )}
           </div>
-          <span className="text-[10px] text-earth-500 font-mono">
+          <span className="text-[10px] text-earth-700 font-mono">
             / {product.unit || 'litre'}
           </span>
         </div>

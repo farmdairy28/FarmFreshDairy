@@ -44,7 +44,7 @@ export function ProcessJourney({ steps }: { steps: ProcessStep[] }) {
                   <div className="flex items-start gap-5">
                     <span
                       className={`font-serif text-3xl font-bold transition-colors ${
-                        isCurrent ? 'text-farm-700' : 'text-earth-400'
+                        isCurrent ? 'text-farm-700' : 'text-earth-600'
                       }`}
                     >
                       {step.step_number}

@@ -15,7 +15,7 @@ export function BrandMarquee() {
   ];
 
   return (
-    <div className="w-full max-w-full py-6 bg-farm-900 text-cream-100 overflow-hidden border-y border-farm-800 select-none">
+    <div className="w-full max-w-full h-[74px] min-h-[74px] py-6 bg-farm-900 text-cream-100 overflow-hidden border-y border-farm-800 select-none flex items-center">
       <div className="flex whitespace-nowrap animate-marquee w-max">
         {[...items, ...items, ...items, ...items].map((text, idx) => (
           <div key={idx} className="flex items-center mx-6 gap-6">

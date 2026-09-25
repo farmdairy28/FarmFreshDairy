@@ -41,7 +41,7 @@ export function ProductFilterControls({ categories }: { categories: Category[] }
       <form onSubmit={handleSearchSubmit} className="grid grid-cols-1 md:grid-cols-12 gap-4">
         {/* Search Input */}
         <div className="md:col-span-6 relative">
-          <Search className="w-4 h-4 text-earth-400 absolute left-4 top-3.5" />
+          <Search className="w-4 h-4 text-earth-500 absolute left-4 top-3.5" />
           <input
             type="text"
             value={searchTerm}

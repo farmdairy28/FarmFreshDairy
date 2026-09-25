@@ -25,7 +25,7 @@ export default function CartPage() {
 
         {items.length === 0 ? (
           <div className="text-center py-20 bg-cream-200/50 rounded-3xl border border-earth-200 space-y-4 max-w-xl mx-auto">
-            <div className="w-16 h-16 rounded-full bg-cream-100 text-earth-400 mx-auto flex items-center justify-center">
+            <div className="w-16 h-16 rounded-full bg-cream-100 text-earth-600 mx-auto flex items-center justify-center">
               <ShoppingBag className="w-8 h-8" />
             </div>
             <h2 className="font-serif text-2xl font-bold text-earth-900">
@@ -64,7 +64,7 @@ export default function CartPage() {
                       <h3 className="font-serif font-bold text-lg text-earth-900">
                         {product.name}
                       </h3>
-                      <div className="text-xs font-mono text-earth-500">
+                      <div className="text-xs font-mono text-earth-700">
                         {product.currency} {product.price} / {product.unit} ({product.weight_volume})
                       </div>
                     </div>
@@ -75,6 +75,7 @@ export default function CartPage() {
                       <button
                         onClick={() => updateQuantity(product.id, quantity - 1)}
                         className="p-2 hover:text-farm-700 transition-colors"
+                        aria-label="Decrease quantity"
                       >
                         <Minus className="w-4 h-4" />
                       </button>
@@ -84,6 +85,7 @@ export default function CartPage() {
                       <button
                         onClick={() => updateQuantity(product.id, quantity + 1)}
                         className="p-2 hover:text-farm-700 transition-colors"
+                        aria-label="Increase quantity"
                       >
                         <Plus className="w-4 h-4" />
                       </button>
@@ -97,7 +99,8 @@ export default function CartPage() {
 
                     <button
                       onClick={() => removeFromCart(product.id)}
-                      className="p-2 text-earth-400 hover:text-red-600 transition-colors"
+                      className="p-2 text-earth-600 hover:text-red-600 transition-colors"
+                      aria-label={`Remove ${product.name} from cart`}
                     >
                       <Trash2 className="w-5 h-5" />
                     </button>

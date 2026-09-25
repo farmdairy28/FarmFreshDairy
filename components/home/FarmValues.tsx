@@ -59,7 +59,7 @@ export function FarmValues({ values }: { values: FarmValue[] }) {
                 </p>
               </div>
 
-              <div className="pt-6 mt-6 border-t border-earth-200/60 flex items-center text-xs font-mono uppercase tracking-wider text-earth-400 font-semibold group-hover:text-farm-700 transition-colors">
+              <div className="pt-6 mt-6 border-t border-earth-200/60 flex items-center text-xs font-mono uppercase tracking-wider text-earth-600 font-semibold group-hover:text-farm-700 transition-colors">
                 <span>Pillars of Excellence</span>
               </div>
             </div>

@@ -22,9 +22,9 @@ export function FloatingContactWidget() {
                 <MessageCircle className="w-4 h-4 fill-current" />
               </div>
               <div>
-                <h4 className="font-serif font-bold text-sm text-earth-900 leading-tight">
+                <p className="font-serif font-bold text-sm text-earth-900 leading-tight">
                   Farm Fresh Dairy
-                </h4>
+                </p>
                 <span className="text-[10px] text-emerald-600 font-mono font-semibold flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                   Quick Order Desk Online
@@ -33,7 +33,7 @@ export function FloatingContactWidget() {
             </div>
             <button
               onClick={() => setIsOpen(false)}
-              className="p-1 rounded-lg text-earth-400 hover:text-earth-700 hover:bg-earth-100 transition-colors"
+              className="p-1 rounded-lg text-earth-600 hover:text-earth-900 hover:bg-earth-100 transition-colors"
               aria-label="Close Quick Order Widget"
             >
               <X className="w-4 h-4" />

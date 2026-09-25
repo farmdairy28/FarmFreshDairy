@@ -85,16 +85,16 @@ export function CartDrawer() {
                   <div className="flex-1 flex flex-col justify-between">
                     <div className="flex items-start justify-between gap-2">
                       <div>
-                        <h4 className="font-serif font-bold text-sm text-earth-900 leading-tight">
+                        <h3 className="font-serif font-bold text-sm text-earth-900 leading-tight">
                           {product.name}
-                        </h4>
+                        </h3>
                         <span className="text-[10px] font-mono text-farm-700 font-bold uppercase">
                           {product.currency} {product.price} / {product.unit}
                         </span>
                       </div>
                       <button
                         onClick={() => removeFromCart(product.id)}
-                        className="text-earth-400 hover:text-red-600 transition-colors p-1"
+                        className="text-earth-600 hover:text-red-600 transition-colors p-1"
                         aria-label="Remove product"
                       >
                         <Trash2 className="w-4 h-4" />

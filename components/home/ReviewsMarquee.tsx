@@ -50,13 +50,13 @@ export function ReviewsMarquee({ reviews = [] }: ReviewsMarqueeProps) {
       </div>
 
       {/* Marquee Strip Container */}
-      <div className="relative w-full overflow-hidden select-none pause-on-hover">
+      <div className="relative w-full overflow-hidden select-none pause-on-hover min-h-[250px] h-[250px]">
         {/* Left & Right Gradient Fade Masks */}
         <div className="pointer-events-none absolute inset-y-0 left-0 w-16 sm:w-32 bg-gradient-to-r from-cream-50 via-cream-50/80 to-transparent z-10"></div>
         <div className="pointer-events-none absolute inset-y-0 right-0 w-16 sm:w-32 bg-gradient-to-l from-cream-100 via-cream-100/80 to-transparent z-10"></div>
 
         {/* Continuous Scrolling Strip */}
-        <div className="animate-marquee-smooth py-4">
+        <div className="animate-marquee-smooth py-4 h-full flex items-center">
           {marqueeItems.map((review, idx) => (
             <div
               key={`${review.id}-${idx}`}
