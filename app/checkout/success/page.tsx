@@ -4,6 +4,10 @@ import { OrderSuccessClient } from './success-client';
 export const metadata = {
   title: 'Order Confirmed — Farm Fresh Dairy',
   description: 'Your morning doorstep milk delivery order has been successfully placed.',
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default function CheckoutSuccessPage() {

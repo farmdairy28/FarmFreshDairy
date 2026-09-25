@@ -1,7 +1,13 @@
 import React from 'react';
-import { Product } from '@/lib/types';
+import { Product, Testimonial } from '@/lib/types';
 
-export function ProductJsonLd({ product }: { product: Product }) {
+export function ProductJsonLd({
+  product,
+  testimonials,
+}: {
+  product: Product;
+  testimonials?: Testimonial[];
+}) {
   const siteUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://www.farmfreshdairyproducts.com').replace(/\/$/, '');
   const productUrl = `${siteUrl}/products/${product.slug}`;
   const imageList: string[] = [];
@@ -21,7 +27,13 @@ export function ProductJsonLd({ product }: { product: Product }) {
     imageList.push(`${siteUrl}/images/farm-cow.jpg`, `${siteUrl}/images/logo.png`);
   }
 
-  const schemaData = {
+  const activeReviews = (testimonials || []).filter((t) => t.is_active && t.rating);
+  const hasReviews = activeReviews.length > 0;
+  const avgRating = hasReviews
+    ? (activeReviews.reduce((sum, t) => sum + Number(t.rating), 0) / activeReviews.length).toFixed(1)
+    : null;
+
+  const schemaData: Record<string, any> = {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: product.name,
@@ -75,29 +87,30 @@ export function ProductJsonLd({ product }: { product: Product }) {
         },
       },
     },
-    aggregateRating: {
+  };
+
+  if (hasReviews && avgRating) {
+    schemaData.aggregateRating = {
       '@type': 'AggregateRating',
-      ratingValue: '4.9',
-      reviewCount: '128',
+      ratingValue: avgRating,
+      reviewCount: activeReviews.length.toString(),
       bestRating: '5',
       worstRating: '1',
-    },
-    review: [
-      {
-        '@type': 'Review',
-        reviewRating: {
-          '@type': 'Rating',
-          ratingValue: '5',
-          bestRating: '5',
-        },
-        author: {
-          '@type': 'Person',
-          name: 'Verified Customer',
-        },
-        reviewBody: 'Pure, fresh, and high-quality milk delivered reliably in Islamabad.',
+    };
+    schemaData.review = activeReviews.slice(0, 5).map((t) => ({
+      '@type': 'Review',
+      reviewRating: {
+        '@type': 'Rating',
+        ratingValue: t.rating.toString(),
+        bestRating: '5',
       },
-    ],
-  };
+      author: {
+        '@type': 'Person',
+        name: t.customer_name || 'Verified Customer',
+      },
+      reviewBody: t.review,
+    }));
+  }
 
   return (
     <script

@@ -5,6 +5,10 @@ import { CheckoutClient } from './checkout-client';
 export const metadata = {
   title: 'Checkout — Farm Fresh Dairy',
   description: 'Complete your fresh doorstep milk delivery order.',
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default async function CheckoutPage() {

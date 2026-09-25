@@ -47,7 +47,7 @@ export const metadata: Metadata = {
   ],
   metadataBase: new URL(siteUrl),
   alternates: {
-    canonical: siteUrl,
+    canonical: '/',
   },
   icons: {
     icon: [
@@ -103,6 +103,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`scroll-smooth ${inter.variable} ${playfair.variable}`}>
+      <head>
+        <link rel="preconnect" href="https://images.unsplash.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://images.unsplash.com" />
+      </head>
       <body className="min-h-screen flex flex-col antialiased font-sans bg-cream-100 text-earth-900 selection:bg-farm-600 selection:text-white">
         <CartProvider>
           <JsonLd />

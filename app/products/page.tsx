@@ -28,6 +28,23 @@ export const metadata: Metadata = {
     title: 'Pure Dairy Products & Fresh Cow Milk in Islamabad | Farm Fresh Dairy',
     description: 'Order 100% pure cow milk (Rs. 250/L), authentic bilona desi ghee & fresh dahi in Islamabad. Free delivery in Shahzad Town, I-8, I-9.',
     url: 'https://www.farmfreshdairyproducts.com/products',
+    siteName: 'Farm Fresh Dairy Products Islamabad',
+    locale: 'en_PK',
+    type: 'website',
+    images: [
+      {
+        url: 'https://www.farmfreshdairyproducts.com/images/farm-cow.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Farm Fresh Dairy Products - Islamabad & Rawalpindi',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Pure Dairy Products & Fresh Cow Milk in Islamabad | Farm Fresh Dairy',
+    description: 'Order 100% pure cow milk (Rs. 250/L), authentic bilona desi ghee & fresh dahi in Islamabad. Free delivery in Shahzad Town, I-8, I-9.',
+    images: ['https://www.farmfreshdairyproducts.com/images/farm-cow.jpg'],
   },
 };
 

@@ -23,6 +23,23 @@ export const metadata: Metadata = {
     title: 'Hygienic Cow Milk Process — Pasture to Doorstep | Farm Fresh Dairy Islamabad',
     description: 'Our untouched 6-step journey preserving natural milk cream and nutrients. Morning delivery in Islamabad.',
     url: 'https://www.farmfreshdairyproducts.com/process',
+    siteName: 'Farm Fresh Dairy Products Islamabad',
+    locale: 'en_PK',
+    type: 'website',
+    images: [
+      {
+        url: 'https://www.farmfreshdairyproducts.com/images/dairy-cow-care.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Hygienic Cow Milk Milking & Cold Chain Process Islamabad',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Hygienic Cow Milk Process — Pasture to Doorstep | Farm Fresh Dairy Islamabad',
+    description: 'Our untouched 6-step journey preserving natural milk cream and nutrients. Morning delivery in Islamabad.',
+    images: ['https://www.farmfreshdairyproducts.com/images/dairy-cow-care.jpg'],
   },
 };
 

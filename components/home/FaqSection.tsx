@@ -36,14 +36,12 @@ const faqs: FAQItem[] = [
   },
 ];
 
-export function FaqSection() {
+export function FaqSection({ includeSchema = true }: { includeSchema?: boolean } = {}) {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   const toggle = (idx: number) => {
     setOpenIndex(openIndex === idx ? null : idx);
   };
-
-  const siteUrl = (typeof window !== 'undefined' ? window.location.origin : 'https://www.farmfreshdairyproducts.com').replace(/\/$/, '');
 
   const faqSchema = {
     '@context': 'https://schema.org',
@@ -61,10 +59,12 @@ export function FaqSection() {
   return (
     <section className="py-20 bg-cream-100 border-t border-earth-200/80">
       {/* Schema.org FAQPage Structured Data */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-      />
+      {includeSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
+      )}
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         

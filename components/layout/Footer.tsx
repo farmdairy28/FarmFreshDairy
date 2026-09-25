@@ -4,6 +4,7 @@ import { Phone, Mail, MapPin, MessageCircle, ShieldCheck, Facebook, Instagram, S
 import { FarmFreshLogo } from './FarmFreshLogo';
 import { SOCIAL_LINKS } from '@/lib/constants';
 import { getProducts } from '@/lib/supabase/api';
+import { DELIVERY_AREAS } from '@/lib/seo/deliveryAreas';
 
 export async function Footer() {
   const products = await getProducts();
@@ -269,6 +270,38 @@ export async function Footer() {
               </div>
             </div>
 
+          </div>
+        </div>
+
+        {/* Hyper-Local SEO Delivery Area Links */}
+        <div className="py-8 border-t border-farm-800">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+            <h4 className="text-xs font-mono uppercase tracking-wider text-sky-400 font-semibold flex items-center gap-1.5">
+              <MapPin className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Doorstep Milk Delivery Areas in Islamabad &amp; Rawalpindi</span>
+            </h4>
+            <Link
+              href="/delivery"
+              className="text-xs font-mono text-emerald-400 hover:text-emerald-300 font-semibold transition-colors"
+            >
+              View Route Coverage Schedule →
+            </Link>
+          </div>
+          <div className="flex flex-wrap gap-2 text-xs">
+            {DELIVERY_AREAS.map((area) => (
+              <Link
+                key={area.slug}
+                href={`/areas/${area.slug}`}
+                className="px-3 py-1.5 rounded-xl bg-farm-800/80 hover:bg-farm-700 text-sky-200 hover:text-white border border-farm-700/60 transition-all flex items-center gap-1.5"
+              >
+                <span>Milk Delivery in {area.shortName}</span>
+                {area.deliveryFee.includes('FREE') && (
+                  <span className="text-[10px] font-mono font-bold text-emerald-400 bg-emerald-500/20 px-1.5 py-0.5 rounded">
+                    FREE
+                  </span>
+                )}
+              </Link>
+            ))}
           </div>
         </div>
 

@@ -24,6 +24,23 @@ export const metadata: Metadata = {
     title: 'Fresh Milk Home Delivery Islamabad — Coverage & Timings | Farm Fresh Dairy',
     description: 'Chilled doorstep cow milk delivery in Islamabad. Free in Shahzad Town, I-8 & I-9. Morning (6-9 AM) & evening slots.',
     url: 'https://www.farmfreshdairyproducts.com/delivery',
+    siteName: 'Farm Fresh Dairy Products Islamabad',
+    locale: 'en_PK',
+    type: 'website',
+    images: [
+      {
+        url: 'https://www.farmfreshdairyproducts.com/images/farm-cow.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Farm Fresh Dairy Home Delivery Islamabad Coverage',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Fresh Milk Home Delivery Islamabad — Coverage & Timings | Farm Fresh Dairy',
+    description: 'Chilled doorstep cow milk delivery in Islamabad. Free in Shahzad Town, I-8 & I-9. Morning (6-9 AM) & evening slots.',
+    images: ['https://www.farmfreshdairyproducts.com/images/farm-cow.jpg'],
   },
 };
 

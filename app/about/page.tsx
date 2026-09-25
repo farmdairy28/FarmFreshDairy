@@ -24,6 +24,23 @@ export const metadata: Metadata = {
     title: 'About Our Pasture Dairy Farm in Islamabad | Farm Fresh Dairy',
     description: '100% pure cow milk from happy pasture-raised cows in Islamabad. Certified chemical-free dairy.',
     url: 'https://www.farmfreshdairyproducts.com/about',
+    siteName: 'Farm Fresh Dairy Products Islamabad',
+    locale: 'en_PK',
+    type: 'website',
+    images: [
+      {
+        url: 'https://www.farmfreshdairyproducts.com/images/dairy-cow-care.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'About Farm Fresh Dairy - Ethical Pasture Farm in Islamabad',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'About Our Pasture Dairy Farm in Islamabad | Farm Fresh Dairy',
+    description: '100% pure cow milk from happy pasture-raised cows in Islamabad. Certified chemical-free dairy.',
+    images: ['https://www.farmfreshdairyproducts.com/images/dairy-cow-care.jpg'],
   },
 };
 
@@ -58,6 +75,7 @@ export default async function AboutPage() {
               alt="Pasture cows grazing freely in open sunshine - Farm Fresh Dairy Islamabad"
               fill
               className="object-cover"
+              sizes="(max-width: 768px) 100vw, 33vw"
             />
           </div>
           <div className="relative aspect-[4/3] rounded-3xl overflow-hidden shadow-soft border border-earth-200">
@@ -66,6 +84,7 @@ export default async function AboutPage() {
               alt="Farm Fresh pure healthy cow providing unadulterated milk in Islamabad"
               fill
               className="object-cover"
+              sizes="(max-width: 768px) 100vw, 33vw"
             />
           </div>
           <div className="relative aspect-[4/3] rounded-3xl overflow-hidden shadow-soft border border-earth-200">
@@ -74,6 +93,7 @@ export default async function AboutPage() {
               alt="Pure raw cow milk glass bottle delivered fresh in Islamabad"
               fill
               className="object-cover"
+              sizes="(max-width: 768px) 100vw, 33vw"
             />
           </div>
         </div>

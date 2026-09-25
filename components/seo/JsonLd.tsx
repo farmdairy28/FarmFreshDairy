@@ -5,12 +5,11 @@ export function JsonLd() {
   const siteUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://www.farmfreshdairyproducts.com').replace(/\/$/, '');
 
   const organizationData = {
-    '@context': 'https://schema.org',
     '@type': ['DairyStore', 'LocalBusiness', 'FoodEstablishment'],
     '@id': `${siteUrl}/#organization`,
     name: 'Farm Fresh Dairy Products Islamabad',
     alternateName: 'Farm Fresh Dairy',
-    url: siteUrl,
+    url: `${siteUrl}/`,
     logo: `${siteUrl}/images/logo.png`,
     image: `${siteUrl}/images/farm-cow.jpg`,
     description: 'Farm Fresh Dairy Products delivers 100% pure, unadulterated raw cow milk, organic desi ghee, and pure dairy products across Islamabad and Rawalpindi. Free delivery in Shahzad Town, I-8, and I-9.',
@@ -88,184 +87,66 @@ export function JsonLd() {
       SOCIAL_LINKS.googleMaps,
       SOCIAL_LINKS.openStreetMap,
     ],
-    hasOfferCatalog: {
-      '@type': 'OfferCatalog',
-      name: 'Fresh Dairy Products & Cow Milk',
-      itemListElement: [
-        {
-          '@type': 'Offer',
-          itemOffered: {
-            '@type': 'Product',
-            name: '100% Pure Fresh Cow Milk',
-            image: [
-              'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=1000&q=80',
-              `${siteUrl}/images/farm-cow.jpg`,
-              `${siteUrl}/images/logo.png`,
-            ],
-            description: 'Raw unpasteurized 100% pure cow milk delivered chilled in Islamabad. Free from water dilution, chemical preservatives, or urea.',
-            sku: 'FFD-COW-MILK',
-            mpn: 'FFD-COW-MILK-001',
-            brand: {
-              '@type': 'Brand',
-              name: 'Farm Fresh Dairy Products',
-            },
-            offers: {
-              '@type': 'Offer',
-              url: `${siteUrl}/products/pure-farm-fresh-whole-milk`,
-              price: 250,
-              priceCurrency: 'PKR',
-              priceValidUntil: '2027-12-31',
-              itemCondition: 'https://schema.org/NewCondition',
-              availability: 'https://schema.org/InStock',
-              seller: {
-                '@type': 'Organization',
-                name: 'Farm Fresh Dairy Products Islamabad',
-              },
-              hasMerchantReturnPolicy: {
-                '@type': 'MerchantReturnPolicy',
-                applicableCountry: 'PK',
-                returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
-                merchantReturnDays: 1,
-                returnMethod: 'https://schema.org/ReturnInStore',
-                returnFees: 'https://schema.org/FreeReturn',
-              },
-              shippingDetails: {
-                '@type': 'OfferShippingDetails',
-                shippingRate: {
-                  '@type': 'MonetaryAmount',
-                  value: '0',
-                  currency: 'PKR',
-                },
-                shippingDestination: {
-                  '@type': 'DefinedRegion',
-                  addressCountry: 'PK',
-                },
-                deliveryTime: {
-                  '@type': 'ShippingDeliveryTime',
-                  transitTime: {
-                    '@type': 'QuantitativeValue',
-                    minValue: 0,
-                    maxValue: 1,
-                    unitCode: 'd',
-                  },
-                },
-              },
-            },
-            aggregateRating: {
-              '@type': 'AggregateRating',
-              ratingValue: '4.9',
-              reviewCount: '128',
-              bestRating: '5',
-              worstRating: '1',
-            },
-            review: [
-              {
-                '@type': 'Review',
-                reviewRating: {
-                  '@type': 'Rating',
-                  ratingValue: '5',
-                  bestRating: '5',
-                },
-                author: {
-                  '@type': 'Person',
-                  name: 'Verified Customer',
-                },
-                reviewBody: 'Pure, fresh, and high-quality milk delivered reliably in Islamabad.',
-              },
-            ],
-          },
-        },
-        {
-          '@type': 'Offer',
-          itemOffered: {
-            '@type': 'Product',
-            name: 'Pure Desi Ghee (Bilona Method)',
-            image: [
-              'https://images.unsplash.com/photo-1589927986089-35812388d1f4?auto=format&fit=crop&w=1000&q=80',
-              `${siteUrl}/images/farm-cow.jpg`,
-              `${siteUrl}/images/logo.png`,
-            ],
-            description: 'Traditional slow-churned pure cow desi ghee with rich golden aroma.',
-            sku: 'FFD-DESI-GHEE',
-            mpn: 'FFD-DESI-GHEE-001',
-            brand: {
-              '@type': 'Brand',
-              name: 'Farm Fresh Dairy Products',
-            },
-            offers: {
-              '@type': 'Offer',
-              url: `${siteUrl}/products/grass-fed-pure-desi-ghee`,
-              price: 2800,
-              priceCurrency: 'PKR',
-              priceValidUntil: '2027-12-31',
-              itemCondition: 'https://schema.org/NewCondition',
-              availability: 'https://schema.org/InStock',
-              seller: {
-                '@type': 'Organization',
-                name: 'Farm Fresh Dairy Products Islamabad',
-              },
-              hasMerchantReturnPolicy: {
-                '@type': 'MerchantReturnPolicy',
-                applicableCountry: 'PK',
-                returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
-                merchantReturnDays: 1,
-                returnMethod: 'https://schema.org/ReturnInStore',
-                returnFees: 'https://schema.org/FreeReturn',
-              },
-              shippingDetails: {
-                '@type': 'OfferShippingDetails',
-                shippingRate: {
-                  '@type': 'MonetaryAmount',
-                  value: '0',
-                  currency: 'PKR',
-                },
-                shippingDestination: {
-                  '@type': 'DefinedRegion',
-                  addressCountry: 'PK',
-                },
-                deliveryTime: {
-                  '@type': 'ShippingDeliveryTime',
-                  transitTime: {
-                    '@type': 'QuantitativeValue',
-                    minValue: 0,
-                    maxValue: 1,
-                    unitCode: 'd',
-                  },
-                },
-              },
-            },
-            aggregateRating: {
-              '@type': 'AggregateRating',
-              ratingValue: '4.9',
-              reviewCount: '128',
-              bestRating: '5',
-              worstRating: '1',
-            },
-            review: [
-              {
-                '@type': 'Review',
-                reviewRating: {
-                  '@type': 'Rating',
-                  ratingValue: '5',
-                  bestRating: '5',
-                },
-                author: {
-                  '@type': 'Person',
-                  name: 'Verified Customer',
-                },
-                reviewBody: 'Exceptional golden pure desi ghee with authentic rich aroma.',
-              },
-            ],
-          },
-        },
-      ],
+    contactPoint: [
+      {
+        '@type': 'ContactPoint',
+        telephone: '+923109361932',
+        contactType: 'customer service',
+        areaServed: 'PK',
+        availableLanguage: ['en', 'ur'],
+        contactOption: 'TollFree',
+      },
+      {
+        '@type': 'ContactPoint',
+        telephone: '+923109361932',
+        contactType: 'orders',
+        areaServed: ['Islamabad', 'Rawalpindi'],
+        availableLanguage: ['en', 'ur'],
+      },
+    ],
+  };
+
+  const websiteData = {
+    '@type': 'WebSite',
+    '@id': `${siteUrl}/#website`,
+    url: `${siteUrl}/`,
+    name: 'Farm Fresh Dairy Products Islamabad',
+    description: '100% Pure Raw Cow Milk & Organic Dairy Delivery in Islamabad & Rawalpindi',
+    publisher: {
+      '@id': `${siteUrl}/#organization`,
     },
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: `${siteUrl}/products?search={search_term_string}`,
+      },
+      'query-input': 'required name=search_term_string',
+    },
+  };
+
+  const breadcrumbData = {
+    '@type': 'BreadcrumbList',
+    '@id': `${siteUrl}/#breadcrumb`,
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: `${siteUrl}/`,
+      },
+    ],
+  };
+
+  const schemaGraph = {
+    '@context': 'https://schema.org',
+    '@graph': [organizationData, websiteData, breadcrumbData],
   };
 
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationData) }}
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaGraph) }}
     />
   );
 }

@@ -77,7 +77,7 @@ export function ProcessJourney({ steps }: { steps: ProcessStep[] }) {
             <div className="relative aspect-[4/3] rounded-3xl overflow-hidden shadow-float border-4 border-cream-50 bg-earth-200">
               <Image
                 src={steps[activeStep]?.image_url || 'https://images.unsplash.com/photo-1500595046743-cd271d694d30?auto=format&fit=crop&w=1200&q=80'}
-                alt={steps[activeStep]?.title || 'Farm process step'}
+                alt={`${steps[activeStep]?.title || 'Hygienic Milking & Chilling Step'} - Farm Fresh Dairy Islamabad`}
                 fill
                 className="object-cover transition-all duration-500"
                 sizes="(max-width: 1024px) 100vw, 50vw"

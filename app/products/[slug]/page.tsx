@@ -15,7 +15,12 @@ export const revalidate = 0;
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
   const product = await getProductBySlug(params.slug);
-  if (!product) return { title: 'Product Not Found | Farm Fresh Dairy Islamabad' };
+  if (!product) {
+    return {
+      title: 'Product Not Found | Farm Fresh Dairy Islamabad',
+      robots: { index: false, follow: false },
+    };
+  }
 
   const siteUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://www.farmfreshdairyproducts.com').replace(/\/$/, '');
   const productUrl = `${siteUrl}/products/${product.slug}`;
@@ -78,7 +83,7 @@ export default async function ProductDetailPage({ params }: { params: { slug: st
   return (
     <div className="pt-32 pb-24 bg-cream-100 min-h-screen">
       {/* Schema.org Product & Breadcrumb Structured Data */}
-      <ProductJsonLd product={product} />
+      <ProductJsonLd product={product} testimonials={testimonials} />
       <BreadcrumbsJsonLd items={breadcrumbs} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

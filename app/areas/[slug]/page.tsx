@@ -319,7 +319,7 @@ export default function AreaDeliveryPage({ params }: { params: { slug: string } 
 
         {/* FAQ Section */}
         <div className="mb-16">
-          <FaqSection />
+          <FaqSection includeSchema={false} />
         </div>
 
         {/* Other Areas Navigation Grid for Internal Linking */}

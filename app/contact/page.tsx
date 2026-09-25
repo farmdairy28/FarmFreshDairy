@@ -21,6 +21,23 @@ export const metadata: Metadata = {
     title: 'Contact & Milk Order Helpline (0310-9361932) | Farm Fresh Dairy Islamabad',
     description: 'Direct WhatsApp and phone ordering desk. Daily morning milk delivery in Islamabad & Rawalpindi.',
     url: 'https://www.farmfreshdairyproducts.com/contact',
+    siteName: 'Farm Fresh Dairy Products Islamabad',
+    locale: 'en_PK',
+    type: 'website',
+    images: [
+      {
+        url: 'https://www.farmfreshdairyproducts.com/images/logo.png',
+        width: 1200,
+        height: 630,
+        alt: 'Farm Fresh Dairy Contact & Helpline Desk Islamabad',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Contact & Milk Order Helpline (0310-9361932) | Farm Fresh Dairy Islamabad',
+    description: 'Direct WhatsApp and phone ordering desk. Daily morning milk delivery in Islamabad & Rawalpindi.',
+    images: ['https://www.farmfreshdairyproducts.com/images/logo.png'],
   },
 };
 
