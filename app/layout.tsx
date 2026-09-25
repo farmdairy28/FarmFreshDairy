@@ -11,14 +11,14 @@ import { FloatingContactWidget } from '@/components/layout/FloatingContactWidget
 
 const inter = Inter({
   subsets: ['latin'],
-  display: 'optional',
+  display: 'swap',
   variable: '--font-sans',
   adjustFontFallback: true,
 });
 
 const playfair = Playfair_Display({
   subsets: ['latin'],
-  display: 'optional',
+  display: 'swap',
   variable: '--font-serif',
   adjustFontFallback: true,
 });

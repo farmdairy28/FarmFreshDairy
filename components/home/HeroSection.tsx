@@ -15,10 +15,10 @@ export function HeroSection({ data }: { data: HomepageHero }) {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-          
+
           {/* Text Content */}
           <div className="lg:col-span-7 space-y-6">
-            
+
             {/* Badges Bar */}
             <div className="flex flex-wrap items-center gap-2.5">
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-farm-800 text-white text-xs font-mono font-bold tracking-wider uppercase shadow-xs">
@@ -152,17 +152,17 @@ export function HeroSection({ data }: { data: HomepageHero }) {
 
           {/* Hero Image Showcase */}
           <div className="lg:col-span-5 relative">
-            <div className="relative aspect-[4/5] w-full rounded-3xl overflow-hidden shadow-float border-4 border-white bg-farm-100">
+            <div className="relative aspect-[4/5] rounded-3xl overflow-hidden shadow-float border-4 border-white bg-farm-100">
               <Image
                 src="https://images.unsplash.com/photo-1527153857715-3908f2bae5e8?auto=format&fit=crop&w=1200&q=80"
                 alt="Fresh pure cow milk delivery straight from pasture cows in Islamabad and Rawalpindi"
                 fill
                 priority
                 className="object-cover transition-transform duration-700 hover:scale-105"
-                sizes="(max-width: 640px) 92vw, (max-width: 1024px) 80vw, 45vw"
+                sizes="(max-width: 1024px) 100vw, 45vw"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-farm-950/70 via-transparent to-transparent"></div>
-              
+
               {/* Top Floating Badge */}
               <div className="absolute top-5 left-5 bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-2xl shadow-md border border-farm-200 flex items-center gap-2">
                 <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></div>
